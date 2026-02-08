@@ -99,13 +99,40 @@ class _AppBarLiveState extends State<AppBarLive> {
               ),
             ],
           ),
+
+          // Right Side: Search Field
+          if (widget.onSearch != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 250,
+                height: 40,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: kColorCardLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TextField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Search...",
+                    hintStyle: TextStyle(color: Colors.white38),
+                    prefixIcon: const Icon(Icons.search,
+                        color: Colors.white54, size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  onChanged: widget.onSearch,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-class SideCategoryMenu extends StatelessWidget {
+class SideCategoryMenu extends StatefulWidget {
   final List<CategoryModel> categories;
   final int selectedId;
   final Function(CategoryModel) onSelect;
@@ -118,44 +145,97 @@ class SideCategoryMenu extends StatelessWidget {
   });
 
   @override
+  State<SideCategoryMenu> createState() => _SideCategoryMenuState();
+}
+
+class _SideCategoryMenuState extends State<SideCategoryMenu> {
+  String _catSearch = "";
+
+  @override
   Widget build(BuildContext context) {
+    // Filter categories by search
+    final filteredCats = _catSearch.isEmpty
+        ? widget.categories
+        : widget.categories
+            .where((c) =>
+                c.categoryName
+                    ?.toLowerCase()
+                    .contains(_catSearch.toLowerCase()) ??
+                false)
+            .toList();
+
     return Container(
       width: 25.w,
       color: kColorPanel,
-      child: ListView.builder(
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isSelected = cat.categoryId == selectedId.toString();
-
-          return FocusableCard(
-            onTap: () => onSelect(cat),
-            scale: 1.02,
+      child: Column(
+        children: [
+          // Category Search Field
+          Padding(
+            padding: const EdgeInsets.all(12),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              color: isSelected ? kColorPrimary.withOpacity(0.2) : null,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      cat.categoryName ?? "Unknown",
-                      style: Get.textTheme.bodyLarge?.copyWith(
-                        color: isSelected ? kColorPrimary : kColorTextSecondary,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isSelected)
-                    const Icon(Icons.arrow_forward_ios,
-                        size: 14, color: kColorPrimary),
-                ],
+              height: 40,
+              decoration: BoxDecoration(
+                color: kColorCardLight,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: TextField(
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: "Search categories...",
+                  hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
+                  prefixIcon:
+                      Icon(Icons.search, color: Colors.white54, size: 18),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                ),
+                onChanged: (val) => setState(() => _catSearch = val),
               ),
             ),
-          );
-        },
+          ),
+          // Category List
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredCats.length,
+              itemBuilder: (context, index) {
+                final cat = filteredCats[index];
+                final isSelected =
+                    cat.categoryId == widget.selectedId.toString();
+
+                return FocusableCard(
+                  onTap: () => widget.onSelect(cat),
+                  scale: 1.02,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
+                    color: isSelected ? kColorPrimary.withOpacity(0.2) : null,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            cat.categoryName ?? "Unknown",
+                            style: Get.textTheme.bodyLarge?.copyWith(
+                              color: isSelected
+                                  ? kColorPrimary
+                                  : kColorTextSecondary,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(Icons.arrow_forward_ios,
+                              size: 14, color: kColorPrimary),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -245,7 +325,9 @@ class ListChannelItem extends StatelessWidget {
   final String? icon;
   final String? epg;
   final bool isFocus;
+  final bool isFavorite;
   final VoidCallback onTap;
+  final VoidCallback? onFavoriteToggle;
 
   const ListChannelItem({
     super.key,
@@ -254,6 +336,8 @@ class ListChannelItem extends StatelessWidget {
     this.epg,
     required this.onTap,
     this.isFocus = false,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
   });
 
   @override
@@ -322,6 +406,19 @@ class ListChannelItem extends StatelessWidget {
                 ],
               ),
             ),
+            // Favorite Icon
+            if (onFavoriteToggle != null)
+              IconButton(
+                focusNode: FocusNode(
+                    skipTraversal: true), // Prevent remote focus "trap"
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.yellow : Colors.white38,
+                  size: 22,
+                ),
+                onPressed: onFavoriteToggle,
+                splashRadius: 20,
+              ),
           ],
         ),
       ),

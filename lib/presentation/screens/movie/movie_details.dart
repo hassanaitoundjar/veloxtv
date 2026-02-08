@@ -62,7 +62,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 ),
               ),
             ),
-            
+
             // Content
             Padding(
               padding: getTvSafeMargins(context),
@@ -78,7 +78,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         height: 60.h,
                         decoration: kDecorCard.copyWith(
                           image: DecorationImage(
-                            image: CachedNetworkImageProvider(_movie.streamIcon ?? ""),
+                            image: CachedNetworkImageProvider(
+                                _movie.streamIcon ?? ""),
                             fit: BoxFit.cover,
                           ),
                           boxShadow: [
@@ -93,7 +94,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                   ),
                   const SizedBox(width: 40),
-                  
+
                   // Info
                   Expanded(
                     flex: 5,
@@ -107,80 +108,127 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Action Buttons
                         Row(
                           children: [
                             FocusableCard(
                               onTap: () {
                                 if (_detail != null) {
-                                  Get.toNamed(screenPlayer, arguments: _detail); 
+                                  Get.toNamed(screenPlayer, arguments: _detail);
                                 }
                               },
                               autoFocus: true,
                               scale: 1.05,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: kColorPrimary,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.play_arrow, color: Colors.white),
+                                    const Icon(Icons.play_arrow,
+                                        color: Colors.white),
                                     const SizedBox(width: 8),
-                                    Text("PLAY", style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                                    Text("PLAY",
+                                        style: Get.textTheme.titleMedium
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(width: 16),
-                            FocusableCard(
-                              onTap: () {
-                                // Add to favorites logic
-                                context.read<FavoritesCubit>().addMovie(_movie);
-                                Get.snackbar("Favorites", "Added to favorites", 
-                                  snackPosition: SnackPosition.BOTTOM, 
-                                  backgroundColor: kColorSuccess, 
-                                  colorText: Colors.white);
+                            BlocBuilder<FavoritesCubit, FavoritesState>(
+                              builder: (context, favState) {
+                                final isFav = favState is FavoritesSuccess &&
+                                    favState.movies.any(
+                                        (m) => m.streamId == _movie.streamId);
+                                return FocusableCard(
+                                  onTap: () {
+                                    if (isFav) {
+                                      context
+                                          .read<FavoritesCubit>()
+                                          .removeMovie(_movie.streamId ?? "");
+                                      Get.snackbar(
+                                          "Favorites", "Removed from favorites",
+                                          snackPosition: SnackPosition.BOTTOM,
+                                          backgroundColor: Colors.grey,
+                                          colorText: Colors.white);
+                                    } else {
+                                      context
+                                          .read<FavoritesCubit>()
+                                          .addMovie(_movie);
+                                      Get.snackbar(
+                                          "Favorites", "Added to favorites",
+                                          snackPosition: SnackPosition.BOTTOM,
+                                          backgroundColor: kColorSuccess,
+                                          colorText: Colors.white);
+                                    }
+                                  },
+                                  scale: 1.05,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: isFav
+                                          ? Colors.yellow.withOpacity(0.2)
+                                          : kColorCardLight,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: isFav
+                                          ? Border.all(
+                                              color: Colors.yellow, width: 2)
+                                          : null,
+                                    ),
+                                    child: Icon(
+                                      isFav
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color:
+                                          isFav ? Colors.yellow : Colors.white,
+                                    ),
+                                  ),
+                                );
                               },
-                              scale: 1.05,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: kColorCardLight,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(Icons.favorite_border, color: Colors.white),
-                              ),
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         if (_isLoading)
-                          LoadingAnimationWidget.staggeredDotsWave(color: kColorPrimary, size: 40)
+                          LoadingAnimationWidget.staggeredDotsWave(
+                              color: kColorPrimary, size: 40)
                         else if (_detail != null)
                           Expanded(
                             child: SingleChildScrollView(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildInfoRow("Rating", _detail!.info?.rating ?? "N/A"),
-                                  _buildInfoRow("Genre", _detail!.info?.genre ?? "N/A"),
-                                  _buildInfoRow("Released", _detail!.info?.releaseDate ?? "N/A"),
-                                  _buildInfoRow("Director", _detail!.info?.director ?? "N/A"),
-                                  _buildInfoRow("Cast", _detail!.info?.cast ?? "N/A"),
+                                  _buildInfoRow(
+                                      "Rating", _detail!.info?.rating ?? "N/A"),
+                                  _buildInfoRow(
+                                      "Genre", _detail!.info?.genre ?? "N/A"),
+                                  _buildInfoRow("Released",
+                                      _detail!.info?.releaseDate ?? "N/A"),
+                                  _buildInfoRow("Director",
+                                      _detail!.info?.director ?? "N/A"),
+                                  _buildInfoRow(
+                                      "Cast", _detail!.info?.cast ?? "N/A"),
                                   const SizedBox(height: 24),
                                   Text(
                                     "Plot",
-                                    style: Get.textTheme.titleMedium?.copyWith(color: kColorPrimary),
+                                    style: Get.textTheme.titleMedium
+                                        ?.copyWith(color: kColorPrimary),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     _detail!.info?.plot ?? "No plot available.",
-                                    style: Get.textTheme.bodyLarge?.copyWith(height: 1.5, color: kColorTextSecondary),
+                                    style: Get.textTheme.bodyLarge?.copyWith(
+                                        height: 1.5,
+                                        color: kColorTextSecondary),
                                   ),
                                 ],
                               ),
@@ -204,7 +252,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       child: RichText(
         text: TextSpan(
           text: "$label: ",
-          style: Get.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: kColorTextSecondary),
+          style: Get.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold, color: kColorTextSecondary),
           children: [
             TextSpan(
               text: value,

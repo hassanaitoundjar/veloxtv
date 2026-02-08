@@ -11,6 +11,7 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   CategoryModel? _selectedCategory;
   ChannelLive? _selectedChannel;
   Future<List<EpgModel>>? _epgFuture;
+  VlcPlayerController? _videoController;
   final _searchController = TextEditingController();
   String _searchQuery = "";
 
@@ -31,6 +32,41 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
     if (catState is LiveCatySuccess && catState.categories.isNotEmpty) {
       _selectCategory(catState.categories.first);
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _videoController?.stopRendererScanning();
+    _videoController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializePlayer(ChannelLive channel) async {
+    // Stop existing player if any
+    if (_videoController != null) {
+      await _videoController!.stop();
+      await _videoController!.dispose();
+      setState(() {
+        _videoController = null;
+      });
+    }
+
+    final user = await LocaleApi.getUser();
+    if (user == null || channel.streamId == null) return;
+
+    // Construct URL: http://url:port/username/password/streamId
+    final url =
+        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
+
+    _videoController = VlcPlayerController.network(
+      url,
+      hwAcc: HwAcc.full,
+      autoPlay: true,
+      options: VlcPlayerOptions(),
+    );
+
+    setState(() {});
   }
 
   void _selectCategory(CategoryModel category) {
@@ -235,29 +271,57 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                         child: Text("No channels"));
                                   }
 
-                                  return ListView.builder(
-                                    padding: const EdgeInsets.all(8),
-                                    itemCount: channels.length,
-                                    itemBuilder: (context, index) {
-                                      final channel = channels[index];
-                                      return ListChannelItem(
-                                        title: channel.name ??
-                                            "Channel ${channel.num}",
-                                        icon: channel.streamIcon,
-                                        epg: "No Program Info",
-                                        isFocus: _selectedChannel?.streamId ==
-                                            channel.streamId,
-                                        onTap: () {
-                                          setState(() {
-                                            _selectedChannel = channel;
-                                            if (channel.streamId != null) {
-                                              _epgFuture =
-                                                  IpTvApi.getEPGbyStreamId(
-                                                      channel.streamId!);
-                                            } else {
-                                              _epgFuture = null;
-                                            }
-                                          });
+                                  return BlocBuilder<FavoritesCubit,
+                                      FavoritesState>(
+                                    builder: (context, favState) {
+                                      final favoriteIds =
+                                          favState is FavoritesSuccess
+                                              ? favState.live
+                                                  .map((c) => c.streamId)
+                                                  .toSet()
+                                              : <String?>{};
+                                      return ListView.builder(
+                                        padding: const EdgeInsets.all(8),
+                                        itemCount: channels.length,
+                                        itemBuilder: (context, index) {
+                                          final channel = channels[index];
+                                          final isFav = favoriteIds
+                                              .contains(channel.streamId);
+                                          return ListChannelItem(
+                                            title: channel.name ??
+                                                "Channel ${channel.num}",
+                                            icon: channel.streamIcon,
+                                            epg: "No Program Info",
+                                            isFocus:
+                                                _selectedChannel?.streamId ==
+                                                    channel.streamId,
+                                            isFavorite: isFav,
+                                            onFavoriteToggle: () {
+                                              if (isFav) {
+                                                context
+                                                    .read<FavoritesCubit>()
+                                                    .removeLive(
+                                                        channel.streamId ?? "");
+                                              } else {
+                                                context
+                                                    .read<FavoritesCubit>()
+                                                    .addLive(channel);
+                                              }
+                                            },
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedChannel = channel;
+                                                if (channel.streamId != null) {
+                                                  _epgFuture =
+                                                      IpTvApi.getEPGbyStreamId(
+                                                          channel.streamId!);
+                                                  _initializePlayer(channel);
+                                                } else {
+                                                  _epgFuture = null;
+                                                }
+                                              });
+                                            },
+                                          );
                                         },
                                       );
                                     },
@@ -289,44 +353,59 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  if (_selectedChannel?.streamIcon != null &&
-                                      _selectedChannel!.streamIcon!.isNotEmpty)
-                                    SizedBox.expand(
-                                      child: Opacity(
-                                        opacity: 0.3,
-                                        child: CachedNetworkImage(
-                                          imageUrl:
-                                              _selectedChannel!.streamIcon!,
-                                          fit: BoxFit.cover,
-                                          errorWidget: (_, __, ___) =>
-                                              const Center(
-                                                  child: Icon(Icons.tv,
-                                                      size: 48,
-                                                      color: Colors.white24)),
+                                  if (_videoController != null)
+                                    VlcPlayer(
+                                      controller: _videoController!,
+                                      aspectRatio: 16 / 9,
+                                      placeholder: const Center(
+                                          child: CircularProgressIndicator()),
+                                    )
+                                  else ...[
+                                    if (_selectedChannel?.streamIcon != null &&
+                                        _selectedChannel!
+                                            .streamIcon!.isNotEmpty)
+                                      SizedBox.expand(
+                                        child: Opacity(
+                                          opacity: 0.3,
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                _selectedChannel!.streamIcon!,
+                                            fit: BoxFit.cover,
+                                            errorWidget: (_, __, ___) =>
+                                                const Center(
+                                                    child: Icon(Icons.tv,
+                                                        size: 48,
+                                                        color: Colors.white24)),
+                                          ),
                                         ),
                                       ),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          iconSize: 64,
+                                          icon: Icon(Icons.play_circle_fill,
+                                              color: kColorPrimary
+                                                  .withOpacity(0.8)),
+                                          onPressed: () {
+                                            if (_selectedChannel != null) {
+                                              // Double check if we should play here or fullscreen
+                                              // For now, full screen
+                                              Get.toNamed(screenPlayer,
+                                                  arguments: _selectedChannel);
+                                              // Stop mini player when going full screen?
+                                              _videoController?.pause();
+                                            }
+                                          },
+                                        ),
+                                        const SizedBox(height: 8),
+                                        const Text("Preview",
+                                            style: TextStyle(
+                                                color: Colors.white54)),
+                                      ],
                                     ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        iconSize: 64,
-                                        icon: Icon(Icons.play_circle_fill,
-                                            color:
-                                                kColorPrimary.withOpacity(0.8)),
-                                        onPressed: () {
-                                          if (_selectedChannel != null) {
-                                            Get.toNamed(screenPlayer,
-                                                arguments: _selectedChannel);
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(height: 8),
-                                      const Text("Preview",
-                                          style:
-                                              TextStyle(color: Colors.white54)),
-                                    ],
-                                  ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -454,10 +533,9 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                   final start = epg.start ?? "";
                                                   final end = epg.end ?? "";
                                                   final title =
-                                                      _decodeText(epg.title) ??
-                                                          "No Title";
+                                                      _decodeText(epg.title);
                                                   final desc = _decodeText(
-                                                      epg.description ?? "");
+                                                      epg.description);
 
                                                   // Check if decoding is needed (naive check or just try raw)
                                                   // Given azul_iptv didn't decode, we try raw.

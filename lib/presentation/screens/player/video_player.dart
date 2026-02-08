@@ -29,13 +29,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
     // Build URL based on content type
     if (args is ChannelLive) {
-      finalUrl = "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${args.streamId}";
+      finalUrl =
+          "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${args.streamId}";
     } else if (args is MovieDetail) {
-       final ext = args.movieData?.containerExtension ?? "mp4";
-       finalUrl = "${user.serverInfo!.serverUrl}/movie/${user.userInfo!.username}/${user.userInfo!.password}/${args.movieData!.streamId}.$ext";
+      final ext = args.movieData?.containerExtension ?? "mp4";
+      finalUrl =
+          "${user.serverInfo!.serverUrl}/movie/${user.userInfo!.username}/${user.userInfo!.password}/${args.movieData!.streamId}.$ext";
     } else if (args is Episode) {
-       final ext = args.containerExtension ?? "mp4";
-       finalUrl = "${user.serverInfo!.serverUrl}/series/${user.userInfo!.username}/${user.userInfo!.password}/${args.id}.$ext";
+      final ext = args.containerExtension ?? "mp4";
+      finalUrl =
+          "${user.serverInfo!.serverUrl}/series/${user.userInfo!.username}/${user.userInfo!.password}/${args.id}.$ext";
     }
 
     if (finalUrl.isNotEmpty) {
@@ -46,7 +49,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         autoPlay: true,
         options: VlcPlayerOptions(),
       );
-      
+
       _startHideTimer();
       setState(() {}); // Rebuild
     }
@@ -93,7 +96,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               aspectRatio: 16 / 9,
               placeholder: const Center(child: CircularProgressIndicator()),
             ),
-            
+
             // Controls Overlay
             if (_showControls)
               Container(
@@ -106,7 +109,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                            icon: const Icon(Icons.arrow_back,
+                                color: Colors.white, size: 30),
                             onPressed: () => Get.back(),
                           ),
                           const Spacer(),
@@ -115,11 +119,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       ),
                     ),
                     const Spacer(),
-                    
+
                     // Center Play/Pause (optional large icon)
-                    
+
                     const Spacer(),
-                    
+
                     // Bottom Controls
                     Padding(
                       padding: const EdgeInsets.all(32.0),
@@ -127,23 +131,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.fast_rewind, color: Colors.white, size: 36),
+                            icon: const Icon(Icons.fast_rewind,
+                                color: Colors.white, size: 36),
                             onPressed: () {
                               // Seek back
                               _startHideTimer();
                             },
                           ),
                           const SizedBox(width: 32),
-                          
                           FocusableCard(
                             onTap: () async {
-                              if (await _vlcViewController!.isPlaying() ?? false) {
+                              if (await _vlcViewController!.isPlaying() ??
+                                  false) {
                                 _vlcViewController!.pause();
                               } else {
                                 _vlcViewController!.play();
                               }
                               _startHideTimer();
-                              setState(() {}); 
+                              setState(() {});
                             },
                             autoFocus: true,
                             scale: 1.1,
@@ -151,16 +156,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               radius: 30,
                               backgroundColor: kColorPrimary,
                               child: Icon(
-                                (_vlcViewController!.value.isPlaying) ? Icons.pause : Icons.play_arrow,
+                                (_vlcViewController!.value.isPlaying)
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
                                 color: Colors.white,
                                 size: 30,
                               ),
                             ),
                           ),
-                          
                           const SizedBox(width: 32),
                           IconButton(
-                            icon: const Icon(Icons.fast_forward, color: Colors.white, size: 36),
+                            icon: const Icon(Icons.fast_forward,
+                                color: Colors.white, size: 36),
                             onPressed: () {
                               // Seek forward
                               _startHideTimer();

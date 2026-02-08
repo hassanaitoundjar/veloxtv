@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
                       color: kColorError,
                       onTap: () {
                         context.read<AuthBloc>().add(AuthLogout());
-                         Get.offAllNamed(screenSplash);
+                        Get.offAllNamed(screenSplash);
                       },
                     ),
                     SizedBox(height: 5.h),
@@ -55,7 +55,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Right Panel (Content)
             Expanded(
               flex: 2,
@@ -68,13 +68,17 @@ class SettingsScreen extends StatelessWidget {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Account Information", style: Get.textTheme.headlineMedium),
+                          Text("Account Information",
+                              style: Get.textTheme.headlineMedium),
                           const SizedBox(height: 20),
                           _buildInfoTile("Username", info.username ?? "-"),
                           _buildInfoTile("Status", info.status ?? "-"),
-                          _buildInfoTile("Expiry Date", info.expDate ?? "Unlimited"),
-                          _buildInfoTile("Active Connections", info.activeCons ?? "0"),
-                          _buildInfoTile("Max Connections", info.maxConnections ?? "1"),
+                          _buildInfoTile(
+                              "Expiry Date", info.expDate ?? "Unlimited"),
+                          _buildInfoTile(
+                              "Active Connections", info.activeCons ?? "0"),
+                          _buildInfoTile(
+                              "Max Connections", info.maxConnections ?? "1"),
                         ],
                       );
                     }
@@ -104,12 +108,16 @@ class SettingsScreen extends StatelessWidget {
         color: isSelected ? kColorPrimary.withOpacity(0.1) : null,
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? kColorPrimary : kColorTextSecondary, size: 24),
+            Icon(icon,
+                color: isSelected ? kColorPrimary : kColorTextSecondary,
+                size: 24),
             const SizedBox(width: 16),
             Text(
               title,
               style: TextStyle(
-                color: color == kColorError ? kColorError : (isSelected ? kColorPrimary : kColorTextSecondary),
+                color: color == kColorError
+                    ? kColorError
+                    : (isSelected ? kColorPrimary : kColorTextSecondary),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 16,
               ),
@@ -128,8 +136,12 @@ class SettingsScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: Get.textTheme.bodyLarge?.copyWith(color: kColorTextSecondary)),
-          Text(value, style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text(label,
+              style: Get.textTheme.bodyLarge
+                  ?.copyWith(color: kColorTextSecondary)),
+          Text(value,
+              style: Get.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
     );
