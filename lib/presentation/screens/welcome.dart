@@ -76,8 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   title: "Movies",
                                   icon: FontAwesomeIcons.film,
                                   isIconData: true,
-                                  onTap: () =>
-                                      Get.toNamed(screenMovieCategories),
+                                  onTap: () => Get.toNamed(screenMovieChannels),
                                   blocBuilder: BlocBuilder<MovieCatyBloc,
                                       MovieCatyState>(
                                     builder: (context, state) =>

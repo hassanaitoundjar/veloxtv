@@ -8,17 +8,28 @@ class MovieChannelsScreen extends StatefulWidget {
 }
 
 class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
-  late CategoryModel _initialCategory;
+  CategoryModel? _selectedCategory;
   String _searchQuery = "";
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
+    // If navigated with a category argument, use it
     if (Get.arguments is CategoryModel) {
-      _initialCategory = Get.arguments as CategoryModel;
-      context
-          .read<ChannelsBloc>()
-          .add(GetChannels(_initialCategory.categoryId!, TypeCategory.movies));
+      _selectedCategory = Get.arguments as CategoryModel;
+      context.read<ChannelsBloc>().add(
+          GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
+      _initialized = true;
+    }
+  }
+
+  void _initWithFirstCategory(List<CategoryModel> categories) {
+    if (!_initialized && categories.isNotEmpty) {
+      _selectedCategory = categories.first;
+      context.read<ChannelsBloc>().add(
+          GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
+      _initialized = true;
     }
   }
 
@@ -45,12 +56,17 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                   BlocBuilder<MovieCatyBloc, MovieCatyState>(
                     builder: (context, state) {
                       if (state is MovieCatySuccess) {
+                        // Auto-select first category if not yet initialized
+                        _initWithFirstCategory(state.categories);
+
                         return SideCategoryMenu(
                           categories: state.categories,
-                          selectedId: int.parse(_initialCategory.categoryId!),
+                          selectedId: int.tryParse(
+                                  _selectedCategory?.categoryId ?? "") ??
+                              0,
                           onSelect: (cat) {
                             setState(() {
-                              _initialCategory = cat;
+                              _selectedCategory = cat;
                             });
                             context.read<ChannelsBloc>().add(GetChannels(
                                 cat.categoryId!, TypeCategory.movies));

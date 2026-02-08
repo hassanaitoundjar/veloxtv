@@ -43,7 +43,6 @@ part 'user/catch_up.dart';
 part 'user/search.dart';
 part 'welcome.dart';
 part 'live/live_categories.dart';
-part 'movie/movie_categories.dart';
 part 'movie/movie_channels.dart';
 part 'movie/movie_details.dart';
 part 'series/series_categories.dart';

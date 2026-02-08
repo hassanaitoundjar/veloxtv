@@ -70,9 +70,6 @@ class MyApp extends StatelessWidget {
                   name: screenLiveCategories,
                   page: () => const LiveCategoriesScreen()),
               GetPage(
-                  name: screenMovieCategories,
-                  page: () => const MovieCategoriesScreen()),
-              GetPage(
                   name: screenMovieChannels,
                   page: () => const MovieChannelsScreen()),
               GetPage(
