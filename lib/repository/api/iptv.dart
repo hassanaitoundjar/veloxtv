@@ -91,9 +91,9 @@ class IpTvApi {
       );
 
       if (response.statusCode == 200) {
-         final json = response.data ?? [];
-         final list = json.map((e) => ChannelMovie.fromJson(e)).toList();
-         return list;
+        final json = response.data ?? [];
+        final list = json.map((e) => ChannelMovie.fromJson(e)).toList();
+        return list;
       }
 
       return [];
@@ -229,9 +229,9 @@ class IpTvApi {
       if (response.statusCode == 200) {
         final jsonMap = jsonDecode(response.data ?? "");
         if (jsonMap['epg_listings'] != null) {
-           final List<dynamic> json = jsonMap['epg_listings'];
-           final list = json.map((e) => EpgModel.fromJson(e)).toList();
-           return list;
+          final List<dynamic> json = jsonMap['epg_listings'];
+          final list = json.map((e) => EpgModel.fromJson(e)).toList();
+          return list;
         }
       }
 

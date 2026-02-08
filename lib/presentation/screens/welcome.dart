@@ -90,7 +90,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   icon: FontAwesomeIcons.layerGroup,
                                   isIconData: true,
                                   onTap: () =>
-                                      Get.toNamed(screenSeriesCategories),
+                                      Get.toNamed(screenSeriesChannels),
                                   blocBuilder: BlocBuilder<SeriesCatyBloc,
                                       SeriesCatyState>(
                                     builder: (context, state) =>

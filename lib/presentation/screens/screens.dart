@@ -45,7 +45,6 @@ part 'welcome.dart';
 part 'live/live_categories.dart';
 part 'movie/movie_channels.dart';
 part 'movie/movie_details.dart';
-part 'series/series_categories.dart';
 part 'series/series_channels.dart';
 part 'series/serie_details.dart';
 part 'player/video_player.dart';
