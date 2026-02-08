@@ -1,0 +1,52 @@
+library screens;
+
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+
+import 'dart:convert';
+import '../../core/helpers/helpers.dart';
+import '../../logic/blocs/auth/auth_bloc.dart';
+import '../../logic/blocs/categories/channels_bloc.dart';
+import '../../logic/blocs/categories/live_caty_bloc.dart';
+import '../../logic/blocs/categories/movie_caty_bloc.dart';
+import '../../logic/blocs/categories/series_caty_bloc.dart';
+import '../../logic/cubits/favorites/favorites_cubit.dart';
+import '../../logic/cubits/settings/settings_cubit.dart';
+import '../../repository/api/api.dart';
+import '../../repository/models/category.dart';
+import '../../repository/models/channel_live.dart';
+import '../../repository/models/channel_movie.dart';
+import '../../repository/models/channel_serie.dart';
+import '../../repository/models/movie_detail.dart';
+import '../../repository/models/serie_details.dart';
+import '../../repository/models/epg.dart';
+import '../widgets/widgets.dart';
+
+part 'user/splash.dart';
+part 'user/device_selection.dart';
+part 'user/intro.dart';
+part 'user/register.dart';
+part 'user/register_tv.dart';
+part 'user/settings.dart';
+part 'user/favourites.dart';
+part 'user/catch_up.dart';
+part 'user/search.dart';
+part 'welcome.dart';
+part 'live/live_categories.dart';
+part 'movie/movie_categories.dart';
+part 'movie/movie_channels.dart';
+part 'movie/movie_details.dart';
+part 'series/series_categories.dart';
+part 'series/series_channels.dart';
+part 'series/serie_details.dart';
+part 'player/video_player.dart';
