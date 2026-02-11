@@ -11,9 +11,11 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   CategoryModel? _selectedCategory;
   ChannelLive? _selectedChannel;
   Future<List<EpgModel>>? _epgFuture;
-  VlcPlayerController? _videoController;
   final _searchController = TextEditingController();
   String _searchQuery = "";
+
+  late final Player _previewPlayer;
+  late final VideoController _previewVideoController;
 
   String _decodeText(String? text) {
     if (text == null || text.isEmpty) return "";
@@ -27,7 +29,11 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   @override
   void initState() {
     super.initState();
-    // Trigger category load if not already loaded (handled by WelcomeScreen usually but good to be safe)
+    MediaKit.ensureInitialized();
+
+    _previewPlayer = Player();
+    _previewVideoController = VideoController(_previewPlayer);
+
     final catState = context.read<LiveCatyBloc>().state;
     if (catState is LiveCatySuccess && catState.categories.isNotEmpty) {
       _selectCategory(catState.categories.first);
@@ -37,36 +43,21 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   @override
   void dispose() {
     _searchController.dispose();
-    _videoController?.stopRendererScanning();
-    _videoController?.dispose();
+    _previewPlayer.dispose();
     super.dispose();
   }
 
   Future<void> _initializePlayer(ChannelLive channel) async {
-    // Stop existing player if any
-    if (_videoController != null) {
-      await _videoController!.stop();
-      await _videoController!.dispose();
-      setState(() {
-        _videoController = null;
-      });
-    }
-
     final user = await LocaleApi.getUser();
     if (user == null || channel.streamId == null) return;
 
-    // Construct URL: http://url:port/username/password/streamId
     final url =
         "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
 
-    _videoController = VlcPlayerController.network(
-      url,
-      hwAcc: HwAcc.full,
-      autoPlay: true,
-      options: VlcPlayerOptions(),
+    await _previewPlayer.open(
+      Media(url),
+      play: true,
     );
-
-    setState(() {});
   }
 
   void _selectCategory(CategoryModel category) {
@@ -353,12 +344,10 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  if (_videoController != null)
-                                    VlcPlayer(
-                                      controller: _videoController!,
-                                      aspectRatio: 16 / 9,
-                                      placeholder: const Center(
-                                          child: CircularProgressIndicator()),
+                                  if (_selectedChannel != null)
+                                    Video(
+                                      controller: _previewVideoController,
+                                      fit: BoxFit.cover,
                                     )
                                   else ...[
                                     if (_selectedChannel?.streamIcon != null &&
@@ -388,14 +377,49 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                           icon: Icon(Icons.play_circle_fill,
                                               color: kColorPrimary
                                                   .withOpacity(0.8)),
-                                          onPressed: () {
+                                          onPressed: () async {
                                             if (_selectedChannel != null) {
-                                              // Double check if we should play here or fullscreen
-                                              // For now, full screen
-                                              Get.toNamed(screenPlayer,
-                                                  arguments: _selectedChannel);
-                                              // Stop mini player when going full screen?
-                                              _videoController?.pause();
+                                              await _previewPlayer.pause();
+
+                                              final user =
+                                                  await LocaleApi.getUser();
+                                              if (user != null) {
+                                                final link =
+                                                    "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+
+                                                Get.to(() =>
+                                                        MediaKitPlayerScreen(
+                                                          link: link,
+                                                          title:
+                                                              _selectedChannel!
+                                                                      .name ??
+                                                                  "",
+                                                          isLive: true,
+                                                        ))!
+                                                    .then((_) {
+                                                  // Add to recent channels / history
+                                                  var model = WatchingModel(
+                                                    sliderValue: 0,
+                                                    durationStrm: 0,
+                                                    stream: link,
+                                                    title: _selectedChannel!
+                                                            .name ??
+                                                        "",
+                                                    image: _selectedChannel!
+                                                            .streamIcon ??
+                                                        "",
+                                                    streamId: _selectedChannel!
+                                                        .streamId
+                                                        .toString(),
+                                                  );
+                                                  context
+                                                      .read<WatchingCubit>()
+                                                      .addLive(model);
+
+                                                  // Resume preview if needed, or just let user restart it
+                                                  // _videoController?.play();
+                                                });
+                                              }
                                             }
                                           },
                                         ),

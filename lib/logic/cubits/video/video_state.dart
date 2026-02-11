@@ -1,8 +1,7 @@
 part of 'video_cubit.dart';
 
-@immutable
-abstract class VideoState {}
+class VideoState {
+  final bool isFull;
 
-class VideoInitial extends VideoState {}
-
-class VideoFullScreen extends VideoState {}
+  VideoState({required this.isFull});
+}

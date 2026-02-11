@@ -1,19 +1,42 @@
-class WaitingModel {
-  // Placeholder for watch history
-  final String? streamId;
-  final String? name;
-  final int? duration;
+class WatchingModel {
+  final String streamId;
+  final String image;
+  final String title;
 
-  WaitingModel({this.streamId, this.name, this.duration});
+  double sliderValue;
+  final double durationStrm;
+  final String stream;
 
-  WaitingModel.fromJson(Map<String, dynamic> json)
-      : streamId = json['stream_id'],
-        name = json['name'],
-        duration = json['duration'];
-  
-  Map<String, dynamic> toJson() => {
-    'stream_id': streamId,
-    'name': name,
-    'duration': duration,
-  };
+  WatchingModel({
+    required this.streamId,
+    required this.image,
+    required this.title,
+    required this.stream,
+    required this.sliderValue,
+    required this.durationStrm,
+  });
+
+  factory WatchingModel.fromJson(Map<String, dynamic> json) {
+    return WatchingModel(
+      streamId: json["streamId"],
+      image: json["image"],
+      title: json["title"],
+      sliderValue: double.parse(json["sliderValue"].toString()),
+      stream: json["stream"],
+      durationStrm: double.parse(json['durationStrm'].toString()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "streamId": streamId,
+      "image": image,
+      "title": title,
+      "sliderValue": sliderValue,
+      "stream": stream,
+      'durationStrm': durationStrm,
+    };
+  }
+
+//
 }

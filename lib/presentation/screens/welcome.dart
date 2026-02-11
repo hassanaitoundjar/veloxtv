@@ -20,6 +20,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Detect if we are on a phone/portrait mode
+    final isPortrait = MediaQuery.of(context).size.width < 600 ||
+        MediaQuery.of(context).size.height > MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Container(
         width: 100.w,
@@ -44,132 +48,249 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Expanded(
               child: Padding(
                 padding: getTvSafeMargins(context),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // LEFT SIDE: 3x2 GRID
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        children: [
-                          // ROW 1: LIVE, MOVIES, SERIES
-                          Expanded(
-                            child: Row(
-                              children: [
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Live TV",
-                                  icon: FontAwesomeIcons.tv,
-                                  isIconData: true,
-                                  onTap: () =>
-                                      Get.toNamed(screenLiveCategories),
-                                  blocBuilder:
-                                      BlocBuilder<LiveCatyBloc, LiveCatyState>(
-                                    builder: (context, state) =>
-                                        _buildCount(state),
-                                  ),
-                                  autoFocus: true,
-                                ),
-                                const SizedBox(width: 16),
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Movies",
-                                  icon: FontAwesomeIcons.film,
-                                  isIconData: true,
-                                  onTap: () => Get.toNamed(screenMovieChannels),
-                                  blocBuilder: BlocBuilder<MovieCatyBloc,
-                                      MovieCatyState>(
-                                    builder: (context, state) =>
-                                        _buildCount(state),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Series",
-                                  icon: FontAwesomeIcons.layerGroup,
-                                  isIconData: true,
-                                  onTap: () =>
-                                      Get.toNamed(screenSeriesChannels),
-                                  blocBuilder: BlocBuilder<SeriesCatyBloc,
-                                      SeriesCatyState>(
-                                    builder: (context, state) =>
-                                        _buildCount(state),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // ROW 2: CATCH UP, EPG, FAVORITES
-                          Expanded(
-                            child: Row(
-                              children: [
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Catch Up",
-                                  icon: FontAwesomeIcons
-                                      .clockRotateLeft, // Using IconData wrapper logic below
-                                  isIconData: true,
-                                  onTap: () => Get.toNamed(screenCatchUp),
-                                ),
-                                const SizedBox(width: 16),
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Install EPG",
-                                  icon: FontAwesomeIcons.list,
-                                  isIconData: true,
-                                  onTap: () {
-                                    // Placeholder for EPG
-                                    Get.snackbar(
-                                        "EPG", "EPG feature coming soon");
-                                  },
-                                ),
-                                const SizedBox(width: 16),
-                                _buildGridItem(
-                                  flex: 1,
-                                  title: "Favorites",
-                                  icon: FontAwesomeIcons.heart,
-                                  isIconData: true,
-                                  onTap: () => Get.toNamed(screenFavourite),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(width: 24),
-
-                    // RIGHT SIDE: SIDE MENU
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildSideItem("Account", Icons.person,
-                              () => Get.toNamed(screenSettings)),
-                          const SizedBox(height: 16),
-                          _buildSideItem("Settings", Icons.settings,
-                              () => Get.toNamed(screenSettings)),
-                          const SizedBox(height: 16),
-                          _buildSideItem("Search", Icons.search,
-                              () => Get.toNamed(screenSearch)),
-                          const SizedBox(height: 16),
-                          _buildSideItem("Contact Us", Icons.headset_mic, () {
-                            // Link to website or show dialog
-                          }),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                child: isPortrait
+                    ? _buildPortraitLayout()
+                    : _buildLandscapeLayout(),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLandscapeLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // LEFT SIDE: 3x2 GRID
+        Expanded(
+          flex: 4,
+          child: Column(
+            children: [
+              // ROW 1: LIVE, MOVIES, SERIES
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Live TV",
+                        icon: FontAwesomeIcons.tv,
+                        isIconData: true,
+                        onTap: () => Get.toNamed(screenLiveCategories),
+                        blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
+                          builder: (context, state) => _buildCount(state),
+                        ),
+                        autoFocus: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Movies",
+                        icon: FontAwesomeIcons.film,
+                        isIconData: true,
+                        onTap: () => Get.toNamed(screenMovieChannels),
+                        blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                          builder: (context, state) => _buildCount(state),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Series",
+                        icon: FontAwesomeIcons.layerGroup,
+                        isIconData: true,
+                        onTap: () => Get.toNamed(screenSeriesChannels),
+                        blocBuilder:
+                            BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
+                          builder: (context, state) => _buildCount(state),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // ROW 2: CATCH UP, EPG, FAVORITES
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Catch Up",
+                        icon: FontAwesomeIcons.clockRotateLeft,
+                        isIconData: true,
+                        onTap: () => Get.toNamed(screenCatchUp),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Install EPG",
+                        icon: FontAwesomeIcons.list,
+                        isIconData: true,
+                        onTap: () {
+                          Get.snackbar("EPG", "EPG feature coming soon");
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: _buildGridItem(
+                        title: "Favorites",
+                        icon: FontAwesomeIcons.heart,
+                        isIconData: true,
+                        onTap: () => Get.toNamed(screenFavourite),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 24),
+
+        // RIGHT SIDE: SIDE MENU
+        Expanded(
+          flex: 1,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildSideItem(
+                  "Account", Icons.person, () => Get.toNamed(screenSettings)),
+              const SizedBox(height: 16),
+              _buildSideItem("Settings", Icons.settings,
+                  () => Get.toNamed(screenSettings)),
+              const SizedBox(height: 16),
+              _buildSideItem(
+                  "Search", Icons.search, () => Get.toNamed(screenSearch)),
+              const SizedBox(height: 16),
+              _buildSideItem("Contact Us", Icons.headset_mic, () {
+                // Link to website or show dialog
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPortraitLayout() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Live TV
+          _buildPortraitGridItem(
+            title: "Live TV",
+            icon: FontAwesomeIcons.tv,
+            isIconData: true,
+            onTap: () => Get.toNamed(screenLiveCategories),
+            blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
+                builder: (context, state) => _buildCount(state)),
+          ),
+          const SizedBox(height: 12),
+
+          // Movies
+          _buildPortraitGridItem(
+            title: "Movies",
+            icon: FontAwesomeIcons.film,
+            isIconData: true,
+            onTap: () => Get.toNamed(screenMovieChannels),
+            blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                builder: (context, state) => _buildCount(state)),
+          ),
+          const SizedBox(height: 12),
+
+          // Series
+          _buildPortraitGridItem(
+            title: "Series",
+            icon: FontAwesomeIcons.layerGroup,
+            isIconData: true,
+            onTap: () => Get.toNamed(screenSeriesChannels),
+            blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
+                builder: (context, state) => _buildCount(state)),
+          ),
+          const SizedBox(height: 12),
+
+          // Row for Catch Up & EPG
+          Row(
+            children: [
+              Expanded(
+                  child: _buildPortraitGridItem(
+                      title: "Catch Up",
+                      icon: FontAwesomeIcons.clockRotateLeft,
+                      isIconData: true,
+                      onTap: () => Get.toNamed(screenCatchUp),
+                      height: 100)),
+              const SizedBox(width: 12),
+              Expanded(
+                  child: _buildPortraitGridItem(
+                      title: "Install EPG",
+                      icon: FontAwesomeIcons.list,
+                      isIconData: true,
+                      onTap: () =>
+                          Get.snackbar("EPG", "EPG feature coming soon"),
+                      height: 100)),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Favorites
+          _buildPortraitGridItem(
+              title: "Favorites",
+              icon: FontAwesomeIcons.heart,
+              isIconData: true,
+              onTap: () => Get.toNamed(screenFavourite),
+              height: 80),
+
+          const SizedBox(height: 24),
+          const Divider(color: Colors.white24),
+          const SizedBox(height: 24),
+
+          // Side Menu Items
+          _buildSideItem(
+              "Account", Icons.person, () => Get.toNamed(screenSettings)),
+          const SizedBox(height: 12),
+          _buildSideItem(
+              "Settings", Icons.settings, () => Get.toNamed(screenSettings)),
+          const SizedBox(height: 12),
+          _buildSideItem(
+              "Search", Icons.search, () => Get.toNamed(screenSearch)),
+          const SizedBox(height: 12),
+          _buildSideItem("Contact Us", Icons.headset_mic, () {}),
+          const SizedBox(height: 50), // Bottom padding
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPortraitGridItem({
+    required String title,
+    required dynamic icon,
+    required VoidCallback onTap,
+    Widget? blocBuilder,
+    bool isIconData = false,
+    double height = 120,
+  }) {
+    return SizedBox(
+      height: height,
+      child: _buildGridItem(
+          title: title,
+          icon: icon,
+          onTap: onTap,
+          isIconData: isIconData,
+          blocBuilder: blocBuilder),
     );
   }
 
@@ -187,7 +308,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       Get.textTheme.bodyMedium!.copyWith(color: kColorTextSecondary);
 
   Widget _buildGridItem({
-    required int flex,
     required String title,
     required dynamic icon,
     required VoidCallback onTap,
@@ -195,34 +315,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     bool isIconData = false,
     bool autoFocus = false,
   }) {
-    return Expanded(
-      flex: flex,
-      child: FocusableCard(
-        onTap: onTap,
-        autoFocus: autoFocus,
-        scale: 1.05,
-        child: Container(
-          decoration: kDecorCard.copyWith(
-            color: kColorCardLight.withOpacity(0.1),
-            border: Border.all(color: Colors.white10),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isIconData)
-                Icon(icon as IconData, size: 40, color: Colors.white)
-              else
-                Image.asset(icon as String, width: 60, height: 60),
-              const SizedBox(height: 16),
-              Text(title,
-                  style: Get.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              if (blocBuilder != null) ...[
-                const SizedBox(height: 8),
-                blocBuilder,
-              ]
-            ],
-          ),
+    // Removed Expanded wrapper
+    return FocusableCard(
+      onTap: onTap,
+      autoFocus: autoFocus,
+      scale: 1.05,
+      child: Container(
+        decoration: kDecorCard.copyWith(
+          color: kColorCardLight.withOpacity(0.1),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isIconData)
+              Icon(icon as IconData, size: 40, color: Colors.white)
+            else
+              Image.asset(icon as String, width: 60, height: 60),
+            const SizedBox(height: 16),
+            Text(title,
+                style: Get.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            if (blocBuilder != null) ...[
+              const SizedBox(height: 8),
+              blocBuilder,
+            ]
+          ],
         ),
       ),
     );

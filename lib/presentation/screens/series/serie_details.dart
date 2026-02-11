@@ -422,46 +422,76 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
                     if (episode == null) return const SizedBox();
 
-                    return FocusableCard(
-                      onTap: () {
-                        Get.toNamed(screenPlayer, arguments: episode);
-                      },
-                      scale: 1.01,
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.play_circle_outline,
-                                color: Colors.white70, size: 28),
-                            const SizedBox(width: 12),
-                            Expanded(
-                                child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    return BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        if (state is! AuthSuccess) return const SizedBox();
+                        final userAuth = state.user;
+
+                        return FocusableCard(
+                          onTap: () {
+                            if (episode == null) return;
+                            final link =
+                                "${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${episode.id}.${episode.containerExtension}";
+
+                            Get.to(() => MediaKitPlayerScreen(
+                                      link: link,
+                                      title: episode.title ?? "",
+                                    ))!
+                                .then((slider) {
+                              if (slider != null &&
+                                  slider is List &&
+                                  slider.isNotEmpty) {
+                                var model = WatchingModel(
+                                  sliderValue: slider[0],
+                                  durationStrm: slider[1] ?? 0.0,
+                                  stream: link,
+                                  title: episode.title ?? "",
+                                  image: _details!.info!.cover ?? "",
+                                  streamId: episode.id.toString(),
+                                );
+                                context.read<WatchingCubit>().addSerie(model);
+                              }
+                            });
+                          },
+                          scale: 1.01,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Row(
                               children: [
-                                Text(
-                                  episode.title ??
-                                      "Episode ${episode.episodeNum}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (episode.duration != null &&
-                                    episode.duration! > 0)
-                                  Text(
-                                    "${(episode.duration! / 60).toStringAsFixed(0)} min",
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.white54),
-                                  )
+                                const Icon(Icons.play_circle_outline,
+                                    color: Colors.white70, size: 28),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                    child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      episode.title ??
+                                          "Episode ${episode.episodeNum}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (episode.duration != null &&
+                                        episode.duration! > 0)
+                                      Text(
+                                        "${(episode.duration! / 60).toStringAsFixed(0)} min",
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white54),
+                                      )
+                                  ],
+                                ))
                               ],
-                            ))
-                          ],
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ))

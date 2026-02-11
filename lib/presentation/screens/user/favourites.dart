@@ -13,10 +13,12 @@ class FavoriteScreen extends StatelessWidget {
       body: BlocBuilder<FavoritesCubit, FavoritesState>(
         builder: (context, state) {
           if (state is FavoritesSuccess) {
-            if (state.live.isEmpty && state.movies.isEmpty && state.series.isEmpty) {
+            if (state.live.isEmpty &&
+                state.movies.isEmpty &&
+                state.series.isEmpty) {
               return const Center(child: Text("No favorites yet."));
             }
-            
+
             return SingleChildScrollView(
               padding: getTvSafeMargins(context),
               child: Column(
@@ -38,8 +40,17 @@ class FavoriteScreen extends StatelessWidget {
                             child: CardLiveItem(
                               title: item.name ?? "",
                               icon: item.streamIcon,
-                              onTap: () {
-                                Get.toNamed(screenPlayer, arguments: item);
+                              onTap: () async {
+                                final user = await LocaleApi.getUser();
+                                if (user != null) {
+                                  final link =
+                                      "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${item.streamId}";
+                                  Get.to(() => MediaKitPlayerScreen(
+                                        link: link,
+                                        title: item.name ?? "",
+                                        isLive: true,
+                                      ));
+                                }
                               },
                             ),
                           );
@@ -48,7 +59,6 @@ class FavoriteScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
                   ],
-                  
                   if (state.movies.isNotEmpty) ...[
                     Text("Movies", style: Get.textTheme.headlineSmall),
                     const SizedBox(height: 16),
@@ -63,7 +73,8 @@ class FavoriteScreen extends StatelessWidget {
                           return SizedBox(
                             width: 140,
                             child: FocusableCard(
-                              onTap: () => Get.toNamed(screenMovieDetails, arguments: item),
+                              onTap: () => Get.toNamed(screenMovieDetails,
+                                  arguments: item),
                               scale: 1.05,
                               child: CachedNetworkImage(
                                 imageUrl: item.streamIcon ?? "",
@@ -78,11 +89,10 @@ class FavoriteScreen extends StatelessWidget {
                 ],
               ),
             );
+          } else if (state is FavoritesLoading) {
+            return const Center(child: CircularProgressIndicator());
           }
-           else if (state is FavoritesLoading) {
-             return const Center(child: CircularProgressIndicator());
-           }
-          
+
           return const SizedBox();
         },
       ),

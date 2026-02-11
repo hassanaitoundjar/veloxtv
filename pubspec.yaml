@@ -28,9 +28,22 @@ dependencies:
   intl: ^0.20.2
   get_storage: ^2.1.1
   wakelock_plus: ^1.2.8
+  filling_slider: ^0.0.3
+
+  volume_controller: ^2.0.8
+  screen_brightness_util: ^0.0.3
+
+  #M3U   # Media Player
 
   # Media Player
-  flutter_vlc_player: ^7.4.2
+
+  pod_player: ^0.2.2
+
+  # Media Kit
+  media_kit: ^1.1.10
+  media_kit_video: ^1.2.4
+  media_kit_libs_video: ^1.0.4
+
 
   # Networking
   dio: ^5.6.0

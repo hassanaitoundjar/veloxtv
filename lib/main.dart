@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
 import 'core/helpers/helpers.dart';
 import 'logic/blocs/auth/auth_bloc.dart';
 import 'logic/blocs/categories/channels_bloc.dart';
@@ -13,6 +13,8 @@ import 'logic/blocs/categories/movie_caty_bloc.dart';
 import 'logic/blocs/categories/series_caty_bloc.dart';
 import 'logic/cubits/favorites/favorites_cubit.dart';
 import 'logic/cubits/settings/settings_cubit.dart';
+import 'logic/cubits/video/video_cubit.dart';
+import 'logic/cubits/watch/watching_cubit.dart';
 import 'presentation/screens/screens.dart';
 import 'repository/api/api.dart';
 
@@ -20,12 +22,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   await GetStorage.init("favorites");
+  await GetStorage.init("watching");
 
   // Set orientation for TVs
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
+
+  // Initialize MediaKit
+  MediaKit.ensureInitialized();
+
   // test
 
   runApp(const MyApp());
@@ -49,6 +56,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => ChannelsBloc(api)),
         BlocProvider(create: (context) => SettingsCubit()),
         BlocProvider(create: (context) => FavoritesCubit()),
+        BlocProvider(create: (context) => VideoCubit()),
+        BlocProvider(create: (context) => WatchingCubit()),
       ],
       child: ResponsiveSizer(
         builder: (context, orientation, screenType) {
@@ -86,8 +95,6 @@ class MyApp extends StatelessWidget {
               GetPage(
                   name: screenFavourite, page: () => const FavoriteScreen()),
               GetPage(name: screenCatchUp, page: () => const CatchUpScreen()),
-              GetPage(
-                  name: screenPlayer, page: () => const VideoPlayerScreen()),
             ],
           );
         },

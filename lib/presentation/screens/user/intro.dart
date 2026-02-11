@@ -13,7 +13,9 @@ class IntroScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              flex: 3,
+              flex: Device.screenType == ScreenType.mobile
+                  ? 3
+                  : 3, // Reduced image height on mobile
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
@@ -38,35 +40,61 @@ class IntroScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: Device.screenType == ScreenType.mobile
+                  ? 5
+                  : 2, // More space for content
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical:
+                        Device.screenType == ScreenType.mobile ? 10.0 : 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Watch Your Favorite\nTV Channels & Movies",
                       textAlign: TextAlign.center,
-                      style: Get.textTheme.displaySmall,
+                      style: Get.textTheme.displaySmall?.copyWith(
+                        fontSize: Device.screenType == ScreenType.mobile
+                            ? 20.sp
+                            : null, // Slightly smaller
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10), // Reduced from 16
                     Text(
                       "The best streaming experience on your device.\nLogin with your Xtream Codes credentials.",
                       textAlign: TextAlign.center,
-                      style: Get.textTheme.bodyMedium,
+                      style: Get.textTheme.bodyMedium?.copyWith(
+                        fontSize: Device.screenType == ScreenType.mobile
+                            ? 14.sp
+                            : null, // Slightly smaller
+                        color: kColorTextSecondary,
+                      ),
                     ),
                     const Spacer(),
                     SizedBox(
-                      width: 80.w,
-                      height: 55,
+                      width:
+                          Device.screenType == ScreenType.mobile ? 90.w : 60.w,
+                      height: 50, // Reduced from 55
                       child: ElevatedButton(
                         onPressed: () {
                           Get.toNamed(screenRegister);
                         },
-                        child: Text("Get Started"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorPrimary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 5,
+                        ),
+                        child: const Text("Get Started",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10), // Reduced from 20
                   ],
                 ),
               ),

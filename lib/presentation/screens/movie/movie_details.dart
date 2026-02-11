@@ -252,36 +252,63 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         // Play Button
         Expanded(
           flex: 2,
-          child: FocusableCard(
-            onTap: () {
-              if (_detail != null) {
-                Get.toNamed(screenPlayer, arguments: _detail);
-              }
-            },
-            autoFocus: true,
-            scale: 1.02,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.play_arrow, color: Colors.black, size: 28),
-                  SizedBox(width: 8),
-                  Text(
-                    "Play",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is! AuthSuccess) return const SizedBox();
+              final userAuth = state.user;
+
+              return FocusableCard(
+                onTap: () {
+                  if (_detail == null || _detail!.movieData == null) return;
+
+                  final link =
+                      "${userAuth.serverInfo!.serverUrl}/movie/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${_detail!.movieData!.streamId}.${_detail!.movieData!.containerExtension}";
+                  debugPrint("Link: $link");
+                  Get.to(() => MediaKitPlayerScreen(
+                            link: link,
+                            title: _detail!.movieData!.name ?? "",
+                            isLive: false,
+                          ))!
+                      .then((slider) {
+                    if (slider != null && slider is List && slider.isNotEmpty) {
+                      var model = WatchingModel(
+                        sliderValue: slider[0],
+                        durationStrm: slider[1] ?? 0.0,
+                        stream: link,
+                        title: _movie.name ?? "",
+                        image: _movie.streamIcon ?? "",
+                        streamId: _movie.streamId.toString(),
+                      );
+                      context.read<WatchingCubit>().addMovie(model);
+                    }
+                  });
+                },
+                autoFocus: true,
+                scale: 1.02,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ],
-              ),
-            ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.play_arrow, color: Colors.black, size: 28),
+                      SizedBox(width: 8),
+                      Text(
+                        "Play",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
 

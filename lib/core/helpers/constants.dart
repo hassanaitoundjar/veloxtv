@@ -1,6 +1,6 @@
 part of 'helpers.dart';
 
-const String kAppName = "Velox TV";
+const String kAppName = "IPTV Smarters Pro";
 
 // Asset Paths
 const String kIconSplash = "assets/images/logo.png";

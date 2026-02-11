@@ -1,18 +1,21 @@
 part of 'watching_cubit.dart';
 
-@immutable
-abstract class WatchingState {}
+class WatchingState {
+  final List<WatchingModel> movies;
+  final List<WatchingModel> series;
+  final List<WatchingModel> live;
 
-class WatchingInitial extends WatchingState {}
+  WatchingState({
+    required this.movies,
+    required this.series,
+    required this.live,
+  });
 
-class WatchingLoading extends WatchingState {}
-
-class WatchingSuccess extends WatchingState {
-  final List<dynamic> watching; // Replace dynamic with WaitingModel if created
-  WatchingSuccess(this.watching);
-}
-
-class WatchingFailed extends WatchingState {
-  final String message;
-  WatchingFailed(this.message);
+  factory WatchingState.defaultData() {
+    return WatchingState(
+      movies: const [],
+      live: const [],
+      series: const [],
+    );
+  }
 }

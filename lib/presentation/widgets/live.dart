@@ -105,7 +105,7 @@ class _AppBarLiveState extends State<AppBarLive> {
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                width: 250,
+                width: 400,
                 height: 40,
                 margin: const EdgeInsets.only(right: 16),
                 decoration: BoxDecoration(
@@ -181,7 +181,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
               child: TextField(
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: const InputDecoration(
-                  hintText: "Search categories...",
+                  hintText: "Search By Categories...",
                   hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
                   prefixIcon:
                       Icon(Icons.search, color: Colors.white54, size: 18),
