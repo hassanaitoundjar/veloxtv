@@ -1,7 +1,18 @@
 part of '../screens.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  int _selectedIndex = 0;
+  final _storage = GetStorage("settings");
+
+  final List<String> _titles = ["Account", "Parental Control", "About"];
+  final List<IconData> _icons = [Icons.person, Icons.lock, Icons.info];
 
   @override
   Widget build(BuildContext context) {
@@ -20,26 +31,29 @@ class SettingsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 5.h),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Get.back(),
+                        ),
+                      ),
+                    ),
                     const Icon(Icons.settings, size: 40, color: Colors.white),
                     const SizedBox(height: 10),
                     Text("Settings", style: Get.textTheme.titleLarge),
                     const SizedBox(height: 40),
-                    _buildSettingItem(
-                      icon: Icons.person,
-                      title: "Account",
-                      isSelected: true,
-                      onTap: () {},
-                    ),
-                    _buildSettingItem(
-                      icon: Icons.monitor,
-                      title: "Player",
-                      onTap: () {},
-                    ),
-                    _buildSettingItem(
-                      icon: Icons.info,
-                      title: "About",
-                      onTap: () {},
-                    ),
+                    ...List.generate(_titles.length, (index) {
+                      return _buildSettingItem(
+                        icon: _icons[index],
+                        title: _titles[index],
+                        isSelected: _selectedIndex == index,
+                        onTap: () => setState(() => _selectedIndex = index),
+                      );
+                    }),
                     const Spacer(),
                     _buildSettingItem(
                       icon: Icons.logout,
@@ -61,35 +75,147 @@ class SettingsScreen extends StatelessWidget {
               flex: 2,
               child: Padding(
                 padding: const EdgeInsets.all(40.0),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is AuthSuccess) {
-                      final info = state.user.userInfo!;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Account Information",
-                              style: Get.textTheme.headlineMedium),
-                          const SizedBox(height: 20),
-                          _buildInfoTile("Username", info.username ?? "-"),
-                          _buildInfoTile("Status", info.status ?? "-"),
-                          _buildInfoTile(
-                              "Expiry Date", info.expDate ?? "Unlimited"),
-                          _buildInfoTile(
-                              "Active Connections", info.activeCons ?? "0"),
-                          _buildInfoTile(
-                              "Max Connections", info.maxConnections ?? "1"),
-                        ],
-                      );
-                    }
-                    return const Center(child: Text("No User Information"));
-                  },
-                ),
+                child: _buildRightPanel(),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRightPanel() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildAccountSettings();
+      case 1:
+        return _buildParentalControlSettings();
+      case 2:
+        return _buildAboutSettings();
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _buildAccountSettings() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthSuccess) {
+          final info = state.user.userInfo!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Account Information", style: Get.textTheme.headlineMedium),
+              const SizedBox(height: 20),
+              _buildInfoTile("Username", info.username ?? "-"),
+              _buildInfoTile("Status", info.status ?? "-"),
+              _buildInfoTile("Expiry Date", info.expDate ?? "Unlimited"),
+              _buildInfoTile("Active Connections", info.activeCons ?? "0"),
+              _buildInfoTile("Max Connections", info.maxConnections ?? "1"),
+            ],
+          );
+        }
+        return const Center(child: Text("No User Information"));
+      },
+    );
+  }
+
+  Widget _buildParentalControlSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Parental Control", style: Get.textTheme.headlineMedium),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: kDecorCard,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Protect sensitive content with a PIN code.",
+                style: TextStyle(color: kColorTextSecondary, fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              Builder(
+                builder: (context) {
+                  final enabled =
+                      _storage.read("parental_control_enabled") ?? true;
+                  return SwitchListTile(
+                    title: const Text("Enable Parental Control",
+                        style: TextStyle(color: Colors.white)),
+                    activeColor: kColorPrimary,
+                    value: enabled,
+                    onChanged: (val) {
+                      if (val) {
+                        // Enable directly
+                        _storage.write("parental_control_enabled", true);
+                        setState(() {});
+                      } else {
+                        // To disable, require PIN?
+                        Get.dialog(
+                          ParentalControlWidget(
+                            mode: ParentalMode.verify,
+                            onVerifySuccess: () {
+                              _storage.write("parental_control_enabled", false);
+                              setState(() {});
+                            },
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kColorPrimary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                ),
+                icon: const Icon(Icons.lock_reset),
+                label: const Text("Change PIN",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  // Flow: Verify Old PIN first (if default 0000, maybe skip? No, always verify).
+                  Get.dialog(
+                    ParentalControlWidget(
+                      mode: ParentalMode.verify,
+                      onVerifySuccess: () {
+                        // Close the verify dialog is handled by widget,
+                        // but we need to wait for it to close or open next one?
+                        // My widget calls Get.back() on success.
+                        // So we wait a bit then open the new one.
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          Get.dialog(
+                            ParentalControlWidget(
+                              mode: ParentalMode.set,
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("About", style: Get.textTheme.headlineMedium),
+        const SizedBox(height: 20),
+        _buildInfoTile("App Name", "IPTV Player Pro"),
+        _buildInfoTile("Version", "1.0.0"),
+        _buildInfoTile("Developer", "Dev Team"),
+      ],
     );
   }
 

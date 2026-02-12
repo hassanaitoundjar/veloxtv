@@ -20,8 +20,7 @@ class AuthApi {
           final user = UserModel.fromJson(json, url);
           // Check if account is active or valid
           if (user.userInfo?.auth == "0") {
-             debugPrint("Auth failed: Invalid credentials");
-             return null;
+            return null;
           }
           await LocaleApi.saveUser(user);
           return user;

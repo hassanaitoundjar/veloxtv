@@ -16,7 +16,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await Future.delayed(const Duration(seconds: 2));
 
         try {
-          final user = await repo.login(event.username, event.password, event.url);
+          final user =
+              await repo.login(event.username, event.password, event.url);
           if (user != null) {
             emit(AuthSuccess(user));
           } else {

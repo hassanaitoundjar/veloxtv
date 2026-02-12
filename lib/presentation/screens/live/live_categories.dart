@@ -36,7 +36,16 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
 
     final catState = context.read<LiveCatyBloc>().state;
     if (catState is LiveCatySuccess && catState.categories.isNotEmpty) {
-      _selectCategory(catState.categories.first);
+      // Find first safe category
+      final firstSafe = catState.categories.firstWhere(
+        (c) => !_isRestricted(c),
+        orElse: () => catState.categories.first,
+      );
+
+      // Only select if safe
+      if (!_isRestricted(firstSafe)) {
+        _selectCategory(firstSafe);
+      }
     }
   }
 
@@ -67,6 +76,57 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
     context
         .read<ChannelsBloc>()
         .add(GetChannels(category.categoryId!, TypeCategory.live));
+  }
+
+  bool _isRestrictedName(String? name) {
+    if (name == null) return false;
+    final lower = name.toLowerCase();
+    return lower.contains("adult") ||
+        lower.contains("porn") ||
+        lower.contains("xxx") ||
+        lower.contains("18+") ||
+        lower.contains("sex") ||
+        lower.contains("xx ");
+  }
+
+  bool _isRestricted(CategoryModel category) {
+    final storage = GetStorage("settings");
+    final enabled = storage.read("parental_control_enabled") ?? true;
+    if (!enabled) return false;
+    return _isRestrictedName(category.categoryName);
+  }
+
+  void _checkChannelAccess(ChannelLive channel, VoidCallback onAllowed) {
+    final storage = GetStorage("settings");
+    final enabled = storage.read("parental_control_enabled") ?? true;
+    if (!enabled) {
+      onAllowed();
+      return;
+    }
+
+    if (_isRestrictedName(channel.name)) {
+      Get.dialog(
+        ParentalControlWidget(
+          mode: ParentalMode.verify,
+          onVerifySuccess: onAllowed,
+        ),
+      );
+    } else {
+      onAllowed();
+    }
+  }
+
+  void _checkParentalControl(CategoryModel category, VoidCallback onAllowed) {
+    if (_isRestricted(category)) {
+      Get.dialog(
+        ParentalControlWidget(
+          mode: ParentalMode.verify,
+          onVerifySuccess: onAllowed,
+        ),
+      );
+    } else {
+      onAllowed();
+    }
   }
 
   @override
@@ -161,7 +221,11 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                               cat.categoryId;
 
                                       return FocusableCard(
-                                        onTap: () => _selectCategory(cat),
+                                        onTap: () {
+                                          _checkParentalControl(cat, () {
+                                            _selectCategory(cat);
+                                          });
+                                        },
                                         scale: 1.02,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -300,16 +364,19 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                               }
                                             },
                                             onTap: () {
-                                              setState(() {
-                                                _selectedChannel = channel;
-                                                if (channel.streamId != null) {
-                                                  _epgFuture =
-                                                      IpTvApi.getEPGbyStreamId(
-                                                          channel.streamId!);
-                                                  _initializePlayer(channel);
-                                                } else {
-                                                  _epgFuture = null;
-                                                }
+                                              _checkChannelAccess(channel, () {
+                                                setState(() {
+                                                  _selectedChannel = channel;
+                                                  if (channel.streamId !=
+                                                      null) {
+                                                    _epgFuture = IpTvApi
+                                                        .getEPGbyStreamId(
+                                                            channel.streamId!);
+                                                    _initializePlayer(channel);
+                                                  } else {
+                                                    _epgFuture = null;
+                                                  }
+                                                });
                                               });
                                             },
                                           );
@@ -379,47 +446,51 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                   .withOpacity(0.8)),
                                           onPressed: () async {
                                             if (_selectedChannel != null) {
-                                              await _previewPlayer.pause();
+                                              _checkChannelAccess(
+                                                  _selectedChannel!, () async {
+                                                await _previewPlayer.pause();
 
-                                              final user =
-                                                  await LocaleApi.getUser();
-                                              if (user != null) {
-                                                final link =
-                                                    "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+                                                final user =
+                                                    await LocaleApi.getUser();
+                                                if (user != null) {
+                                                  final link =
+                                                      "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
 
-                                                Get.to(() =>
-                                                        MediaKitPlayerScreen(
-                                                          link: link,
-                                                          title:
-                                                              _selectedChannel!
-                                                                      .name ??
-                                                                  "",
-                                                          isLive: true,
-                                                        ))!
-                                                    .then((_) {
-                                                  // Add to recent channels / history
-                                                  var model = WatchingModel(
-                                                    sliderValue: 0,
-                                                    durationStrm: 0,
-                                                    stream: link,
-                                                    title: _selectedChannel!
-                                                            .name ??
-                                                        "",
-                                                    image: _selectedChannel!
-                                                            .streamIcon ??
-                                                        "",
-                                                    streamId: _selectedChannel!
-                                                        .streamId
-                                                        .toString(),
-                                                  );
-                                                  context
-                                                      .read<WatchingCubit>()
-                                                      .addLive(model);
+                                                  Get.to(() =>
+                                                          MediaKitPlayerScreen(
+                                                            link: link,
+                                                            title:
+                                                                _selectedChannel!
+                                                                        .name ??
+                                                                    "",
+                                                            isLive: true,
+                                                          ))!
+                                                      .then((_) {
+                                                    // Add to recent channels / history
+                                                    var model = WatchingModel(
+                                                      sliderValue: 0,
+                                                      durationStrm: 0,
+                                                      stream: link,
+                                                      title: _selectedChannel!
+                                                              .name ??
+                                                          "",
+                                                      image: _selectedChannel!
+                                                              .streamIcon ??
+                                                          "",
+                                                      streamId:
+                                                          _selectedChannel!
+                                                              .streamId
+                                                              .toString(),
+                                                    );
+                                                    context
+                                                        .read<WatchingCubit>()
+                                                        .addLive(model);
 
-                                                  // Resume preview if needed, or just let user restart it
-                                                  // _videoController?.play();
-                                                });
-                                              }
+                                                    // Resume preview if needed, or just let user restart it
+                                                    // _videoController?.play();
+                                                  });
+                                                }
+                                              });
                                             }
                                           },
                                         ),

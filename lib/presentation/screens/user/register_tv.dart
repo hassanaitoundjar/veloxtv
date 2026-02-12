@@ -11,7 +11,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _urlController = TextEditingController();
-  
+
   final FocusNode _userFocus = FocusNode();
   final FocusNode _passFocus = FocusNode();
   final FocusNode _urlFocus = FocusNode();
@@ -49,7 +49,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
                 ),
               ),
             ),
-            
+
             // Right Panel (Form)
             Expanded(
               flex: 3,
@@ -89,38 +89,46 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
                     BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
-                           Get.offAllNamed(screenWelcome);
+                          Get.offAllNamed(screenWelcome);
                         } else if (state is AuthFailed) {
-                           Get.snackbar("Login Failed", state.message, backgroundColor: Colors.red, colorText: Colors.white);
+                          Get.snackbar("Login Failed", state.message,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white);
                         }
                       },
                       builder: (context, state) {
-                         if (state is AuthLoading) {
-                            return Center(child: LoadingAnimationWidget.staggeredDotsWave(color: kColorPrimary, size: 40));
-                         }
-                         return SizedBox(
-                           width: double.infinity,
-                           height: 60,
-                           child: ElevatedButton(
-                             focusNode: _btnFocus,
-                             onPressed: () {
-                               if (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty && _urlController.text.isNotEmpty) {
-                                  context.read<AuthBloc>().add(AuthLogin(
-                                    _usernameController.text.trim(),
-                                    _passwordController.text.trim(),
-                                    _urlController.text.trim(),
-                                  ));
-                               }
-                             },
-                             style: ButtonStyle(
-                               backgroundColor: MaterialStateProperty.resolveWith((states) {
-                                 if (states.contains(MaterialState.focused)) return kColorFocus;
-                                 return kColorPrimary;
-                               }),
-                             ),
-                             child: const Text("LOGIN"),
-                           ),
-                         );
+                        if (state is AuthLoading) {
+                          return Center(
+                              child: LoadingAnimationWidget.staggeredDotsWave(
+                                  color: kColorPrimary, size: 40));
+                        }
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 60,
+                          child: ElevatedButton(
+                            focusNode: _btnFocus,
+                            onPressed: () {
+                              if (_usernameController.text.isNotEmpty &&
+                                  _passwordController.text.isNotEmpty &&
+                                  _urlController.text.isNotEmpty) {
+                                context.read<AuthBloc>().add(AuthLogin(
+                                      _usernameController.text.trim(),
+                                      _passwordController.text.trim(),
+                                      _urlController.text.trim(),
+                                    ));
+                              }
+                            },
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith((states) {
+                                if (states.contains(MaterialState.focused))
+                                  return kColorFocus;
+                                return kColorPrimary;
+                              }),
+                            ),
+                            child: const Text("LOGIN"),
+                          ),
+                        );
                       },
                     ),
                   ],

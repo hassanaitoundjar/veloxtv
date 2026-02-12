@@ -195,6 +195,71 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
     );
   }
 
+  // 🔊 AUDIO TRACK PICKER
+  void _showAudioTracksSelection() async {
+    final audioTracks = _player.state.tracks.audio;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SizedBox(
+          height: 400,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'Audio Tracks',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ...audioTracks.map((track) {
+                        final isSelected = _player.state.track.audio == track;
+                        return ListTile(
+                          dense: true,
+                          leading: isSelected
+                              ? const Icon(Icons.check,
+                                  color: Colors.white, size: 20)
+                              : const SizedBox(width: 20),
+                          title: Text(
+                            track.language ?? track.title ?? 'Audio Track',
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.white70,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          onTap: () {
+                            _player.setAudioTrack(track);
+                            Navigator.pop(context);
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   String _formatDuration(Duration d) {
     if (d.inHours > 0) {
       return "${d.inHours}:${(d.inMinutes % 60).toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}";
@@ -439,6 +504,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                     icon: const Icon(Icons.subtitles,
                                         color: Colors.white),
                                     onPressed: _showTracksSelection,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.audiotrack,
+                                        color: Colors.white),
+                                    onPressed: _showAudioTracksSelection,
                                   ),
                                   TextButton(
                                     onPressed: _changeSpeed,

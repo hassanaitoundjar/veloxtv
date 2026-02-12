@@ -26,10 +26,76 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
 
   void _initWithFirstCategory(List<CategoryModel> categories) {
     if (!_initialized && categories.isNotEmpty) {
-      _selectedCategory = categories.first;
-      context.read<ChannelsBloc>().add(
-          GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
-      _initialized = true;
+      // For first load, we might skip parental check or check it?
+      // Usually first category is "All" or something safe.
+      // If we auto-select an adult category on load, we should probably block or just not select.
+      // For now, let's just select but maybe we should check.
+      // But _checkParentalControl requires context/dialog which might not work well in build/init.
+      // Let's assume first category is safe or allowed for now.
+      // Find first safe category
+      final firstSafe = categories.firstWhere(
+        (c) => !_isRestricted(c),
+        orElse: () => categories.first,
+      );
+
+      // Only auto-select if safe. If all are restricted, user sees blank list until they click.
+      if (!_isRestricted(firstSafe)) {
+        _selectedCategory = firstSafe;
+        context.read<ChannelsBloc>().add(
+            GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
+        _initialized = true;
+      }
+    }
+  }
+
+  bool _isRestrictedName(String? name) {
+    if (name == null) return false;
+    final lower = name.toLowerCase();
+    return lower.contains("adult") ||
+        lower.contains("porn") ||
+        lower.contains("xxx") ||
+        lower.contains("18+") ||
+        lower.contains("sex") ||
+        lower.contains("xx ");
+  }
+
+  bool _isRestricted(CategoryModel category) {
+    final storage = GetStorage("settings");
+    final enabled = storage.read("parental_control_enabled") ?? true;
+    if (!enabled) return false;
+    return _isRestrictedName(category.categoryName);
+  }
+
+  void _checkMovieAccess(String? name, VoidCallback onAllowed) {
+    final storage = GetStorage("settings");
+    final enabled = storage.read("parental_control_enabled") ?? true;
+    if (!enabled) {
+      onAllowed();
+      return;
+    }
+
+    if (_isRestrictedName(name)) {
+      Get.dialog(
+        ParentalControlWidget(
+          mode: ParentalMode.verify,
+          onVerifySuccess: onAllowed,
+        ),
+      );
+    } else {
+      onAllowed();
+    }
+  }
+
+  void _checkParentalControl(CategoryModel category, VoidCallback onAllowed) {
+    if (_isRestricted(category)) {
+      Get.dialog(
+        ParentalControlWidget(
+          mode: ParentalMode.verify,
+          onVerifySuccess: onAllowed,
+        ),
+      );
+    } else {
+      onAllowed();
     }
   }
 
@@ -65,11 +131,13 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                   _selectedCategory?.categoryId ?? "") ??
                               0,
                           onSelect: (cat) {
-                            setState(() {
-                              _selectedCategory = cat;
+                            _checkParentalControl(cat, () {
+                              setState(() {
+                                _selectedCategory = cat;
+                              });
+                              context.read<ChannelsBloc>().add(GetChannels(
+                                  cat.categoryId!, TypeCategory.movies));
                             });
-                            context.read<ChannelsBloc>().add(GetChannels(
-                                cat.categoryId!, TypeCategory.movies));
                           },
                         );
                       }
@@ -122,8 +190,10 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                           (m) => m.streamId == movie.streamId);
                                   return FocusableCard(
                                     onTap: () {
-                                      Get.toNamed(screenMovieDetails,
-                                          arguments: movie);
+                                      _checkMovieAccess(movie.name, () {
+                                        Get.toNamed(screenMovieDetails,
+                                            arguments: movie);
+                                      });
                                     },
                                     scale: 1.05,
                                     child: Stack(

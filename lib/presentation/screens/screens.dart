@@ -39,6 +39,7 @@ import '../../repository/models/movie_detail.dart';
 import '../../repository/models/serie_details.dart';
 import '../../repository/models/epg.dart';
 import '../widgets/widgets.dart';
+import '../widgets/parental_control_dialog.dart';
 
 part 'user/splash.dart';
 part 'user/device_selection.dart';
