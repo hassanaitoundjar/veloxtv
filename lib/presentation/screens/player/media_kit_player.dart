@@ -428,7 +428,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "${duration.inHours}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}",
+                                    _formatDuration(duration),
                                     style: const TextStyle(
                                         color: Colors.white, fontSize: 12),
                                   ),

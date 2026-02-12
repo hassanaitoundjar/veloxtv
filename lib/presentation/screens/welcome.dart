@@ -133,11 +133,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     Expanded(
                       flex: 1,
                       child: _buildGridItem(
-                        title: "Install EPG",
-                        icon: FontAwesomeIcons.list,
+                        title: "Multi-View",
+                        icon: FontAwesomeIcons.tableCellsLarge,
                         isIconData: true,
                         onTap: () {
-                          Get.snackbar("EPG", "EPG feature coming soon");
+                          Get.to(() => const MultiViewScreen());
                         },
                       ),
                     ),
@@ -236,11 +236,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(width: 12),
               Expanded(
                   child: _buildPortraitGridItem(
-                      title: "Install EPG",
-                      icon: FontAwesomeIcons.list,
+                      title: "Multi-View",
+                      icon: FontAwesomeIcons.tableCellsLarge,
                       isIconData: true,
-                      onTap: () =>
-                          Get.snackbar("EPG", "EPG feature coming soon"),
+                      onTap: () => Get.to(() => const MultiViewScreen()),
                       height: 100)),
             ],
           ),

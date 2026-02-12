@@ -1,7 +1,8 @@
 part of '../screens.dart';
 
 class LiveCategoriesScreen extends StatefulWidget {
-  const LiveCategoriesScreen({super.key});
+  final bool isPicker;
+  const LiveCategoriesScreen({super.key, this.isPicker = false});
 
   @override
   State<LiveCategoriesScreen> createState() => _LiveCategoriesScreenState();
@@ -365,6 +366,10 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                             },
                                             onTap: () {
                                               _checkChannelAccess(channel, () {
+                                                if (widget.isPicker) {
+                                                  Get.back(result: channel);
+                                                  return;
+                                                }
                                                 setState(() {
                                                   _selectedChannel = channel;
                                                   if (channel.streamId !=
@@ -439,61 +444,55 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        IconButton(
-                                          iconSize: 64,
-                                          icon: Icon(Icons.play_circle_fill,
-                                              color: kColorPrimary
-                                                  .withOpacity(0.8)),
-                                          onPressed: () async {
-                                            if (_selectedChannel != null) {
-                                              _checkChannelAccess(
-                                                  _selectedChannel!, () async {
-                                                await _previewPlayer.pause();
+                                        if (widget.isPicker)
+                                          ElevatedButton.icon(
+                                            onPressed: () {
+                                              if (_selectedChannel != null) {
+                                                Get.back(
+                                                    result: _selectedChannel);
+                                              }
+                                            },
+                                            icon: const Icon(Icons.check,
+                                                color: Colors.white),
+                                            label: Text("Select Channel",
+                                                style: GoogleFonts.outfit(
+                                                    color: Colors.white)),
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: kColorPrimary),
+                                          )
+                                        else
+                                          IconButton(
+                                            iconSize: 64,
+                                            icon: Icon(Icons.play_circle_fill,
+                                                color: kColorPrimary
+                                                    .withOpacity(0.8)),
+                                            onPressed: () async {
+                                              if (_selectedChannel != null) {
+                                                _checkChannelAccess(
+                                                    _selectedChannel!,
+                                                    () async {
+                                                  await _previewPlayer.pause();
 
-                                                final user =
-                                                    await LocaleApi.getUser();
-                                                if (user != null) {
-                                                  final link =
-                                                      "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+                                                  final user =
+                                                      await LocaleApi.getUser();
+                                                  if (user != null) {
+                                                    final link =
+                                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
 
-                                                  Get.to(() =>
-                                                          MediaKitPlayerScreen(
-                                                            link: link,
-                                                            title:
-                                                                _selectedChannel!
-                                                                        .name ??
-                                                                    "",
-                                                            isLive: true,
-                                                          ))!
-                                                      .then((_) {
-                                                    // Add to recent channels / history
-                                                    var model = WatchingModel(
-                                                      sliderValue: 0,
-                                                      durationStrm: 0,
-                                                      stream: link,
-                                                      title: _selectedChannel!
-                                                              .name ??
-                                                          "",
-                                                      image: _selectedChannel!
-                                                              .streamIcon ??
-                                                          "",
-                                                      streamId:
-                                                          _selectedChannel!
-                                                              .streamId
-                                                              .toString(),
-                                                    );
-                                                    context
-                                                        .read<WatchingCubit>()
-                                                        .addLive(model);
-
-                                                    // Resume preview if needed, or just let user restart it
-                                                    // _videoController?.play();
-                                                  });
-                                                }
-                                              });
-                                            }
-                                          },
-                                        ),
+                                                    Get.to(() =>
+                                                        MediaKitPlayerScreen(
+                                                          title:
+                                                              _selectedChannel!
+                                                                      .name ??
+                                                                  "Live TV",
+                                                          link: link,
+                                                          isLive: true,
+                                                        ));
+                                                  }
+                                                });
+                                              }
+                                            },
+                                          ),
                                         const SizedBox(height: 8),
                                         const Text("Preview",
                                             style: TextStyle(
