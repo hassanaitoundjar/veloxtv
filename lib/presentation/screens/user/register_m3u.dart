@@ -1,37 +1,29 @@
 part of '../screens.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class RegisterM3uScreen extends StatefulWidget {
+  const RegisterM3uScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterM3uScreen> createState() => _RegisterM3uScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
   final _nameController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _urlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   final _backFocus = FocusNode();
   final _nameFocus = FocusNode();
-  final _userFocus = FocusNode();
-  final _passFocus = FocusNode();
   final _urlFocus = FocusNode();
   final _btnFocus = FocusNode();
 
   @override
   void dispose() {
     _nameController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
     _urlController.dispose();
 
     _backFocus.dispose();
     _nameFocus.dispose();
-    _userFocus.dispose();
-    _passFocus.dispose();
     _urlFocus.dispose();
     _btnFocus.dispose();
     super.dispose();
@@ -69,13 +61,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     };
 
     _nameFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _backFocus, _userFocus);
-    _userFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _nameFocus, _passFocus);
-    _passFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _userFocus, _urlFocus);
+        (node, event) => _handleKeyEvent(event, node, _backFocus, _urlFocus);
     _urlFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _passFocus, _btnFocus);
+        (node, event) => _handleKeyEvent(event, node, _nameFocus, _btnFocus);
     _btnFocus.onKeyEvent =
         (node, event) => _handleKeyEvent(event, node, _urlFocus, null);
   }
@@ -120,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               : CrossAxisAlignment.stretch,
           children: [
             if (isTvLayout)
-              Text("Add User",
+              Text("Add Playlist",
                   style: Get.textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.bold)),
             if (!isTvLayout) ...[
@@ -129,18 +117,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.15),
+                    color: Colors.orange.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.api, color: kColorPrimary, size: 40),
+                  child: const Icon(Icons.playlist_play,
+                      color: Colors.orange, size: 40),
                 ),
               ),
               const SizedBox(height: 24),
-              Text("Xtream Codes",
+              Text("M3U Playlist",
                   style: Get.textTheme.headlineLarge,
                   textAlign: TextAlign.center),
               const SizedBox(height: 8),
-              Text("Login with your Xtream Codes credentials",
+              Text("Enter your M3U playlist URL to load channels",
                   style: Get.textTheme.bodyMedium
                       ?.copyWith(color: kColorTextSecondary),
                   textAlign: TextAlign.center),
@@ -148,43 +137,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SizedBox(height: isTvLayout ? 4.h : 40),
             _buildTvInput(
               controller: _nameController,
-              label: "Any Name",
+              label: "Playlist Name",
               hint: "e.g. My IPTV",
-              icon: Icons.person_outline,
+              icon: Icons.label_outline,
               focusNode: _nameFocus,
-              nextFocus: _userFocus,
+              nextFocus: _urlFocus,
               autofocus: isTvLayout,
             ),
             SizedBox(height: isTvLayout ? 2.h : 16),
             _buildTvInput(
-              controller: _usernameController,
-              label: "Username",
-              hint: "Enter username",
-              icon: Icons.account_circle_outlined,
-              focusNode: _userFocus,
-              nextFocus: _passFocus,
-              validator: (v) => v!.isEmpty ? "Required" : null,
-            ),
-            SizedBox(height: isTvLayout ? 2.h : 16),
-            _buildTvInput(
-              controller: _passwordController,
-              label: "Password",
-              hint: "Enter password",
-              icon: Icons.lock_outline,
-              focusNode: _passFocus,
-              nextFocus: _urlFocus,
-              obscure: true,
-              validator: (v) => v!.isEmpty ? "Required" : null,
-            ),
-            SizedBox(height: isTvLayout ? 2.h : 16),
-            _buildTvInput(
               controller: _urlController,
-              label: "Server URL",
-              hint: "http://url_here.com:port",
+              label: "M3U URL",
+              hint: "http://example.com/playlist.m3u",
               icon: Icons.link,
               focusNode: _urlFocus,
               nextFocus: _btnFocus,
-              validator: (v) => v!.isEmpty ? "Required" : null,
+              validator: (v) {
+                if (v == null || v.isEmpty) return "Required";
+                if (!v.startsWith("http")) {
+                  return "Must start with http:// or https://";
+                }
+                return null;
+              },
             ),
             SizedBox(height: isTvLayout ? 4.h : 32),
             _buildSubmitButton(),
@@ -208,19 +182,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.15),
+                    color: Colors.orange.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.api, color: kColorPrimary, size: 50),
+                  child: const Icon(Icons.playlist_play,
+                      color: Colors.orange, size: 50),
                 ),
                 const SizedBox(height: 24),
                 Text(kAppName,
                     style: Get.textTheme.headlineLarge
                         ?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text("Login with Xtream Codes",
+                Text("M3U Playlist",
                     style: Get.textTheme.bodyLarge
-                        ?.copyWith(color: kColorPrimary)),
+                        ?.copyWith(color: Colors.orange)),
               ],
             ),
           ),
@@ -262,13 +237,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     FocusNode? nextFocus,
     String? Function(String?)? validator,
     bool autofocus = false,
-    bool obscure = false,
   }) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
-      obscureText: obscure,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
@@ -309,7 +282,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (state is AuthLoading) {
           return Center(
             child: LoadingAnimationWidget.staggeredDotsWave(
-              color: kColorPrimary,
+              color: Colors.orange,
               size: 40,
             ),
           );
@@ -321,9 +294,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             focusNode: _btnFocus,
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                context.read<AuthBloc>().add(AuthLogin(
-                      _usernameController.text.trim(),
-                      _passwordController.text.trim(),
+                context.read<AuthBloc>().add(AuthLoginM3u(
+                      _nameController.text.trim().isEmpty
+                          ? "M3U Playlist"
+                          : _nameController.text.trim(),
                       _urlController.text.trim(),
                     ));
               }
@@ -331,10 +305,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.focused)) return kColorFocus;
-                return kColorPrimary;
+                return Colors.orange;
               }),
             ),
-            child: const Text("LOGIN",
+            child: const Text("Load Playlist",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         );

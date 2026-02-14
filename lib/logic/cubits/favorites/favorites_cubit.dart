@@ -14,43 +14,89 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   Future<void> initialData() async {
     emit(FavoritesLoading());
     try {
-      final live = await FavoriteLocale.getChannelLive();
-      final movie = await FavoriteLocale.getMovies();
-      final series = await FavoriteLocale.getSeries();
-
-      emit(FavoritesSuccess(live, movie, series));
+      final user = await LocaleApi.getUser();
+      if (user != null) {
+        final live = await FavoriteLocale.getChannelLive(user.id);
+        final movie = await FavoriteLocale.getMovies(user.id);
+        final series = await FavoriteLocale.getSeries(user.id);
+        emit(FavoritesSuccess(live, movie, series));
+      } else {
+        emit(FavoritesFailed("User not found"));
+      }
     } catch (e) {
       emit(FavoritesFailed(e.toString()));
     }
   }
 
   Future<void> addLive(ChannelLive channel) async {
-    await FavoriteLocale.saveChannelLive(channel);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.saveChannelLive(channel, user.id);
+      initialData();
+    }
   }
 
   Future<void> removeLive(String streamId) async {
-    await FavoriteLocale.removeChannelLive(streamId);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.removeChannelLive(streamId, user.id);
+      initialData();
+    }
   }
 
   Future<void> addMovie(ChannelMovie movie) async {
-    await FavoriteLocale.saveMovie(movie);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.saveMovie(movie, user.id);
+      initialData();
+    }
   }
 
   Future<void> removeMovie(String streamId) async {
-    await FavoriteLocale.removeMovie(streamId);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.removeMovie(streamId, user.id);
+      initialData();
+    }
   }
 
   Future<void> addSeries(ChannelSerie serie) async {
-    await FavoriteLocale.saveSeries(serie);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.saveSeries(serie, user.id);
+      initialData();
+    }
   }
 
   Future<void> removeSeries(String seriesId) async {
-    await FavoriteLocale.removeSeries(seriesId);
-    initialData();
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.removeSeries(seriesId, user.id);
+      initialData();
+    }
+  }
+
+  Future<void> clearLive() async {
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.clearLive(user.id);
+      initialData();
+    }
+  }
+
+  Future<void> clearMovies() async {
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.clearMovies(user.id);
+      initialData();
+    }
+  }
+
+  Future<void> clearSeries() async {
+    final user = await LocaleApi.getUser();
+    if (user != null) {
+      await FavoriteLocale.clearSeries(user.id);
+      initialData();
+    }
   }
 }

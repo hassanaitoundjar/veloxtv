@@ -6,11 +6,14 @@ const String screenDeviceSelection = "/device-selection";
 const String screenWelcome = "/welcome";
 const String screenIntro = "/intro";
 const String screenRegister = "/register";
+const String screenRegisterM3u = "/register-m3u";
+const String screenRegisterStalker = "/register-stalker";
 const String screenRegisterTv = "/register-tv";
 const String screenSettings = "/settings";
 const String screenFavourite = "/favourite";
 const String screenCatchUp = "/catchup";
 const String screenSearch = "/search";
+const String screenProfiles = "/profiles";
 
 // Content Routes
 const String screenLiveCategories = "/categories-live";

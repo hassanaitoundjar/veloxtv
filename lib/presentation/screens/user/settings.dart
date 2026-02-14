@@ -109,7 +109,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 20),
               _buildInfoTile("Username", info.username ?? "-"),
               _buildInfoTile("Status", info.status ?? "-"),
-              _buildInfoTile("Expiry Date", info.expDate ?? "Unlimited"),
+              _buildInfoTile(
+                  "Expiry Date", formatExpiration(info.expDate ?? "Unlimited")),
               _buildInfoTile("Active Connections", info.activeCons ?? "0"),
               _buildInfoTile("Max Connections", info.maxConnections ?? "1"),
             ],
@@ -139,8 +140,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 24),
               Builder(
                 builder: (context) {
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is! AuthSuccess) return const SizedBox();
+                  final userId = authState.user.id;
                   final enabled =
-                      _storage.read("parental_control_enabled") ?? true;
+                      _storage.read("parental_control_enabled_$userId") ?? true;
                   return SwitchListTile(
                     title: const Text("Enable Parental Control",
                         style: TextStyle(color: Colors.white)),
@@ -149,15 +153,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (val) {
                       if (val) {
                         // Enable directly
-                        _storage.write("parental_control_enabled", true);
+                        _storage.write(
+                            "parental_control_enabled_$userId", true);
                         setState(() {});
                       } else {
                         // To disable, require PIN?
                         Get.dialog(
                           ParentalControlWidget(
+                            userId: userId,
                             mode: ParentalMode.verify,
                             onVerifySuccess: () {
-                              _storage.write("parental_control_enabled", false);
+                              _storage.write(
+                                  "parental_control_enabled_$userId", false);
                               setState(() {});
                             },
                           ),
@@ -179,8 +186,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () {
                   // Flow: Verify Old PIN first (if default 0000, maybe skip? No, always verify).
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is! AuthSuccess) return;
+                  final userId = authState.user.id;
+
                   Get.dialog(
                     ParentalControlWidget(
+                      userId: userId,
                       mode: ParentalMode.verify,
                       onVerifySuccess: () {
                         // Close the verify dialog is handled by widget,
@@ -190,6 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Future.delayed(const Duration(milliseconds: 300), () {
                           Get.dialog(
                             ParentalControlWidget(
+                              userId: userId,
                               mode: ParentalMode.set,
                             ),
                           );

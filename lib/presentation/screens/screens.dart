@@ -15,7 +15,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' hide VideoState;
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:screen_brightness_util/screen_brightness_util.dart';
+
 import 'package:volume_controller/volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,13 +39,17 @@ import '../../repository/models/channel_serie.dart';
 import '../../repository/models/movie_detail.dart';
 import '../../repository/models/serie_details.dart';
 import '../../repository/models/epg.dart';
+import '../../repository/models/user.dart';
 import '../widgets/widgets.dart';
 import '../widgets/parental_control_dialog.dart';
 
 part 'user/splash.dart';
 part 'user/device_selection.dart';
 part 'user/intro.dart';
+part 'user/profile.dart';
 part 'user/register.dart';
+part 'user/register_m3u.dart';
+part 'user/register_stalker.dart';
 part 'user/register_tv.dart';
 part 'user/settings.dart';
 part 'user/favourites.dart';

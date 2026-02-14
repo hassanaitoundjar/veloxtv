@@ -294,6 +294,19 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
               ),
             ),
 
+            // ⏳ BUFFERING INDICATOR
+            StreamBuilder<bool>(
+              stream: _player.stream.buffering,
+              builder: (context, snapshot) {
+                if (snapshot.data == true) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.red),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+
             // 🌑 GRADIENT OVERLAYS
             if (_showControls) ...[
               Positioned(
@@ -392,50 +405,76 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // ➖ SEEK BAR & REMAINING TIME
-                          StreamBuilder<Duration>(
-                            stream: _player.stream.position,
-                            builder: (context, snapshot) {
-                              final position = snapshot.data ?? Duration.zero;
-                              final duration = _player.state.duration;
-                              return Row(
+                          // ➖ SEEK BAR & REMAINING TIME
+                          if (widget.isLive)
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 16.0),
+                              child: Row(
                                 children: [
-                                  Expanded(
-                                    child: SliderTheme(
-                                      data: SliderThemeData(
-                                        thumbShape: const RoundSliderThumbShape(
-                                            enabledThumbRadius: 6),
-                                        trackHeight: 2,
-                                        overlayShape:
-                                            const RoundSliderOverlayShape(
-                                                overlayRadius: 12),
-                                        activeTrackColor: Colors.red,
-                                        inactiveTrackColor: Colors.white24,
-                                        thumbColor: Colors.red,
-                                      ),
-                                      child: Slider(
-                                        value: position.inSeconds
-                                            .toDouble()
-                                            .clamp(0,
-                                                duration.inSeconds.toDouble()),
-                                        min: 0,
-                                        max: duration.inSeconds.toDouble(),
-                                        onChanged: (val) {
-                                          _player.seek(
-                                              Duration(seconds: val.toInt()));
-                                        },
-                                      ),
+                                  Icon(Icons.circle,
+                                      color: Colors.red, size: 12),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "LIVE",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _formatDuration(duration),
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 12),
-                                  ),
                                 ],
-                              );
-                            },
-                          ),
+                              ),
+                            )
+                          else
+                            StreamBuilder<Duration>(
+                              stream: _player.stream.position,
+                              builder: (context, snapshot) {
+                                final position = snapshot.data ?? Duration.zero;
+                                final duration = _player.state.duration;
+                                // ... (rest of logic) ... but easier to just include it all? No, too long.
+                                // I'll wrap the existing StreamBuilder in `else`.
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: SliderTheme(
+                                        data: SliderThemeData(
+                                          thumbShape:
+                                              const RoundSliderThumbShape(
+                                                  enabledThumbRadius: 6),
+                                          trackHeight: 2,
+                                          overlayShape:
+                                              const RoundSliderOverlayShape(
+                                                  overlayRadius: 12),
+                                          activeTrackColor: Colors.red,
+                                          inactiveTrackColor: Colors.white24,
+                                          thumbColor: Colors.red,
+                                        ),
+                                        child: Slider(
+                                          value: position.inSeconds
+                                              .toDouble()
+                                              .clamp(
+                                                  0,
+                                                  duration.inSeconds
+                                                      .toDouble()),
+                                          min: 0,
+                                          max: duration.inSeconds.toDouble(),
+                                          onChanged: (val) {
+                                            _player.seek(
+                                                Duration(seconds: val.toInt()));
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _formatDuration(duration),
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
 
                           // 🎛️ BUTTONS ROW
                           Row(
@@ -458,22 +497,24 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       );
                                     },
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.replay_10,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      _player.seek(_player.state.position -
-                                          const Duration(seconds: 10));
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.forward_10,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      _player.seek(_player.state.position +
-                                          const Duration(seconds: 10));
-                                    },
-                                  ),
+                                  if (!widget.isLive) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.replay_10,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        _player.seek(_player.state.position -
+                                            const Duration(seconds: 10));
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.forward_10,
+                                          color: Colors.white),
+                                      onPressed: () {
+                                        _player.seek(_player.state.position +
+                                            const Duration(seconds: 10));
+                                      },
+                                    ),
+                                  ],
                                   IconButton(
                                     icon: const Icon(Icons.volume_up,
                                         color: Colors.white),
@@ -500,25 +541,27 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                               // RIGHT: Subs, Speed, Fit/Size
                               Row(
                                 children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.subtitles,
-                                        color: Colors.white),
-                                    onPressed: _showTracksSelection,
-                                  ),
+                                  if (!widget.isLive)
+                                    IconButton(
+                                      icon: const Icon(Icons.subtitles,
+                                          color: Colors.white),
+                                      onPressed: _showTracksSelection,
+                                    ),
                                   IconButton(
                                     icon: const Icon(Icons.audiotrack,
                                         color: Colors.white),
                                     onPressed: _showAudioTracksSelection,
                                   ),
-                                  TextButton(
-                                    onPressed: _changeSpeed,
-                                    child: Text(
-                                      "${_playbackSpeed}x",
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                                  if (!widget.isLive)
+                                    TextButton(
+                                      onPressed: _changeSpeed,
+                                      child: Text(
+                                        "${_playbackSpeed}x",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
-                                  ),
                                   IconButton(
                                     icon: Icon(
                                         _fit == BoxFit.cover

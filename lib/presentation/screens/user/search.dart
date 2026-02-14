@@ -26,38 +26,38 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
               child: Column(
                 children: [
-                   Text("Search Content", style: Get.textTheme.headlineMedium),
-                   const SizedBox(height: 30),
-                   FocusableCard(
-                     onTap: () {},
-                     scale: 1.02,
-                     child: TextField(
-                       controller: _controller,
-                       autofocus: true,
-                       onChanged: (val) {
-                         setState(() {
-                           _query = val;
-                         });
-                         // Implement search logic here
-                       },
-                       style: Get.textTheme.titleLarge,
-                       decoration: InputDecoration(
-                         hintText: "Type to search...",
-                         prefixIcon: const Icon(Icons.search, size: 30),
-                         filled: true,
-                         fillColor: kColorCard,
-                         border: OutlineInputBorder(
-                           borderRadius: BorderRadius.circular(16),
-                           borderSide: BorderSide.none,
-                         ),
-                         contentPadding: const EdgeInsets.all(20),
-                       ),
-                     ),
-                   ),
+                  Text("Search Content", style: Get.textTheme.headlineMedium),
+                  const SizedBox(height: 30),
+                  FocusableCard(
+                    onTap: () {},
+                    scale: 1.02,
+                    child: TextField(
+                      controller: _controller,
+                      autofocus: true,
+                      onChanged: (val) {
+                        setState(() {
+                          _query = val;
+                        });
+                        // Implement search logic here
+                      },
+                      style: Get.textTheme.titleLarge,
+                      decoration: InputDecoration(
+                        hintText: "Type to search...",
+                        prefixIcon: const Icon(Icons.search, size: 30),
+                        filled: true,
+                        fillColor: kColorCard,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.all(20),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            
+
             // Results Area
             Expanded(
               child: _query.isEmpty
@@ -65,15 +65,20 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.search, size: 80, color: Colors.white10),
+                          const Icon(Icons.search,
+                              size: 80, color: Colors.white10),
                           const SizedBox(height: 20),
-                          Text("Start typing to search movies, series, or channels", 
-                            style: Get.textTheme.bodyLarge?.copyWith(color: kColorTextSecondary)),
+                          Text(
+                              "Start typing to search movies, series, or channels",
+                              style: Get.textTheme.bodyLarge
+                                  ?.copyWith(color: kColorTextSecondary)),
                         ],
                       ),
                     )
                   : Center(
-                      child: Text("Search functionality needs backend integration for global results.", style: Get.textTheme.bodyLarge),
+                      child: Text(
+                          "Search functionality needs backend integration for global results.",
+                          style: Get.textTheme.bodyLarge),
                     ),
             ),
           ],

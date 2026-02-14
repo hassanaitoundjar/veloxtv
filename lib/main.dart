@@ -75,6 +75,12 @@ class MyApp extends StatelessWidget {
               GetPage(name: screenWelcome, page: () => const WelcomeScreen()),
               GetPage(name: screenRegister, page: () => const RegisterScreen()),
               GetPage(
+                  name: screenRegisterM3u,
+                  page: () => const RegisterM3uScreen()),
+              GetPage(
+                  name: screenRegisterStalker,
+                  page: () => const RegisterStalkerScreen()),
+              GetPage(
                   name: screenRegisterTv, page: () => const RegisterUserTv()),
               GetPage(
                   name: screenLiveCategories,
@@ -95,6 +101,7 @@ class MyApp extends StatelessWidget {
               GetPage(
                   name: screenFavourite, page: () => const FavoriteScreen()),
               GetPage(name: screenCatchUp, page: () => const CatchUpScreen()),
+              GetPage(name: screenProfiles, page: () => const ProfileScreen()),
             ],
           );
         },

@@ -52,12 +52,10 @@ class _SplashScreenState extends State<SplashScreen> {
           if (state is AuthSuccess) {
             // Preload categories here if needed
             _navigate(screenWelcome);
+          } else if (state is AuthProfilesLoaded) {
+            _navigate(screenProfiles);
           } else if (state is AuthFailed) {
-            if (isTv(context)) {
-              _navigate(screenRegisterTv);
-            } else {
-              _navigate(screenIntro);
-            }
+            _navigate(screenIntro);
           }
         },
         child: Container(

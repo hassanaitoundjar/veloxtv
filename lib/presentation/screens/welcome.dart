@@ -175,8 +175,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               _buildSideItem(
                   "Search", Icons.search, () => Get.toNamed(screenSearch)),
               const SizedBox(height: 16),
-              _buildSideItem("Contact Us", Icons.headset_mic, () {
-                // Link to website or show dialog
+              _buildSideItem("Reload Data", Icons.refresh, () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Reloading data...",
+                          style: TextStyle(color: Colors.white))),
+                );
+                context.read<LiveCatyBloc>().add(GetLiveCategories());
+                context.read<MovieCatyBloc>().add(GetMovieCategories());
+                context.read<SeriesCatyBloc>().add(GetSeriesCategories());
               }),
             ],
           ),
@@ -267,7 +274,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           _buildSideItem(
               "Search", Icons.search, () => Get.toNamed(screenSearch)),
           const SizedBox(height: 12),
-          _buildSideItem("Contact Us", Icons.headset_mic, () {}),
+          _buildSideItem("Reload Data", Icons.refresh, () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text("Reloading data...",
+                      style: TextStyle(color: Colors.white))),
+            );
+            context.read<LiveCatyBloc>().add(GetLiveCategories());
+            context.read<MovieCatyBloc>().add(GetMovieCategories());
+            context.read<SeriesCatyBloc>().add(GetSeriesCategories());
+          }),
           const SizedBox(height: 50), // Bottom padding
         ],
       ),

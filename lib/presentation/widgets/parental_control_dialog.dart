@@ -7,12 +7,14 @@ import '../../core/helpers/helpers.dart';
 enum ParentalMode { verify, set }
 
 class ParentalControlWidget extends StatefulWidget {
+  final String userId;
   final ParentalMode mode;
   final Function(String?)? onSetSuccess; // Returns new PIN if set
   final VoidCallback? onVerifySuccess;
 
   const ParentalControlWidget({
     super.key,
+    required this.userId,
     this.mode = ParentalMode.verify,
     this.onSetSuccess,
     this.onVerifySuccess,
@@ -50,7 +52,7 @@ class _ParentalControlWidgetState extends State<ParentalControlWidget> {
 
   void _submit() {
     if (widget.mode == ParentalMode.verify) {
-      final stored = _storage.read("parental_pin") ?? "0000";
+      final stored = _storage.read("parental_pin_${widget.userId}") ?? "0000";
       if (_pin == stored) {
         if (widget.onVerifySuccess != null) widget.onVerifySuccess!();
         Get.back(); // Close dialog
@@ -69,7 +71,7 @@ class _ParentalControlWidgetState extends State<ParentalControlWidget> {
       } else {
         // Confirmation
         if (_pin == _firstPin) {
-          _storage.write("parental_pin", _pin);
+          _storage.write("parental_pin_${widget.userId}", _pin);
           if (widget.onSetSuccess != null) widget.onSetSuccess!(_pin);
           Get.back();
           Get.snackbar("Success", "PIN Updated",

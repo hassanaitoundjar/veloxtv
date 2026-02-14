@@ -31,7 +31,7 @@ dependencies:
   filling_slider: ^0.0.3
 
   volume_controller: ^2.0.8
-  screen_brightness_util: ^0.0.3
+
 
   #M3U   # Media Player
 

@@ -91,36 +91,50 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   }
 
   bool _isRestricted(CategoryModel category) {
+    if (!_isRestrictedName(category.categoryName)) return false;
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthSuccess) return true;
+    final userId = authState.user.id;
     final storage = GetStorage("settings");
-    final enabled = storage.read("parental_control_enabled") ?? true;
-    if (!enabled) return false;
-    return _isRestrictedName(category.categoryName);
+    final enabled = storage.read("parental_control_enabled_$userId") ?? true;
+    return enabled;
   }
 
   void _checkChannelAccess(ChannelLive channel, VoidCallback onAllowed) {
+    // If unrestricted, allow immediately
+    if (!_isRestrictedName(channel.name)) {
+      onAllowed();
+      return;
+    }
+
+    // Check if enabled for user
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthSuccess) return; // Should not happen
+    final userId = authState.user.id;
     final storage = GetStorage("settings");
-    final enabled = storage.read("parental_control_enabled") ?? true;
+    final enabled = storage.read("parental_control_enabled_$userId") ?? true;
+
     if (!enabled) {
       onAllowed();
       return;
     }
 
-    if (_isRestrictedName(channel.name)) {
-      Get.dialog(
-        ParentalControlWidget(
-          mode: ParentalMode.verify,
-          onVerifySuccess: onAllowed,
-        ),
-      );
-    } else {
-      onAllowed();
-    }
+    Get.dialog(
+      ParentalControlWidget(
+        userId: userId,
+        mode: ParentalMode.verify,
+        onVerifySuccess: onAllowed,
+      ),
+    );
   }
 
   void _checkParentalControl(CategoryModel category, VoidCallback onAllowed) {
     if (_isRestricted(category)) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is! AuthSuccess) return;
       Get.dialog(
         ParentalControlWidget(
+          userId: authState.user.id,
           mode: ParentalMode.verify,
           onVerifySuccess: onAllowed,
         ),

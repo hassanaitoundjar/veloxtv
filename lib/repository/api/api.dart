@@ -17,6 +17,8 @@ import '../models/user.dart';
 
 part 'iptv.dart';
 part 'auth.dart';
+part 'm3u_parser.dart';
+part 'stalker_api.dart';
 part '../locale/locale.dart';
 part '../locale/favorites.dart';
 
