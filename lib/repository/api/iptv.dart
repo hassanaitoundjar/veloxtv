@@ -36,7 +36,7 @@ class IpTvApi {
   }
 
   /// Live Channels
-  Future<List<ChannelLive>> getLiveChannels(String catyId) async {
+  Future<List<ChannelLive>> getLiveChannels(String? catyId) async {
     try {
       final user = await LocaleApi.getUser();
 
@@ -46,14 +46,19 @@ class IpTvApi {
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
 
+      final query = {
+        "password": user.userInfo!.password,
+        "username": user.userInfo!.username,
+        "action": "get_live_streams",
+      };
+
+      if (catyId != null) {
+        query["category_id"] = catyId;
+      }
+
       Response<List<dynamic>> response = await _dio.get(
         url,
-        queryParameters: {
-          "password": user.userInfo!.password,
-          "username": user.userInfo!.username,
-          "action": "get_live_streams",
-          "category_id": catyId
-        },
+        queryParameters: query,
       );
 
       if (response.statusCode == 200) {
@@ -70,7 +75,7 @@ class IpTvApi {
   }
 
   /// Movie Channels
-  Future<List<ChannelMovie>> getMovieChannels(String catyId) async {
+  Future<List<ChannelMovie>> getMovieChannels(String? catyId) async {
     try {
       final user = await LocaleApi.getUser();
 
@@ -80,14 +85,19 @@ class IpTvApi {
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
 
+      final query = {
+        "password": user.userInfo!.password,
+        "username": user.userInfo!.username,
+        "action": "get_vod_streams",
+      };
+
+      if (catyId != null) {
+        query["category_id"] = catyId;
+      }
+
       Response<List<dynamic>> response = await _dio.get(
         url,
-        queryParameters: {
-          "password": user.userInfo!.password,
-          "username": user.userInfo!.username,
-          "action": "get_vod_streams",
-          "category_id": catyId
-        },
+        queryParameters: query,
       );
 
       if (response.statusCode == 200) {
@@ -104,7 +114,7 @@ class IpTvApi {
   }
 
   /// Series Channels
-  Future<List<ChannelSerie>> getSeriesChannels(String catyId) async {
+  Future<List<ChannelSerie>> getSeriesChannels(String? catyId) async {
     try {
       final user = await LocaleApi.getUser();
 
@@ -114,14 +124,19 @@ class IpTvApi {
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
 
+      final query = {
+        "password": user.userInfo!.password,
+        "username": user.userInfo!.username,
+        "action": "get_series",
+      };
+
+      if (catyId != null) {
+        query["category_id"] = catyId;
+      }
+
       Response<List<dynamic>> response = await _dio.get(
         url,
-        queryParameters: {
-          "password": user.userInfo!.password,
-          "username": user.userInfo!.username,
-          "action": "get_series",
-          "category_id": catyId
-        },
+        queryParameters: query,
       );
 
       if (response.statusCode == 200) {
@@ -240,5 +255,22 @@ class IpTvApi {
       debugPrint("Error EPG $streamId: $e");
       return [];
     }
+  }
+
+  /// Construct Catch-up URL
+  static String constructCatchUpUrl({
+    required String baseUrl,
+    required String username,
+    required String password,
+    required String streamId,
+    required String startTimestamp, // Unix Timestamp
+    required String duration, // Minutes
+  }) {
+    // Format: http://url:port/timeshift/user/pass/duration/timestamp/stream_id.ts
+    // Ensure baseUrl doesn't end with /
+    final cleanBase = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    return "$cleanBase/timeshift/$username/$password/$duration/$startTimestamp/$streamId.ts";
   }
 }

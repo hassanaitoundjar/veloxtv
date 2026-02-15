@@ -9,12 +9,26 @@ class MovieChannelsScreen extends StatefulWidget {
 
 class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
   CategoryModel? _selectedCategory;
+  late FocusNode _searchFocusNode;
   String _searchQuery = "";
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
+    _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          FocusScope.of(context).nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          FocusScope.of(context).previousFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    });
     // If navigated with a category argument, use it
     if (Get.arguments is CategoryModel) {
       _selectedCategory = Get.arguments as CategoryModel;
@@ -121,9 +135,25 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
         child: Column(
           children: [
             // Global Header (Same as Live TV)
+            // Global Header (Same as Live TV)
+            // Global Header (Same as Live TV)
             AppBarLive(
-              onSearch: (val) =>
-                  setState(() => _searchQuery = val.toLowerCase()),
+              onSearch: (val) {
+                setState(() => _searchQuery = val.toLowerCase());
+                if (_searchQuery.isNotEmpty) {
+                  // Fetch all movies for global search
+                  context
+                      .read<ChannelsBloc>()
+                      .add(GetChannels(null, TypeCategory.movies));
+                } else {
+                  // Restore selected category
+                  if (_selectedCategory != null) {
+                    context.read<ChannelsBloc>().add(GetChannels(
+                        _selectedCategory!.categoryId!, TypeCategory.movies));
+                  }
+                }
+              },
+              focusNode: _searchFocusNode,
             ),
 
             // Main Content Row

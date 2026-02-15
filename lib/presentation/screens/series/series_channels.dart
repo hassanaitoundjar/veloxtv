@@ -9,12 +9,26 @@ class SeriesChannelsScreen extends StatefulWidget {
 
 class _SeriesChannelsScreenState extends State<SeriesChannelsScreen> {
   CategoryModel? _selectedCategory;
+  late FocusNode _searchFocusNode;
   String _searchQuery = "";
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
+    _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          FocusScope.of(context).nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          FocusScope.of(context).previousFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    });
     if (Get.arguments is CategoryModel) {
       _selectedCategory = Get.arguments as CategoryModel;
       context.read<ChannelsBloc>().add(
@@ -116,6 +130,7 @@ class _SeriesChannelsScreenState extends State<SeriesChannelsScreen> {
             AppBarLive(
               onSearch: (val) =>
                   setState(() => _searchQuery = val.toLowerCase()),
+              focusNode: _searchFocusNode,
             ),
 
             // Main Content Row

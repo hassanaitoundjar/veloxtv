@@ -1,30 +1,19 @@
 part of '../screens.dart';
 
-// Needs FontAwesome for specific icons like +/- 10s if Material doesn't have them,
-// or use Material icons that look similar.
-// The reference image uses:
-// Back (Material ArrowBack)
-// Flag (Material Flag/Report)
-// Play (Material PlayArrow)
-// -10s (Material Replay10)
-// +10s (Material Forward10)
-// Volume (Material VolumeUp)
-// Subtitles (Material Subtitles or ChatBubble)
-// Speed (Material Speed)
-// Fullscreen (Material Fullscreen)
-
-// We have 'package:font_awesome_flutter/font_awesome_flutter.dart' available in screens.dart (parent part file).
-
 class MediaKitPlayerScreen extends StatefulWidget {
   final String link;
   final String title;
   final bool isLive;
+  final Player? player;
+  final VideoController? videoController;
 
   const MediaKitPlayerScreen({
     super.key,
     required this.link,
     required this.title,
     this.isLive = false,
+    this.player,
+    this.videoController,
   });
 
   @override
@@ -34,10 +23,30 @@ class MediaKitPlayerScreen extends StatefulWidget {
 class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   late final Player _player;
   late final VideoController _videoController;
+  bool _isExternalController = false;
 
   bool _showControls = true;
   BoxFit _fit = BoxFit.contain;
   double _playbackSpeed = 1.0;
+  Timer? _hideTimer;
+
+  void _startHideTimer() {
+    _hideTimer?.cancel();
+    setState(() {
+      _showControls = true;
+    });
+    _hideTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _showControls = false;
+        });
+      }
+    });
+  }
+
+  void _onInteraction() {
+    _startHideTimer();
+  }
 
   void _toggleFit() {
     setState(() {
@@ -65,6 +74,8 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
     MediaKit.ensureInitialized();
     WakelockPlus.enable();
 
+    _startHideTimer();
+
     // 🔥 Fullscreen for Movies / Series
     if (!widget.isLive) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -74,32 +85,39 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       ]);
     }
 
-    _player = Player(
-      configuration: const PlayerConfiguration(
-        bufferSize: 32 * 1024 * 1024,
-      ),
-    );
+    if (widget.player != null && widget.videoController != null) {
+      _player = widget.player!;
+      _videoController = widget.videoController!;
+      _isExternalController = true;
+    } else {
+      _player = Player(
+        configuration: const PlayerConfiguration(
+          bufferSize: 32 * 1024 * 1024,
+        ),
+      );
 
-    _videoController = VideoController(
-      _player,
-      configuration: const VideoControllerConfiguration(
-        enableHardwareAcceleration: false,
-      ),
-    );
+      _videoController = VideoController(
+        _player,
+        configuration: const VideoControllerConfiguration(
+          enableHardwareAcceleration: false,
+        ),
+      );
 
-    _player.open(
-      Media(
-        widget.link,
-        extras: {
-          'hwdec': 'no', // Linux safe
-        },
-      ),
-      play: true,
-    );
+      _player.open(
+        Media(
+          widget.link,
+          extras: {
+            'hwdec': 'no', // Linux safe
+          },
+        ),
+        play: true,
+      );
+    }
   }
 
   @override
   void dispose() {
+    _hideTimer?.cancel();
     WakelockPlus.disable();
 
     if (!widget.isLive) {
@@ -107,12 +125,15 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }
 
-    _player.dispose();
+    if (!_isExternalController) {
+      _player.dispose();
+    }
     super.dispose();
   }
 
   // 🔤 SUBTITLE PICKER
   void _showTracksSelection() async {
+    _startHideTimer(); // keep controls visible
     final subtitleTracks = _player.state.tracks.subtitle;
 
     await showModalBottomSheet(
@@ -193,10 +214,12 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         );
       },
     );
+    _startHideTimer(); // Restart after close
   }
 
   // 🔊 AUDIO TRACK PICKER
   void _showAudioTracksSelection() async {
+    _startHideTimer();
     final audioTracks = _player.state.tracks.audio;
 
     await showModalBottomSheet(
@@ -258,6 +281,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         );
       },
     );
+    _startHideTimer();
   }
 
   String _formatDuration(Duration d) {
@@ -268,6 +292,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   }
 
   void _toggleMute() {
+    _startHideTimer();
     final currentVol = _player.state.volume;
     if (currentVol > 0) {
       _player.setVolume(0);
@@ -280,307 +305,311 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: GestureDetector(
-        onTap: () => setState(() => _showControls = !_showControls),
-        behavior: HitTestBehavior.translucent,
-        child: Stack(
-          children: [
-            // 🎬 VIDEO LAYER
-            Center(
-              child: Video(
-                controller: _videoController,
-                fit: _fit,
-                controls: NoVideoControls,
-              ),
-            ),
-
-            // ⏳ BUFFERING INDICATOR
-            StreamBuilder<bool>(
-              stream: _player.stream.buffering,
-              builder: (context, snapshot) {
-                if (snapshot.data == true) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.red),
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
-
-            // 🌑 GRADIENT OVERLAYS
-            if (_showControls) ...[
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 100,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.black87, Colors.transparent],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
+      body: MouseRegion(
+        onHover: (_) => _onInteraction(),
+        child: GestureDetector(
+          onTap: _onInteraction,
+          behavior: HitTestBehavior.translucent,
+          child: Stack(
+            children: [
+              // 🎬 VIDEO LAYER
+              Center(
+                child: Video(
+                  controller: _videoController,
+                  fit: _fit,
+                  controls: NoVideoControls,
                 ),
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 160,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, Colors.black87],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                ),
-              ),
-            ],
 
-            // 🎮 CONTROLS LAYER
-            if (_showControls)
-              SafeArea(
-                child: Column(
-                  children: [
-                    // 🔝 TOP BAR
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back,
-                                color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.flag_outlined,
-                                color: Colors.white),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Report feature coming soon')),
-                              );
-                            },
-                          ),
-                        ],
+              // ⏳ BUFFERING INDICATOR
+              StreamBuilder<bool>(
+                stream: _player.stream.buffering,
+                builder: (context, snapshot) {
+                  if (snapshot.data == true) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.red),
+                    );
+                  }
+                  return const SizedBox();
+                },
+              ),
+
+              // 🌑 GRADIENT OVERLAYS
+              if (_showControls) ...[
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 100,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.black87, Colors.transparent],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
                     ),
-
-                    const Spacer(),
-
-                    // ▶️ CENTER PLAY BUTTON
-                    StreamBuilder<bool>(
-                      stream: _player.stream.playing,
-                      builder: (context, snapshot) {
-                        final playing = snapshot.data ?? true;
-                        if (playing) return const SizedBox();
-                        return Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black45,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            iconSize: 64,
-                            icon: const Icon(Icons.play_arrow,
-                                color: Colors.white),
-                            onPressed: _player.play,
-                          ),
-                        );
-                      },
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 160,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.black87],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
+                  ),
+                ),
+              ],
 
-                    const Spacer(),
-
-                    // 🔽 BOTTOM CONTROLS
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // ➖ SEEK BAR & REMAINING TIME
-                          // ➖ SEEK BAR & REMAINING TIME
-                          if (widget.isLive)
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 16.0),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.circle,
-                                      color: Colors.red, size: 12),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "LIVE",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          else
-                            StreamBuilder<Duration>(
-                              stream: _player.stream.position,
-                              builder: (context, snapshot) {
-                                final position = snapshot.data ?? Duration.zero;
-                                final duration = _player.state.duration;
-                                // ... (rest of logic) ... but easier to just include it all? No, too long.
-                                // I'll wrap the existing StreamBuilder in `else`.
-                                return Row(
-                                  children: [
-                                    Expanded(
-                                      child: SliderTheme(
-                                        data: SliderThemeData(
-                                          thumbShape:
-                                              const RoundSliderThumbShape(
-                                                  enabledThumbRadius: 6),
-                                          trackHeight: 2,
-                                          overlayShape:
-                                              const RoundSliderOverlayShape(
-                                                  overlayRadius: 12),
-                                          activeTrackColor: Colors.red,
-                                          inactiveTrackColor: Colors.white24,
-                                          thumbColor: Colors.red,
-                                        ),
-                                        child: Slider(
-                                          value: position.inSeconds
-                                              .toDouble()
-                                              .clamp(
-                                                  0,
-                                                  duration.inSeconds
-                                                      .toDouble()),
-                                          min: 0,
-                                          max: duration.inSeconds.toDouble(),
-                                          onChanged: (val) {
-                                            _player.seek(
-                                                Duration(seconds: val.toInt()));
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _formatDuration(duration),
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                  ],
+              // 🎮 CONTROLS LAYER
+              if (_showControls)
+                SafeArea(
+                  child: Column(
+                    children: [
+                      // 🔝 TOP BAR
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back,
+                                  color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.flag_outlined,
+                                  color: Colors.white),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Report feature coming soon')),
                                 );
                               },
                             ),
+                          ],
+                        ),
+                      ),
 
-                          // 🎛️ BUTTONS ROW
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // LEFT: Play, -10, +10, Volume
-                              Row(
-                                children: [
-                                  StreamBuilder<bool>(
-                                    stream: _player.stream.playing,
-                                    builder: (context, snapshot) {
-                                      final playing = snapshot.data ?? true;
-                                      return IconButton(
-                                        icon: Icon(
-                                            playing
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            color: Colors.white),
-                                        onPressed: _player.playOrPause,
-                                      );
-                                    },
-                                  ),
-                                  if (!widget.isLive) ...[
-                                    IconButton(
-                                      icon: const Icon(Icons.replay_10,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        _player.seek(_player.state.position -
-                                            const Duration(seconds: 10));
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.forward_10,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        _player.seek(_player.state.position +
-                                            const Duration(seconds: 10));
-                                      },
-                                    ),
-                                  ],
-                                  IconButton(
-                                    icon: const Icon(Icons.volume_up,
-                                        color: Colors.white),
-                                    onPressed: _toggleMute,
-                                  ),
-                                ],
-                              ),
+                      const Spacer(),
 
-                              // CENTER: Title
-                              if (!context.isPhone)
-                                Expanded(
-                                  child: Text(
-                                    widget.title,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
+                      // ▶️ CENTER PLAY BUTTON
+                      StreamBuilder<bool>(
+                        stream: _player.stream.playing,
+                        builder: (context, snapshot) {
+                          final playing = snapshot.data ?? true;
+                          if (playing) return const SizedBox();
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.black45,
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              iconSize: 64,
+                              icon: const Icon(Icons.play_arrow,
+                                  color: Colors.white),
+                              onPressed: _player.play,
+                            ),
+                          );
+                        },
+                      ),
 
-                              // RIGHT: Subs, Speed, Fit/Size
-                              Row(
-                                children: [
-                                  if (!widget.isLive)
-                                    IconButton(
-                                      icon: const Icon(Icons.subtitles,
-                                          color: Colors.white),
-                                      onPressed: _showTracksSelection,
-                                    ),
-                                  IconButton(
-                                    icon: const Icon(Icons.audiotrack,
-                                        color: Colors.white),
-                                    onPressed: _showAudioTracksSelection,
-                                  ),
-                                  if (!widget.isLive)
-                                    TextButton(
-                                      onPressed: _changeSpeed,
-                                      child: Text(
-                                        "${_playbackSpeed}x",
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
+                      const Spacer(),
+
+                      // 🔽 BOTTOM CONTROLS
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // ➖ SEEK BAR & REMAINING TIME
+                            // ➖ SEEK BAR & REMAINING TIME
+                            if (widget.isLive)
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 16.0),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.circle,
+                                        color: Colors.red, size: 12),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "LIVE",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.2,
                                       ),
                                     ),
-                                  IconButton(
-                                    icon: Icon(
-                                        _fit == BoxFit.cover
-                                            ? Icons.fullscreen_exit
-                                            : Icons.fullscreen,
-                                        color: Colors.white),
-                                    onPressed: _toggleFit,
-                                  ),
-                                ],
+                                  ],
+                                ),
+                              )
+                            else
+                              StreamBuilder<Duration>(
+                                stream: _player.stream.position,
+                                builder: (context, snapshot) {
+                                  final position =
+                                      snapshot.data ?? Duration.zero;
+                                  final duration = _player.state.duration;
+                                  // ... (rest of logic) ... but easier to just include it all? No, too long.
+                                  // I'll wrap the existing StreamBuilder in `else`.
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: SliderTheme(
+                                          data: SliderThemeData(
+                                            thumbShape:
+                                                const RoundSliderThumbShape(
+                                                    enabledThumbRadius: 6),
+                                            trackHeight: 2,
+                                            overlayShape:
+                                                const RoundSliderOverlayShape(
+                                                    overlayRadius: 12),
+                                            activeTrackColor: Colors.red,
+                                            inactiveTrackColor: Colors.white24,
+                                            thumbColor: Colors.red,
+                                          ),
+                                          child: Slider(
+                                            value: position.inSeconds
+                                                .toDouble()
+                                                .clamp(
+                                                    0,
+                                                    duration.inSeconds
+                                                        .toDouble()),
+                                            min: 0,
+                                            max: duration.inSeconds.toDouble(),
+                                            onChanged: (val) {
+                                              _player.seek(Duration(
+                                                  seconds: val.toInt()));
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _formatDuration(duration),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                            ],
-                          ),
-                        ],
+
+                            // 🎛️ BUTTONS ROW
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // LEFT: Play, -10, +10, Volume
+                                Row(
+                                  children: [
+                                    StreamBuilder<bool>(
+                                      stream: _player.stream.playing,
+                                      builder: (context, snapshot) {
+                                        final playing = snapshot.data ?? true;
+                                        return IconButton(
+                                          icon: Icon(
+                                              playing
+                                                  ? Icons.pause
+                                                  : Icons.play_arrow,
+                                              color: Colors.white),
+                                          onPressed: _player.playOrPause,
+                                        );
+                                      },
+                                    ),
+                                    if (!widget.isLive) ...[
+                                      IconButton(
+                                        icon: const Icon(Icons.replay_10,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          _player.seek(_player.state.position -
+                                              const Duration(seconds: 10));
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.forward_10,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          _player.seek(_player.state.position +
+                                              const Duration(seconds: 10));
+                                        },
+                                      ),
+                                    ],
+                                    IconButton(
+                                      icon: const Icon(Icons.volume_up,
+                                          color: Colors.white),
+                                      onPressed: _toggleMute,
+                                    ),
+                                  ],
+                                ),
+
+                                // CENTER: Title
+                                if (!context.isPhone)
+                                  Expanded(
+                                    child: Text(
+                                      widget.title,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+
+                                // RIGHT: Subs, Speed, Fit/Size
+                                Row(
+                                  children: [
+                                    if (!widget.isLive)
+                                      IconButton(
+                                        icon: const Icon(Icons.subtitles,
+                                            color: Colors.white),
+                                        onPressed: _showTracksSelection,
+                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.audiotrack,
+                                          color: Colors.white),
+                                      onPressed: _showAudioTracksSelection,
+                                    ),
+                                    if (!widget.isLive)
+                                      TextButton(
+                                        onPressed: _changeSpeed,
+                                        child: Text(
+                                          "${_playbackSpeed}x",
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    IconButton(
+                                      icon: Icon(
+                                          _fit == BoxFit.cover
+                                              ? Icons.fullscreen_exit
+                                              : Icons.fullscreen,
+                                          color: Colors.white),
+                                      onPressed: _toggleFit,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

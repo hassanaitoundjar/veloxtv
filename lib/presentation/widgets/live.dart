@@ -4,12 +4,14 @@ class AppBarLive extends StatefulWidget {
   final Function(String)? onSearch;
   final VoidCallback? onToggleView;
   final bool isGridView;
+  final FocusNode? focusNode;
 
   const AppBarLive({
     super.key,
     this.onSearch,
     this.onToggleView,
     this.isGridView = true,
+    this.focusNode,
   });
 
   @override
@@ -113,6 +115,7 @@ class _AppBarLiveState extends State<AppBarLive> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: TextField(
+                  focusNode: widget.focusNode,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: "Search...",
@@ -150,6 +153,31 @@ class SideCategoryMenu extends StatefulWidget {
 
 class _SideCategoryMenuState extends State<SideCategoryMenu> {
   String _catSearch = "";
+  late FocusNode _searchFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          FocusScope.of(context).nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          FocusScope.of(context).previousFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +207,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(
+                focusNode: _searchFocusNode,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: const InputDecoration(
                   hintText: "Search By Categories...",
@@ -408,16 +437,16 @@ class ListChannelItem extends StatelessWidget {
             ),
             // Favorite Icon
             if (onFavoriteToggle != null)
-              IconButton(
-                focusNode: FocusNode(
-                    skipTraversal: true), // Prevent remote focus "trap"
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.yellow : Colors.white38,
-                  size: 22,
+              ExcludeFocus(
+                child: IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.yellow : Colors.white38,
+                    size: 22,
+                  ),
+                  onPressed: onFavoriteToggle,
+                  splashRadius: 20,
                 ),
-                onPressed: onFavoriteToggle,
-                splashRadius: 20,
               ),
           ],
         ),

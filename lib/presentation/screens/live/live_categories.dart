@@ -13,6 +13,7 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   ChannelLive? _selectedChannel;
   Future<List<EpgModel>>? _epgFuture;
   final _searchController = TextEditingController();
+  late FocusNode _searchFocusNode;
   String _searchQuery = "";
 
   late final Player _previewPlayer;
@@ -30,6 +31,19 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
   @override
   void initState() {
     super.initState();
+    _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          FocusScope.of(context).nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          FocusScope.of(context).previousFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    });
     MediaKit.ensureInitialized();
 
     _previewPlayer = Player();
@@ -52,6 +66,7 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
 
   @override
   void dispose() {
+    _searchFocusNode.dispose();
     _searchController.dispose();
     _previewPlayer.dispose();
     super.dispose();
@@ -183,6 +198,7 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: TextField(
+                                    focusNode: _searchFocusNode,
                                     controller:
                                         _searchController, // No usage error now
                                     onChanged: (val) =>
@@ -423,98 +439,97 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                       child: Column(
                         children: [
                           // Mini Player Area (Top)
-                          AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: Container(
-                              color: Colors.black,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  if (_selectedChannel != null)
-                                    Video(
-                                      controller: _previewVideoController,
-                                      fit: BoxFit.cover,
-                                    )
-                                  else ...[
-                                    if (_selectedChannel?.streamIcon != null &&
-                                        _selectedChannel!
-                                            .streamIcon!.isNotEmpty)
-                                      SizedBox.expand(
-                                        child: Opacity(
-                                          opacity: 0.3,
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                _selectedChannel!.streamIcon!,
-                                            fit: BoxFit.cover,
-                                            errorWidget: (_, __, ___) =>
-                                                const Center(
-                                                    child: Icon(Icons.tv,
-                                                        size: 48,
-                                                        color: Colors.white24)),
+                          FocusableCard(
+                            onTap: () {
+                              if (_selectedChannel != null) {
+                                _checkChannelAccess(_selectedChannel!,
+                                    () async {
+                                  final user = await LocaleApi.getUser();
+                                  if (user != null) {
+                                    final link =
+                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+
+                                    Get.to(() => MediaKitPlayerScreen(
+                                          title: _selectedChannel!.name ??
+                                              "Live TV",
+                                          link: link,
+                                          isLive: true,
+                                          player: _previewPlayer,
+                                          videoController:
+                                              _previewVideoController,
+                                        ));
+                                  }
+                                });
+                              }
+                            },
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Container(
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    if (_selectedChannel != null)
+                                      Video(
+                                        controller: _previewVideoController,
+                                        fit: BoxFit.cover,
+                                        controls: NoVideoControls,
+                                      )
+                                    else ...[
+                                      if (_selectedChannel?.streamIcon !=
+                                              null &&
+                                          _selectedChannel!
+                                              .streamIcon!.isNotEmpty)
+                                        SizedBox.expand(
+                                          child: Opacity(
+                                            opacity: 0.3,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  _selectedChannel!.streamIcon!,
+                                              fit: BoxFit.cover,
+                                              errorWidget: (_, __, ___) =>
+                                                  const Center(
+                                                      child: Icon(Icons.tv,
+                                                          size: 48,
+                                                          color:
+                                                              Colors.white24)),
+                                            ),
                                           ),
                                         ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (widget.isPicker)
+                                            ElevatedButton.icon(
+                                              onPressed: () {
+                                                if (_selectedChannel != null) {
+                                                  Get.back(
+                                                      result: _selectedChannel);
+                                                }
+                                              },
+                                              icon: const Icon(Icons.check,
+                                                  color: Colors.white),
+                                              label: Text("Select Channel",
+                                                  style: GoogleFonts.outfit(
+                                                      color: Colors.white)),
+                                              style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      kColorPrimary),
+                                            )
+                                          else
+                                            const Icon(Icons.play_circle_fill,
+                                                size: 64,
+                                                color: Colors.white54),
+                                          const SizedBox(height: 8),
+                                          const Text("Preview",
+                                              style: TextStyle(
+                                                  color: Colors.white54)),
+                                        ],
                                       ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        if (widget.isPicker)
-                                          ElevatedButton.icon(
-                                            onPressed: () {
-                                              if (_selectedChannel != null) {
-                                                Get.back(
-                                                    result: _selectedChannel);
-                                              }
-                                            },
-                                            icon: const Icon(Icons.check,
-                                                color: Colors.white),
-                                            label: Text("Select Channel",
-                                                style: GoogleFonts.outfit(
-                                                    color: Colors.white)),
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: kColorPrimary),
-                                          )
-                                        else
-                                          IconButton(
-                                            iconSize: 64,
-                                            icon: Icon(Icons.play_circle_fill,
-                                                color: kColorPrimary
-                                                    .withOpacity(0.8)),
-                                            onPressed: () async {
-                                              if (_selectedChannel != null) {
-                                                _checkChannelAccess(
-                                                    _selectedChannel!,
-                                                    () async {
-                                                  await _previewPlayer.pause();
-
-                                                  final user =
-                                                      await LocaleApi.getUser();
-                                                  if (user != null) {
-                                                    final link =
-                                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
-
-                                                    Get.to(() =>
-                                                        MediaKitPlayerScreen(
-                                                          title:
-                                                              _selectedChannel!
-                                                                      .name ??
-                                                                  "Live TV",
-                                                          link: link,
-                                                          isLive: true,
-                                                        ));
-                                                  }
-                                                });
-                                              }
-                                            },
-                                          ),
-                                        const SizedBox(height: 8),
-                                        const Text("Preview",
-                                            style: TextStyle(
-                                                color: Colors.white54)),
-                                      ],
-                                    ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -586,13 +601,32 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                   const SizedBox(height: 24),
 
                                   // EPG Section Title
-                                  Text(
-                                    "TV GUIDE",
-                                    style: Get.textTheme.titleMedium?.copyWith(
-                                      color: kColorTextSecondary,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "EPG (Electronic Program Guide)",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      if (_selectedChannel != null &&
+                                          _selectedChannel!.tvArchive == 1)
+                                        TextButton.icon(
+                                          icon: const Icon(Icons.history,
+                                              color: kColorPrimary, size: 18),
+                                          label: const Text("View All Catch-up",
+                                              style: TextStyle(
+                                                  color: kColorPrimary)),
+                                          onPressed: () {
+                                            Get.to(() => CatchUpScreen(
+                                                channel: _selectedChannel!));
+                                          },
+                                        ),
+                                    ],
                                   ),
                                   const SizedBox(height: 12),
 
@@ -653,8 +687,12 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                   // we might want to substring them?
                                                   // For now, raw.
 
+                                                  // 1. Try to use startDt and endDt if available (parsed below)
+                                                  // 2. Fallback to substring if string format is standard
+                                                  // 3. Last resort: raw string
+
                                                   String timeDisplay =
-                                                      "$start\n$end";
+                                                      "$start\n$end"; // Default fallback
 
                                                   // Improved Time Parsing (Optional, based on expected format)
                                                   // If startTimestamp is available, use it?
@@ -669,13 +707,84 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
 
                                                   final isCurrent = index == 0;
 
+                                                  // Catch-up Access
+                                                  bool hasArchive =
+                                                      _selectedChannel!
+                                                              .tvArchive ==
+                                                          1;
+                                                  final now = DateTime.now();
+
+                                                  // Parse Start Time (Assuming API returns various formats, try to safe parse)
+                                                  // Often EPG start is YYYYMMDDHHMMSS +0000 or timestamp
+                                                  // We need duration and start timestamp for the URL.
+                                                  // EpgModel has startTimestamp and stopTimestamp as String?
+                                                  // Let's rely on them if available, else derive?
+                                                  DateTime? startDt;
+                                                  DateTime? endDt;
+
+                                                  if (epg.startTimestamp !=
+                                                          null &&
+                                                      epg.stopTimestamp !=
+                                                          null) {
+                                                    try {
+                                                      startDt = DateTime
+                                                          .fromMillisecondsSinceEpoch(
+                                                              int.parse(epg
+                                                                      .startTimestamp!) *
+                                                                  1000);
+                                                      endDt = DateTime
+                                                          .fromMillisecondsSinceEpoch(
+                                                              int.parse(epg
+                                                                      .stopTimestamp!) *
+                                                                  1000);
+                                                    } catch (_) {}
+                                                  }
+
+                                                  // Format time for display if we have dates
+                                                  if (startDt != null &&
+                                                      endDt != null) {
+                                                    // Helper to format HH:mm
+                                                    String fmt(DateTime dt) =>
+                                                        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+                                                    timeDisplay =
+                                                        "${fmt(startDt)}\n${fmt(endDt)}";
+                                                  } else {
+                                                    // Try to parse from string if YYYY-MM-DD HH:MM:SS
+                                                    try {
+                                                      // Check if start looks like 2026-02-14 21:40:00
+                                                      if (start.length >= 16) {
+                                                        final s =
+                                                            DateTime.parse(
+                                                                start);
+                                                        final e =
+                                                            DateTime.parse(end);
+                                                        String fmt(
+                                                                DateTime dt) =>
+                                                            "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+                                                        timeDisplay =
+                                                            "${fmt(s)}\n${fmt(e)}";
+                                                      }
+                                                    } catch (_) {}
+                                                  }
+
+                                                  // Helper to determine status
+                                                  bool isPast = endDt != null &&
+                                                      endDt.isBefore(now);
+                                                  // isCurrent already defined roughly by index==0 but let's use time if available
+                                                  bool isNow = startDt !=
+                                                          null &&
+                                                      endDt != null &&
+                                                      startDt.isBefore(now) &&
+                                                      endDt.isAfter(now);
+
                                                   return Container(
                                                     padding: const EdgeInsets
                                                         .symmetric(
                                                         vertical: 12,
                                                         horizontal: 8),
                                                     decoration: BoxDecoration(
-                                                      color: isCurrent
+                                                      color: (isCurrent ||
+                                                              isNow)
                                                           ? kColorPrimary
                                                               .withOpacity(0.1)
                                                           : null,
@@ -694,14 +803,17 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                           child: Text(
                                                             timeDisplay,
                                                             style: TextStyle(
-                                                              color: isCurrent
+                                                              color: (isCurrent ||
+                                                                      isNow)
                                                                   ? kColorPrimary
                                                                   : kColorTextSecondary,
-                                                              fontWeight: isCurrent
-                                                                  ? FontWeight
-                                                                      .bold
-                                                                  : FontWeight
-                                                                      .normal,
+                                                              fontWeight:
+                                                                  (isCurrent ||
+                                                                          isNow)
+                                                                      ? FontWeight
+                                                                          .bold
+                                                                      : FontWeight
+                                                                          .normal,
                                                               fontSize: 12,
                                                             ),
                                                           ),
@@ -718,12 +830,14 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                                 title,
                                                                 style:
                                                                     TextStyle(
-                                                                  color: isCurrent
+                                                                  color: (isCurrent ||
+                                                                          isNow)
                                                                       ? Colors
                                                                           .white
                                                                       : Colors
                                                                           .white70,
-                                                                  fontWeight: isCurrent
+                                                                  fontWeight: (isCurrent ||
+                                                                          isNow)
                                                                       ? FontWeight
                                                                           .bold
                                                                       : FontWeight
@@ -754,6 +868,101 @@ class _LiveCategoriesScreenState extends State<LiveCategoriesScreen> {
                                                             ],
                                                           ),
                                                         ),
+                                                        // Archive Actions
+                                                        if (hasArchive &&
+                                                            (isPast || isNow) &&
+                                                            startDt != null &&
+                                                            endDt != null)
+                                                          IconButton(
+                                                            icon: Icon(
+                                                              isNow
+                                                                  ? Icons.replay
+                                                                  : Icons
+                                                                      .play_circle_outline,
+                                                              color:
+                                                                  kColorPrimary,
+                                                            ),
+                                                            tooltip: isNow
+                                                                ? "Restart"
+                                                                : "Play Catch-up",
+                                                            onPressed:
+                                                                () async {
+                                                              // Determine duration in minutes
+                                                              final durationMin =
+                                                                  endDt!
+                                                                      .difference(
+                                                                          startDt!)
+                                                                      .inMinutes;
+
+                                                              final user =
+                                                                  await LocaleApi
+                                                                      .getUser();
+                                                              if (user !=
+                                                                  null) {
+                                                                // Construct URL
+                                                                // Construct URL
+                                                                final catchUpUrl =
+                                                                    IpTvApi
+                                                                        .constructCatchUpUrl(
+                                                                  baseUrl: user
+                                                                      .serverInfo!
+                                                                      .serverUrl!,
+                                                                  username: user
+                                                                      .userInfo!
+                                                                      .username!,
+                                                                  password: user
+                                                                      .userInfo!
+                                                                      .password!,
+                                                                  streamId:
+                                                                      _selectedChannel!
+                                                                          .streamId!,
+                                                                  startTimestamp:
+                                                                      "${startDt!.millisecondsSinceEpoch ~/ 1000}", // Unix seconds - fixed unnecessary braces
+                                                                  duration:
+                                                                      durationMin
+                                                                          .toString(),
+                                                                );
+
+                                                                // Open Player
+                                                                // Reuse preview controller setup?
+                                                                // If we want seamless transition, we should use the same controller.
+                                                                // But we are changing the source (Media).
+                                                                // When we change source, we can still use the same controller instance,
+                                                                // but we must _player.open() the new media.
+                                                                // MediaKitPlayerScreen does _player.open in initState.
+                                                                // If we pass an EXISTING controller/player to it, it skips open?
+                                                                // NO, looking at previous edit:
+                                                                // if (widget.player != null) { ... _isExternalController = true; } else { ... _player.open(...) }
+                                                                // Use the existing player but we must OPEN the new media on it!
+                                                                // So we should probably open the media HERE before navigating?
+                                                                // OR MediaKitPlayerScreen should handle opening if link changes?
+                                                                // The current logic in MediaKitPlayerScreen:
+                                                                // It does NOT open media if external controller is passed.
+                                                                // So we must open it here.
+
+                                                                await _previewPlayer
+                                                                    .open(
+                                                                  Media(
+                                                                      catchUpUrl),
+                                                                  play: true,
+                                                                );
+
+                                                                Get.to(() =>
+                                                                    MediaKitPlayerScreen(
+                                                                      title:
+                                                                          "${title} (Catch-up)",
+                                                                      link:
+                                                                          catchUpUrl,
+                                                                      isLive:
+                                                                          false, // Important for seek bar
+                                                                      player:
+                                                                          _previewPlayer,
+                                                                      videoController:
+                                                                          _previewVideoController,
+                                                                    ));
+                                                              }
+                                                            },
+                                                          ),
                                                       ],
                                                     ),
                                                   );
