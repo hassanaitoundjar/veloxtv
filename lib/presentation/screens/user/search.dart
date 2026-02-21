@@ -139,8 +139,7 @@ class _SearchScreenState extends State<SearchScreen>
                   decoration: InputDecoration(
                     hintText: "Search Movies, Series, Channels...",
                     prefixIcon: const Icon(Icons.search, size: 30),
-                    filled: true,
-                    fillColor: kColorCard,
+                    filled: false,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,

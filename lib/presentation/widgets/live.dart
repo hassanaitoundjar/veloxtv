@@ -3,6 +3,7 @@ part of 'widgets.dart';
 class AppBarLive extends StatefulWidget {
   final Function(String)? onSearch;
   final VoidCallback? onToggleView;
+  final VoidCallback? onTimeline;
   final bool isGridView;
   final FocusNode? focusNode;
 
@@ -10,6 +11,7 @@ class AppBarLive extends StatefulWidget {
     super.key,
     this.onSearch,
     this.onToggleView,
+    this.onTimeline,
     this.isGridView = true,
     this.focusNode,
   });
@@ -106,27 +108,41 @@ class _AppBarLiveState extends State<AppBarLive> {
           if (widget.onSearch != null)
             Align(
               alignment: Alignment.centerRight,
-              child: Container(
-                width: 400,
-                height: 40,
-                margin: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  color: kColorCardLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: TextField(
-                  focusNode: widget.focusNode,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: "Search...",
-                    hintStyle: TextStyle(color: Colors.white38),
-                    prefixIcon: const Icon(Icons.search,
-                        color: Colors.white54, size: 20),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 400,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      color: kColorCardLight,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TextField(
+                      focusNode: widget.focusNode,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: "Search...",
+                        hintStyle: const TextStyle(color: Colors.white38),
+                        prefixIcon: const Icon(Icons.search,
+                            color: Colors.white54, size: 20),
+                        border: InputBorder.none,
+                        filled: false,
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onChanged: widget.onSearch,
+                    ),
                   ),
-                  onChanged: widget.onSearch,
-                ),
+                  if (widget.onTimeline != null)
+                    IconButton(
+                      onPressed: widget.onTimeline,
+                      icon:
+                          const Icon(Icons.view_timeline, color: Colors.white),
+                      tooltip: "Timeline View",
+                    ),
+                ],
               ),
             ),
         ],
@@ -215,6 +231,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                   prefixIcon:
                       Icon(Icons.search, color: Colors.white54, size: 18),
                   border: InputBorder.none,
+                  filled: false,
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
                 onChanged: (val) => setState(() => _catSearch = val),
