@@ -6,9 +6,8 @@ class SerieDetails {
   SerieDetails({this.seasons, this.info, this.episodes});
 
   SerieDetails.fromJson(Map<String, dynamic> json)
-      : seasons = (json['seasons'] as List?)
-            ?.map((e) => Season.fromJson(e))
-            .toList(),
+      : seasons =
+            (json['seasons'] as List?)?.map((e) => Season.fromJson(e)).toList(),
         info = json['info'] != null ? InfoSerie.fromJson(json['info']) : null,
         episodes = (json['episodes'] as Map<String, dynamic>?)?.map(
           (key, value) => MapEntry(
@@ -97,9 +96,8 @@ class InfoSerie {
         lastModified = json['last_modified'].toString(),
         rating = json['rating'].toString(),
         rating5based = json['rating_5based'].toString(),
-        backdropPath = (json['backdrop_path'] as List?)
-            ?.map((e) => e.toString())
-            .toList(),
+        backdropPath =
+            (json['backdrop_path'] as List?)?.map((e) => e.toString()).toList(),
         youtubeTrailer = json['youtube_trailer'].toString(),
         episodeRunTime = json['episode_run_time'].toString(),
         categoryId = json['category_id'].toString();

@@ -1,13 +1,13 @@
 part of 'screens.dart';
 
-class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
@@ -78,7 +78,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         title: "Live TV",
                         icon: FontAwesomeIcons.tv,
                         isIconData: true,
-                        onTap: () => Get.toNamed(screenLiveCategories),
+                        onTap: () => Get.toNamed(screenLiveTv),
                         blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
                           builder: (context, state) => _buildCount(state),
                         ),
@@ -92,7 +92,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         title: "Movies",
                         icon: FontAwesomeIcons.film,
                         isIconData: true,
-                        onTap: () => Get.toNamed(screenMovieChannels),
+                        onTap: () => Get.toNamed(screenMovies),
                         blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
                           builder: (context, state) => _buildCount(state),
                         ),
@@ -105,7 +105,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         title: "Series",
                         icon: FontAwesomeIcons.layerGroup,
                         isIconData: true,
-                        onTap: () => Get.toNamed(screenSeriesChannels),
+                        onTap: () => Get.toNamed(screenSeries),
                         blocBuilder:
                             BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
                           builder: (context, state) => _buildCount(state),
@@ -148,7 +148,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         title: "Favorites",
                         icon: FontAwesomeIcons.heart,
                         isIconData: true,
-                        onTap: () => Get.toNamed(screenFavourite),
+                        onTap: () => Get.toNamed(screenFavorites),
                       ),
                     ),
                   ],
@@ -202,7 +202,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             title: "Live TV",
             icon: FontAwesomeIcons.tv,
             isIconData: true,
-            onTap: () => Get.toNamed(screenLiveCategories),
+            onTap: () => Get.toNamed(screenLiveTv),
             blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
                 builder: (context, state) => _buildCount(state)),
           ),
@@ -213,7 +213,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             title: "Movies",
             icon: FontAwesomeIcons.film,
             isIconData: true,
-            onTap: () => Get.toNamed(screenMovieChannels),
+            onTap: () => Get.toNamed(screenMovies),
             blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
                 builder: (context, state) => _buildCount(state)),
           ),
@@ -224,7 +224,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             title: "Series",
             icon: FontAwesomeIcons.layerGroup,
             isIconData: true,
-            onTap: () => Get.toNamed(screenSeriesChannels),
+            onTap: () => Get.toNamed(screenSeries),
             blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
                 builder: (context, state) => _buildCount(state)),
           ),
@@ -257,7 +257,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               title: "Favorites",
               icon: FontAwesomeIcons.heart,
               isIconData: true,
-              onTap: () => Get.toNamed(screenFavourite),
+              onTap: () => Get.toNamed(screenFavorites),
               height: 80),
 
           const SizedBox(height: 24),

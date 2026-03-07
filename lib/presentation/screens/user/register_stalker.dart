@@ -294,7 +294,7 @@ class _RegisterStalkerScreenState extends State<RegisterStalkerScreen> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
-          Get.offAllNamed(screenWelcome);
+          Get.offAllNamed(screenHome);
         } else if (state is AuthFailed) {
           Get.snackbar("Error", state.message,
               snackPosition: SnackPosition.BOTTOM,

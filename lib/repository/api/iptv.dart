@@ -1,13 +1,18 @@
 part of 'api.dart';
 
 class IpTvApi {
-  /// Categories
+  /// Fetches content categories from the server.
+  ///
+  /// The [type] parameter determines the category type:
+  /// - 'get_live_categories' for Live TV
+  /// - 'get_vod_categories' for Movies
+  /// - 'get_series_categories' for Series
   Future<List<CategoryModel>> getCategories(String type) async {
     try {
       final user = await LocaleApi.getUser();
 
       if (user == null) {
-        debugPrint("User is Null");
+        debugPrint("User session is missing");
         return [];
       }
 
@@ -30,12 +35,14 @@ class IpTvApi {
 
       return [];
     } catch (e) {
-      debugPrint("Error $type: $e");
+      debugPrint("Error fetching categories ($type): $e");
       return [];
     }
   }
 
-  /// Live Channels
+  /// Fetches live TV channels.
+  ///
+  /// If [catyId] is provided, it filters channels by that specific category.
   Future<List<ChannelLive>> getLiveChannels(String? catyId) async {
     try {
       final user = await LocaleApi.getUser();
@@ -236,17 +243,23 @@ class IpTvApi {
         queryParameters: {
           "password": user.userInfo!.password,
           "username": user.userInfo!.username,
-          "action": "get_short_epg",
+          "action": "get_simple_data_table", // Changed from get_short_epg
           "stream_id": streamId,
         },
       );
 
       if (response.statusCode == 200) {
-        final jsonMap = jsonDecode(response.data ?? "");
-        if (jsonMap['epg_listings'] != null) {
-          final List<dynamic> json = jsonMap['epg_listings'];
-          final list = json.map((e) => EpgModel.fromJson(e)).toList();
-          return list;
+        final dynamic decoded = jsonDecode(response.data ?? "{}");
+
+        if (decoded is Map<String, dynamic>) {
+          if (decoded['epg_listings'] != null) {
+            final List<dynamic> json = decoded['epg_listings'];
+            final list = json.map((e) => EpgModel.fromJson(e)).toList();
+            return list;
+          }
+        } else if (decoded is List) {
+          // Should not happen for get_simple_data_table usually, but handle it
+          return [];
         }
       }
 

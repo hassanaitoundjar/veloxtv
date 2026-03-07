@@ -3,10 +3,11 @@ library screens;
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:filling_slider/filling_slider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart'; // Added for DateFormat
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide ScreenType;
@@ -15,8 +16,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' hide VideoState;
 import 'package:responsive_sizer/responsive_sizer.dart';
-
-import 'package:volume_controller/volume_controller.dart';
+import 'package:dio/dio.dart'; // Added for Speed Test
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
@@ -28,7 +28,6 @@ import '../../logic/blocs/categories/movie_caty_bloc.dart';
 import '../../logic/blocs/categories/series_caty_bloc.dart';
 import '../../logic/cubits/favorites/favorites_cubit.dart';
 import '../../logic/cubits/settings/settings_cubit.dart';
-import '../../logic/cubits/video/video_cubit.dart';
 import '../../logic/cubits/watch/watching_cubit.dart';
 import '../../repository/api/api.dart';
 import '../../repository/models/category.dart';
@@ -40,6 +39,7 @@ import '../../repository/models/movie_detail.dart';
 import '../../repository/models/serie_details.dart';
 import '../../repository/models/epg.dart';
 import '../../repository/models/user.dart';
+import '../../logic/blocs/epg/epg_bloc.dart'; // Added
 import '../widgets/widgets.dart';
 import '../widgets/parental_control_dialog.dart';
 
@@ -52,14 +52,17 @@ part 'user/register_m3u.dart';
 part 'user/register_stalker.dart';
 part 'user/register_tv.dart';
 part 'user/settings.dart';
-part 'user/favourites.dart';
+part 'user/favorites.dart';
 part 'user/catch_up.dart';
 part 'user/search.dart';
-part 'welcome.dart';
-part 'live/live_categories.dart';
+part 'user/speed_test.dart'; // Added
+part 'home.dart';
+part 'live/live_tv.dart';
+part 'live/epg_timeline.dart'; // Make it a part file? No, usually separate. But if I want consistent imports...
+// Actually, better to import it at top.
 part 'live/multi_view.dart';
-part 'movie/movie_channels.dart';
+part 'movie/movies.dart';
 part 'movie/movie_details.dart';
-part 'series/series_channels.dart';
+part 'series/series.dart';
 part 'series/serie_details.dart';
 part 'player/media_kit_player.dart';

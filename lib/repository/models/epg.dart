@@ -24,14 +24,14 @@ class EpgModel {
   });
 
   EpgModel.fromJson(Map<String, dynamic> json)
-      : id = json['id'].toString(),
-        epgId = json['epg_id'].toString(),
-        title = json['title'].toString(),
-        lang = json['lang'].toString(),
-        start = json['start'].toString(),
-        end = json['end'].toString(),
-        description = json['description'].toString(),
-        channelId = json['channel_id'].toString(),
-        startTimestamp = json['start_timestamp'].toString(),
-        stopTimestamp = json['stop_timestamp'].toString();
+      : id = json['id']?.toString(),
+        epgId = json['epg_id']?.toString(),
+        title = json['title']?.toString(),
+        lang = json['lang']?.toString(),
+        start = json['start']?.toString(),
+        end = json['end']?.toString(),
+        description = json['description']?.toString(),
+        channelId = json['channel_id']?.toString(),
+        startTimestamp = json['start_timestamp']?.toString(),
+        stopTimestamp = json['stop_timestamp']?.toString();
 }

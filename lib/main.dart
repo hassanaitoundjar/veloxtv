@@ -19,21 +19,22 @@ import 'presentation/screens/screens.dart';
 import 'repository/api/api.dart';
 
 void main() async {
+  // Ensure Flutter bindings are initialized before any plugin starts
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize GetStorage for local data persistence
   await GetStorage.init();
   await GetStorage.init("favorites");
   await GetStorage.init("watching");
 
-  // Set orientation for TVs
+  // Lock orientation to landscape for the best TV/Tablet experience
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
 
-  // Initialize MediaKit
+  // Initialize MediaKit for high-performance video playback
   MediaKit.ensureInitialized();
-
-  // test
 
   runApp(const MyApp());
 }
@@ -43,17 +44,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Repository Providers could be here if needed
+    // Instantiate API repositories
     final api = IpTvApi();
     final authRepo = AuthApi();
 
     return MultiBlocProvider(
       providers: [
+        // Authentication management
         BlocProvider(create: (context) => AuthBloc(authRepo)),
+
+        // Category and Content management
         BlocProvider(create: (context) => LiveCatyBloc(api)),
         BlocProvider(create: (context) => MovieCatyBloc(api)),
         BlocProvider(create: (context) => SeriesCatyBloc(api)),
         BlocProvider(create: (context) => ChannelsBloc(api)),
+
+        // UI and Preference management
         BlocProvider(create: (context) => SettingsCubit()),
         BlocProvider(create: (context) => FavoritesCubit()),
         BlocProvider(create: (context) => VideoCubit()),
@@ -64,15 +70,16 @@ class MyApp extends StatelessWidget {
           return GetMaterialApp(
             title: kAppName,
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.themeData(context),
+            theme: AppTheme.themeData(context), // Centralized theme management
             initialRoute: screenSplash,
             getPages: [
+              // Application Routing
               GetPage(name: screenSplash, page: () => const SplashScreen()),
               GetPage(
                   name: screenDeviceSelection,
                   page: () => const DeviceSelectionScreen()),
               GetPage(name: screenIntro, page: () => const IntroScreen()),
-              GetPage(name: screenWelcome, page: () => const WelcomeScreen()),
+              GetPage(name: screenHome, page: () => const HomeScreen()),
               GetPage(name: screenRegister, page: () => const RegisterScreen()),
               GetPage(
                   name: screenRegisterM3u,
@@ -82,24 +89,18 @@ class MyApp extends StatelessWidget {
                   page: () => const RegisterStalkerScreen()),
               GetPage(
                   name: screenRegisterTv, page: () => const RegisterUserTv()),
-              GetPage(
-                  name: screenLiveCategories,
-                  page: () => const LiveCategoriesScreen()),
-              GetPage(
-                  name: screenMovieChannels,
-                  page: () => const MovieChannelsScreen()),
+              GetPage(name: screenLiveTv, page: () => const LiveTvScreen()),
+              GetPage(name: screenMovies, page: () => const MoviesScreen()),
               GetPage(
                   name: screenMovieDetails,
                   page: () => const MovieDetailsScreen()),
-              GetPage(
-                  name: screenSeriesChannels,
-                  page: () => const SeriesChannelsScreen()),
+              GetPage(name: screenSeries, page: () => const SeriesScreen()),
               GetPage(
                   name: screenSeriesDetails,
                   page: () => const SeriesDetailsScreen()),
               GetPage(name: screenSettings, page: () => const SettingsScreen()),
               GetPage(
-                  name: screenFavourite, page: () => const FavoriteScreen()),
+                  name: screenFavorites, page: () => const FavoriteScreen()),
               GetPage(name: screenProfiles, page: () => const ProfileScreen()),
               GetPage(name: screenSearch, page: () => const SearchScreen()),
             ],

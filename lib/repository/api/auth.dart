@@ -1,7 +1,10 @@
 part of 'api.dart';
 
 class AuthApi {
-  /// Xtream Codes login
+  /// Authenticates a user using the Xtream Codes API.
+  ///
+  /// Takes [username], [password], and the [url] of the IPTV service.
+  /// Returns a [UserModel] on success, or null if authentication fails.
   Future<UserModel?> login(String username, String password, String url) async {
     try {
       final link = "$url/player_api.php";
@@ -19,10 +22,11 @@ class AuthApi {
 
         if (json['user_info'] != null) {
           final user = UserModel.fromJson(json, url);
-          // Check if account is active or valid
+          // Check if account is active or valid based on the API response
           if (user.userInfo?.auth == "0") {
             return null;
           }
+          // Persist user session locally
           await LocaleApi.saveUser(user);
           return user;
         }
@@ -34,7 +38,11 @@ class AuthApi {
     }
   }
 
-  /// M3U Playlist login — auto-detects Xtream URLs and extracts credentials
+  /// Authenticates using an M3U Playlist URL.
+  ///
+  /// This method intelligently auto-detects if the provided URL is an Xtream Codes
+  /// link formatted as an M3U and extracts credentials for a better API experience.
+  /// If it's a standard M3U, it falls back to raw parsing.
   Future<UserModel?> loginM3u(String name, String m3uUrl) async {
     try {
       // Try to extract Xtream credentials from the M3U URL

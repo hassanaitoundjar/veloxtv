@@ -1,66 +1,35 @@
-# IPTV Player Premium
+# IPTV Player Premium 📺
 
-A premium IPTV Player application built with Flutter, designed for Android TV and Mobile devices.
-Inspired by IPTV Smarters Pro, it features a modern dark UI, fast navigation, and Xtream Codes API support.
+**IPTV Player Premium** is a high-performance, feature-rich application built with Flutter, designed specifically for Android TV and Mobile devices. With a sleek, modern UI inspired by industry leaders like IPTV Smarters Pro, this app offers a premium viewing experience for Live TV, Movies, and Series.
 
-## Features
+### ✨ Key Features
 
-- **Authentication**: Xtream Codes API login (Username, Password, URL).
-- **Live TV**: Category-based navigation, EPG support (placeholder), and fast channel switching.
-- **Movies & Series**: VOD support with posters, details, seasons, and episodes.
-- **Player**: Integrated VLC player with overlay controls.
-- **Favorites**: Save your favorite channels and VODs.
-- **Search**: Local search within categories.
-- **TV-First Design**: Optimized for Remote Control (D-Pad) navigation with focus states.
+- 🔑 **Xtream Codes API Login**: Fast and secure authentication.
+- 📺 **Live TV**: Organized by categories with smooth channel switching.
+- 🎬 **Movies & Series**: Comprehensive VOD support with posters, ratings, and episode lists.
+- 🎮 **TV-First Navigation**: Fully optimized for Remote Control (D-Pad) with professional focus animations.
+- 🛠️ **Customizable Branding**: Easily change logos, colors, and the app name.
+- 🚀 **High Performance**: Built with BLoC for efficient state management and VLC for robust playback.
 
-## Setup Instructions
+### 🛠️ Getting Started
 
-**Important**: This project contains the Dart/Flutter source code in `lib/`. The platform-specific folders (android, ios, etc.) were not generated due to environment limitations.
+1.  **Extract** the source code.
+2.  **Run** `flutter pub get` to install dependencies.
+3.  **Configure** your branding in `lib/core/helpers/constants.dart` and `lib/core/helpers/colors.dart`.
+4.  **Generate** platform files (if needed): `flutter create . --platforms android,ios`.
+5.  **Build** for release: `flutter build apk --release`.
 
-1.  **Generate Platform Files**:
-    Run the following command in the project root to generate the missing platform folders:
+For detailed instructions, see [DOCUMENTATION.md](file:///home/laradev/player/DOCUMENTATION.md).
 
-    ```bash
-    flutter create . --org com.antigravity.player --platforms android,ios
-    ```
+---
 
-2.  **Add Permissions**:
-    After generating the `android` folder, open `android/app/src/main/AndroidManifest.xml` and add:
+### 📦 Project Structure
 
-    ```xml
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <application
-        ...
-        android:usesCleartextTraffic="true">
-    ```
+- `lib/core`: Branding, themes, and helper constants.
+- `lib/logic`: Business logic (BLoCs & Cubits).
+- `lib/presentation`: UI screens and responsive widgets.
+- `lib/repository`: API interactions and data models.
 
-3.  **Run the App**:
+---
 
-    ```bash
-    flutter run
-    ```
-
-4.  **Linux Setup**:
-    To run on Linux, ensure you have the following dependencies installed (Ubuntu/Debian):
-    ```bash
-    sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libvlc-dev vlc
-    ```
-    Then run:
-    ```bash
-    flutter run -d linux
-    ```
-
-## Architecture
-
-- **State Management**: BLoC (Business Logic Component) and Cubit.
-- **Navigation**: GetX for simple route management.
-- **Networking**: Dio for API requests.
-- **Player**: flutter_vlc_player.
-
-## Project Structure
-
-- `lib/core`: Constants, Theme, Helpers.
-- `lib/logic`: BLoCs and Cubits.
-- `lib/presentation`: Screens and Widgets.
-- `lib/repository`: API implementation and Models.
+_Professional IPTV solution for the modern era._

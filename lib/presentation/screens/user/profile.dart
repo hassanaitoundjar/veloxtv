@@ -66,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
-            Get.offAllNamed(screenWelcome);
+            Get.offAllNamed(screenHome);
           }
         },
         builder: (context, state) {

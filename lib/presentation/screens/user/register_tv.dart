@@ -89,7 +89,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
                     BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
-                          Get.offAllNamed(screenWelcome);
+                          Get.offAllNamed(screenHome);
                         } else if (state is AuthFailed) {
                           Get.snackbar("Login Failed", state.message,
                               backgroundColor: Colors.red,

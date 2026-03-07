@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
         listener: (context, state) {
           if (state is AuthSuccess) {
             // Preload categories here if needed
-            _navigate(screenWelcome);
+            _navigate(screenHome);
           } else if (state is AuthProfilesLoaded) {
             _navigate(screenProfiles);
           } else if (state is AuthFailed) {

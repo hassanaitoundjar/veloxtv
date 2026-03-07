@@ -1,13 +1,13 @@
 part of '../screens.dart';
 
-class MovieChannelsScreen extends StatefulWidget {
-  const MovieChannelsScreen({super.key});
+class SeriesScreen extends StatefulWidget {
+  const SeriesScreen({super.key});
 
   @override
-  State<MovieChannelsScreen> createState() => _MovieChannelsScreenState();
+  State<SeriesScreen> createState() => _SeriesScreenState();
 }
 
-class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
+class _SeriesScreenState extends State<SeriesScreen> {
   CategoryModel? _selectedCategory;
   late FocusNode _searchFocusNode;
   String _searchQuery = "";
@@ -29,34 +29,26 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
       }
       return KeyEventResult.ignored;
     });
-    // If navigated with a category argument, use it
     if (Get.arguments is CategoryModel) {
       _selectedCategory = Get.arguments as CategoryModel;
       context.read<ChannelsBloc>().add(
-          GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
+          GetChannels(_selectedCategory!.categoryId!, TypeCategory.series));
       _initialized = true;
     }
   }
 
   void _initWithFirstCategory(List<CategoryModel> categories) {
     if (!_initialized && categories.isNotEmpty) {
-      // For first load, we might skip parental check or check it?
-      // Usually first category is "All" or something safe.
-      // If we auto-select an adult category on load, we should probably block or just not select.
-      // For now, let's just select but maybe we should check.
-      // But _checkParentalControl requires context/dialog which might not work well in build/init.
-      // Let's assume first category is safe or allowed for now.
       // Find first safe category
       final firstSafe = categories.firstWhere(
         (c) => !_isRestricted(c),
         orElse: () => categories.first,
       );
 
-      // Only auto-select if safe. If all are restricted, user sees blank list until they click.
       if (!_isRestricted(firstSafe)) {
         _selectedCategory = firstSafe;
         context.read<ChannelsBloc>().add(
-            GetChannels(_selectedCategory!.categoryId!, TypeCategory.movies));
+            GetChannels(_selectedCategory!.categoryId!, TypeCategory.series));
         _initialized = true;
       }
     }
@@ -83,7 +75,7 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
     return enabled;
   }
 
-  void _checkMovieAccess(String? name, VoidCallback onAllowed) {
+  void _checkSeriesAccess(String? name, VoidCallback onAllowed) {
     if (!_isRestrictedName(name)) {
       onAllowed();
       return;
@@ -134,25 +126,10 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
         decoration: kDecorBackground,
         child: Column(
           children: [
-            // Global Header (Same as Live TV)
-            // Global Header (Same as Live TV)
-            // Global Header (Same as Live TV)
+            // Global Header
             AppBarLive(
-              onSearch: (val) {
-                setState(() => _searchQuery = val.toLowerCase());
-                if (_searchQuery.isNotEmpty) {
-                  // Fetch all movies for global search
-                  context
-                      .read<ChannelsBloc>()
-                      .add(GetChannels(null, TypeCategory.movies));
-                } else {
-                  // Restore selected category
-                  if (_selectedCategory != null) {
-                    context.read<ChannelsBloc>().add(GetChannels(
-                        _selectedCategory!.categoryId!, TypeCategory.movies));
-                  }
-                }
-              },
+              onSearch: (val) =>
+                  setState(() => _searchQuery = val.toLowerCase()),
               focusNode: _searchFocusNode,
             ),
 
@@ -161,9 +138,9 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
               child: Row(
                 children: [
                   // Left - Vertical Categories
-                  BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                  BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
                     builder: (context, state) {
-                      if (state is MovieCatySuccess) {
+                      if (state is SeriesCatySuccess) {
                         // Auto-select first category if not yet initialized
                         _initWithFirstCategory(state.categories);
 
@@ -178,7 +155,7 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                 _selectedCategory = cat;
                               });
                               context.read<ChannelsBloc>().add(GetChannels(
-                                  cat.categoryId!, TypeCategory.movies));
+                                  cat.categoryId!, TypeCategory.series));
                             });
                           },
                         );
@@ -187,7 +164,7 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                     },
                   ),
 
-                  // Right - Movie Poster Grid
+                  // Right - Series Poster Grid
                   Expanded(
                     child: BlocBuilder<ChannelsBloc, ChannelsState>(
                       builder: (context, state) {
@@ -195,22 +172,21 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                           return const Center(
                               child: CircularProgressIndicator());
                         } else if (state is ChannelsSuccess) {
-                          var movies =
-                              state.channels.whereType<ChannelMovie>().toList();
+                          var seriesList = state.channels.cast<ChannelSerie>();
 
                           // Apply search filter
                           if (_searchQuery.isNotEmpty) {
-                            movies = movies
-                                .where((m) => (m.name
+                            seriesList = seriesList
+                                .where((s) => (s.name
                                         ?.toLowerCase()
                                         .contains(_searchQuery) ??
                                     false))
                                 .toList();
                           }
 
-                          if (movies.isEmpty) {
+                          if (seriesList.isEmpty) {
                             return const Center(
-                                child: Text("No movies found."));
+                                child: Text("No series found."));
                           }
 
                           return GridView.builder(
@@ -218,24 +194,26 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: getGridColumns(context).toInt(),
-                              childAspectRatio: 0.65,
+                              childAspectRatio: 0.65, // Taller poster ratio
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
                             ),
-                            itemCount: movies.length,
+                            itemCount: seriesList.length,
                             itemBuilder: (context, index) {
-                              final movie = movies[index];
+                              final serie = seriesList[index];
+
                               return BlocBuilder<FavoritesCubit,
                                   FavoritesState>(
                                 builder: (context, favState) {
                                   final isFav = favState is FavoritesSuccess &&
-                                      favState.movies.any(
-                                          (m) => m.streamId == movie.streamId);
+                                      favState.series.any(
+                                          (s) => s.seriesId == serie.seriesId);
+
                                   return FocusableCard(
                                     onTap: () {
-                                      _checkMovieAccess(movie.name, () {
-                                        Get.toNamed(screenMovieDetails,
-                                            arguments: movie);
+                                      _checkSeriesAccess(serie.name, () {
+                                        Get.toNamed(screenSeriesDetails,
+                                            arguments: serie);
                                       });
                                     },
                                     scale: 1.05,
@@ -247,11 +225,12 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                           decoration: kDecorCard.copyWith(
                                             image: DecorationImage(
                                               image: CachedNetworkImageProvider(
-                                                  movie.streamIcon ?? ""),
+                                                  serie.cover ?? ""),
                                               fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),
+
                                         // Gradient Overlay
                                         Container(
                                           decoration: BoxDecoration(
@@ -262,25 +241,27 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                               end: Alignment.bottomCenter,
                                               colors: [
                                                 Colors.transparent,
-                                                Colors.black.withOpacity(0.8),
+                                                Colors.black.withOpacity(0.8)
                                               ],
                                               stops: const [0.5, 1.0],
                                             ),
                                           ),
                                         ),
+
                                         // Rating Badge (Top Right)
-                                        if (movie.rating != null &&
-                                            movie.rating!.isNotEmpty)
+                                        if (serie.rating != null &&
+                                            serie.rating!.isNotEmpty &&
+                                            serie.rating != "0")
                                           Positioned(
                                             top: 8,
                                             right: 8,
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
+                                                      horizontal: 6,
+                                                      vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: Colors.black87,
+                                                color: Colors.amber,
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -288,21 +269,23 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   const Icon(Icons.star,
-                                                      color: Colors.amber,
-                                                      size: 14),
-                                                  const SizedBox(width: 4),
+                                                      size: 10,
+                                                      color: Colors.black),
+                                                  const SizedBox(width: 2),
                                                   Text(
-                                                    movie.rating!,
+                                                    serie.rating!,
                                                     style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                                      color: Colors.black,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
                                           ),
+
                                         // Favorite Heart (Top Left)
                                         Positioned(
                                           top: 8,
@@ -312,18 +295,36 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                               if (isFav) {
                                                 context
                                                     .read<FavoritesCubit>()
-                                                    .removeMovie(
-                                                        movie.streamId ?? "");
+                                                    .removeSeries(
+                                                        serie.seriesId ?? "");
+                                                Get.snackbar("Favorites",
+                                                    "Removed from favorites",
+                                                    snackPosition:
+                                                        SnackPosition.BOTTOM,
+                                                    backgroundColor:
+                                                        Colors.grey,
+                                                    colorText: Colors.white,
+                                                    duration: const Duration(
+                                                        seconds: 1));
                                               } else {
                                                 context
                                                     .read<FavoritesCubit>()
-                                                    .addMovie(movie);
+                                                    .addSeries(serie);
+                                                Get.snackbar("Favorites",
+                                                    "Added to favorites",
+                                                    snackPosition:
+                                                        SnackPosition.BOTTOM,
+                                                    backgroundColor:
+                                                        kColorSuccess,
+                                                    colorText: Colors.white,
+                                                    duration: const Duration(
+                                                        seconds: 1));
                                               }
                                             },
                                             child: Container(
-                                              padding: const EdgeInsets.all(6),
+                                              padding: const EdgeInsets.all(4),
                                               decoration: BoxDecoration(
-                                                color: Colors.black54,
+                                                color: Colors.black45,
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
@@ -338,13 +339,14 @@ class _MovieChannelsScreenState extends State<MovieChannelsScreen> {
                                             ),
                                           ),
                                         ),
+
                                         // Title at Bottom
                                         Positioned(
                                           bottom: 8,
                                           left: 8,
                                           right: 8,
                                           child: Text(
-                                            movie.name ?? "",
+                                            serie.name ?? "",
                                             style: Get.textTheme.bodySmall
                                                 ?.copyWith(
                                               fontWeight: FontWeight.bold,

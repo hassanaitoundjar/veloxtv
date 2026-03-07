@@ -11,8 +11,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _selectedIndex = 0;
   final _storage = GetStorage("settings");
 
-  final List<String> _titles = ["Account", "Parental Control", "About"];
-  final List<IconData> _icons = [Icons.person, Icons.lock, Icons.info];
+  final List<String> _titles = [
+    "Account",
+    "Parental Control",
+    "Player",
+    "Speed Test",
+    "About"
+  ];
+  final List<IconData> _icons = [
+    Icons.person,
+    Icons.lock,
+    Icons.play_circle_filled,
+    Icons.speed,
+    Icons.info
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +103,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 1:
         return _buildParentalControlSettings();
       case 2:
+        return _buildPlayerSettings();
+      case 3:
+        return _buildSpeedTestPreview();
+      case 4:
         return _buildAboutSettings();
       default:
+        // Default to About just in case, or empty
         return const SizedBox();
     }
   }
@@ -219,13 +236,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildPlayerSettings() {
+    final format = _storage.read("stream_format") ?? "ts";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Player Settings", style: Get.textTheme.headlineMedium),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: kDecorCard,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Stream Format",
+                  style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  _buildRadioOption("MPEG-TS (.ts)", "ts", format),
+                  const SizedBox(width: 20),
+                  _buildRadioOption("HLS (.m3u8)", "m3u8", format),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                  "Note: 'ts' is faster but 'm3u8' is more stable on slow connections.",
+                  style: TextStyle(color: Colors.white38, fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRadioOption(String label, String value, String groupValue) {
+    final isSelected = value == groupValue;
+    return InkWell(
+      onTap: () {
+        _storage.write("stream_format", value);
+        setState(() {});
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? kColorPrimary : Colors.white10,
+          borderRadius: BorderRadius.circular(8),
+          border:
+              Border.all(color: isSelected ? kColorPrimary : Colors.white12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: Colors.white,
+                size: 20),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAboutSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("About", style: Get.textTheme.headlineMedium),
         const SizedBox(height: 20),
-        _buildInfoTile("App Name", "IPTV Player Pro"),
+        _buildInfoTile("App Name", kAppName),
         _buildInfoTile("Version", "1.0.0"),
         _buildInfoTile("Developer", "Dev Team"),
       ],
@@ -283,6 +366,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ?.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
+    );
+  }
+
+  Widget _buildSpeedTestPreview() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.speed, size: 80, color: kColorPrimary),
+        const SizedBox(height: 20),
+        Text("Internet Speed Test", style: Get.textTheme.headlineMedium),
+        const SizedBox(height: 10),
+        const Text(
+            "Check your internet connection speed to ensure smooth streaming.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: kColorTextSecondary)),
+        const SizedBox(height: 30),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kColorPrimary,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          ),
+          onPressed: () {
+            Get.to(const SpeedTestScreen());
+          },
+          child: const Text("Open Speed Test",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+      ],
     );
   }
 }
