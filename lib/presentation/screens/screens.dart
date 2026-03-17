@@ -1,6 +1,7 @@
 library screens;
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -49,7 +50,6 @@ part 'user/intro.dart';
 part 'user/profile.dart';
 part 'user/register.dart';
 part 'user/register_m3u.dart';
-part 'user/register_stalker.dart';
 part 'user/register_tv.dart';
 part 'user/settings.dart';
 part 'user/favorites.dart';

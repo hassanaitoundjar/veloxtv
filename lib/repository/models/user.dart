@@ -1,18 +1,17 @@
-enum ConnectionType { xtream, m3u, stalker }
+enum ConnectionType { xtream, m3u }
 
 class UserModel {
   final UserInfo? userInfo;
   final ServerInfo? serverInfo;
   final ConnectionType connectionType;
   final String? m3uUrl;
-  final String? macAddress;
+
 
   UserModel({
     this.userInfo,
     this.serverInfo,
     this.connectionType = ConnectionType.xtream,
     this.m3uUrl,
-    this.macAddress,
   });
 
   UserModel.fromJson(Map<String, dynamic> json, String domain)
@@ -27,15 +26,13 @@ class UserModel {
           (e) => e.name == (json['connection_type'] ?? 'xtream'),
           orElse: () => ConnectionType.xtream,
         ),
-        m3uUrl = json['m3u_url'] as String?,
-        macAddress = json['mac_address'] as String?;
+        m3uUrl = json['m3u_url'] as String?;
 
   Map<String, dynamic> toJson() => {
         'user_info': userInfo?.toJson(),
         'server_info': serverInfo?.toJson(),
         'connection_type': connectionType.name,
         'm3u_url': m3uUrl,
-        'mac_address': macAddress,
       };
 
   String get id {
@@ -44,8 +41,6 @@ class UserModel {
         return "${userInfo?.username}@${serverInfo?.url}";
       case ConnectionType.m3u:
         return m3uUrl ?? userInfo?.username ?? "m3u_user";
-      case ConnectionType.stalker:
-        return "$macAddress@${serverInfo?.url}";
     }
   }
 }

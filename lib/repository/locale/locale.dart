@@ -87,9 +87,6 @@ class LocaleApi {
             a.serverInfo?.url == b.serverInfo?.url;
       case ConnectionType.m3u:
         return a.m3uUrl == b.m3uUrl;
-      case ConnectionType.stalker:
-        return a.macAddress == b.macAddress &&
-            a.serverInfo?.url == b.serverInfo?.url;
     }
   }
 }

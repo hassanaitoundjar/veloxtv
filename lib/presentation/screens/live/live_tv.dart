@@ -1,18 +1,6 @@
 // This screen is part of a larger screens library defined in screens.dart
 part of '../screens.dart';
 
-// Import EpgTimelineScreen (assuming it's exported in screens.dart or defined locally)
-// If not exported, I need to add import. Since this is a part file, I cannot add imports here.
-// I must add import to `lib/presentation/screens.dart`.
-// BUT `screens.dart` is the library.
-// Let's assume `EpgTimelineScreen` is NOT part of `screens.dart` yet.
-// Wait, `LiveTvScreen` is `part of '../screens.dart'`.
-// So I should modify `lib/presentation/screens.dart` to include `epg_timeline.dart` or export it.
-
-// Check `screens.dart` content first.
-
-/// LiveTvScreen is the main entry point for the Live TV section of the app.
-/// It supports being used as a picker (e.g., when selecting a channel for a dashboard).
 class LiveTvScreen extends StatefulWidget {
   final bool
       isPicker; // If true, tapping a channel returns it instead of playing

@@ -7,7 +7,6 @@ const String screenHome = "/home";
 const String screenIntro = "/intro";
 const String screenRegister = "/register";
 const String screenRegisterM3u = "/register-m3u";
-const String screenRegisterStalker = "/register-stalker";
 const String screenRegisterTv = "/register-tv";
 const String screenSettings = "/settings";
 const String screenFavorites = "/favorites";

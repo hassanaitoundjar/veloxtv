@@ -166,10 +166,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user.connectionType == ConnectionType.xtream) {
       return user.userInfo?.username == activeUser.userInfo?.username &&
           user.serverInfo?.url == activeUser.serverInfo?.url;
-    } else if (user.connectionType == ConnectionType.m3u) {
-      return user.m3uUrl == activeUser.m3uUrl;
     } else {
-      return user.macAddress == activeUser.macAddress;
+      return user.m3uUrl == activeUser.m3uUrl;
     }
   }
 
@@ -178,9 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = user.userInfo?.username ?? user.name ?? "Playlist";
     final sub = user.connectionType == ConnectionType.xtream
         ? (user.serverInfo?.url ?? "Xtream Codes")
-        : (user.connectionType == ConnectionType.m3u
-            ? "M3U Playlist"
-            : "Stalker Portal");
+        : "M3U Playlist";
 
     return Container(
       decoration: BoxDecoration(
@@ -277,7 +273,7 @@ extension UserDisplay on UserModel {
     // Waiting for user.dart verification.
     // In AuthBloc: repo.loginM3u(event.name, event.m3uUrl) -> returns UserModel.
     // Existing UserModel doesn't have 'name' field, it has 'userInfo.username'.
-    // So for M3U/Stalker, we probably stored 'name' in userInfo.username?
+    // So for M3U, we probably stored 'name' in userInfo.username?
     // Let's check user.dart again or assume userInfo.username is used.
     return userInfo?.username;
   }

@@ -18,13 +18,6 @@ class AuthLoginM3u extends AuthEvent {
   AuthLoginM3u(this.name, this.m3uUrl);
 }
 
-class AuthLoginStalker extends AuthEvent {
-  final String name;
-  final String portalUrl;
-  final String macAddress;
-
-  AuthLoginStalker(this.name, this.portalUrl, this.macAddress);
-}
 
 class AuthGetUser extends AuthEvent {}
 

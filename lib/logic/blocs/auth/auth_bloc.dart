@@ -41,21 +41,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } catch (e) {
           emit(AuthFailed(e.toString()));
         }
-      } else if (event is AuthLoginStalker) {
-        emit(AuthLoading());
-        try {
-          final user = await repo.loginStalker(
-              event.name, event.portalUrl, event.macAddress);
-          if (user != null) {
-            await LocaleApi.saveUser(user);
-            emit(AuthSuccess(user));
-          } else {
-            emit(AuthFailed(
-                "Stalker Portal authentication failed. Check URL and MAC address."));
-          }
-        } catch (e) {
-          emit(AuthFailed(e.toString()));
-        }
       } else if (event is AuthGetUser) {
         try {
           final user = await LocaleApi.getUser();

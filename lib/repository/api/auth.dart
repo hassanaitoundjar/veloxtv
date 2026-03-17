@@ -149,39 +149,4 @@ class AuthApi {
     }
   }
 
-  /// Stalker Portal login — authenticates via MAC address
-  Future<UserModel?> loginStalker(
-      String name, String portalUrl, String macAddress) async {
-    try {
-      // Authenticate via Stalker handshake
-      final authenticated =
-          await StalkerApi.authenticate(portalUrl, macAddress);
-      if (!authenticated) {
-        return null;
-      }
-
-      // Create a virtual user for Stalker
-      final user = UserModel(
-        connectionType: ConnectionType.stalker,
-        macAddress: macAddress,
-        userInfo: UserInfo(
-          username: name,
-          password: '',
-          auth: '1',
-          status: 'Active',
-        ),
-        serverInfo: ServerInfo(
-          serverUrl: portalUrl,
-          url: portalUrl,
-          port: '',
-        ),
-      );
-
-      await LocaleApi.saveUser(user);
-      return user;
-    } catch (e) {
-      debugPrint("Stalker Login Error: $e");
-      return null;
-    }
-  }
 }

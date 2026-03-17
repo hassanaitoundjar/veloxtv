@@ -111,8 +111,9 @@ class _AppBarLiveState extends State<AppBarLive> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 400,
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.25),
+                    child: Container(
                     height: 40,
                     margin: const EdgeInsets.only(right: 16),
                     decoration: BoxDecoration(
@@ -134,6 +135,7 @@ class _AppBarLiveState extends State<AppBarLive> {
                       ),
                       onChanged: widget.onSearch,
                     ),
+                  ),
                   ),
                   if (widget.onTimeline != null)
                     IconButton(
@@ -253,7 +255,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: 16, horizontal: 20),
-                    color: isSelected ? kColorPrimary.withOpacity(0.2) : null,
+                    color: isSelected ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green, kColorPrimary.blue, 0.2) : null,
                     child: Row(
                       children: [
                         Expanded(
@@ -392,11 +394,11 @@ class ListChannelItem extends StatelessWidget {
       onTap: onTap,
       scale: 1.02,
       child: Container(
-        height: 70,
+        constraints: const BoxConstraints(minHeight: 60),
         margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: kDecorCard.copyWith(
-          color: isFocus ? kColorPrimary.withOpacity(0.2) : kColorCardLight,
+          color: isFocus ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green, kColorPrimary.blue, 0.2) : kColorCardLight,
           border: isFocus
               ? Border(left: BorderSide(color: kColorPrimary, width: 4))
               : null,

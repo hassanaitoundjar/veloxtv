@@ -47,9 +47,9 @@ class _FocusableCardState extends State<FocusableCard> {
         child: Container(
           decoration: _isFocused
               ? BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width: 1.5),
                   borderRadius: BorderRadius.circular(
-                      12), // Should match kRadiusCard if possible, or hardcode
+                      10), // Should match kRadiusCard if possible, or hardcode
                 )
               : null,
           child: widget.child,

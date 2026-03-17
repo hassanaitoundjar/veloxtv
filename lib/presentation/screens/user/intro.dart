@@ -166,14 +166,7 @@ class IntroScreen extends StatelessWidget {
             subtitle: "Load from URL or File",
             onTap: () => Get.toNamed(screenRegisterM3u),
           ),
-          const SizedBox(height: 16),
-          _ConnectionCard(
-            icon: Icons.settings_ethernet_rounded,
-            color: Colors.purple,
-            title: "Stalker Portal",
-            subtitle: "MAC Address Authentication",
-            onTap: () => Get.toNamed(screenRegisterStalker),
-          ),
+
         ],
       ),
     );
@@ -205,17 +198,7 @@ class IntroScreen extends StatelessWidget {
             isTv: true,
           ),
         ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: _ConnectionCard(
-            icon: Icons.settings_ethernet_rounded,
-            color: Colors.purple,
-            title: "Stalker Portal",
-            subtitle: "MAG Device\nEmulation",
-            onTap: () => Get.toNamed(screenRegisterStalker),
-            isTv: true,
-          ),
-        ),
+
       ],
     );
   }

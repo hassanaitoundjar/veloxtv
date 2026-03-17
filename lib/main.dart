@@ -85,9 +85,6 @@ class MyApp extends StatelessWidget {
                   name: screenRegisterM3u,
                   page: () => const RegisterM3uScreen()),
               GetPage(
-                  name: screenRegisterStalker,
-                  page: () => const RegisterStalkerScreen()),
-              GetPage(
                   name: screenRegisterTv, page: () => const RegisterUserTv()),
               GetPage(name: screenLiveTv, page: () => const LiveTvScreen()),
               GetPage(name: screenMovies, page: () => const MoviesScreen()),

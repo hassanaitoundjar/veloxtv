@@ -347,7 +347,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                             movie.name ?? "",
                                             style: Get.textTheme.bodySmall
                                                 ?.copyWith(
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.normal,
                                               color: Colors.white,
                                             ),
                                             maxLines: 2,

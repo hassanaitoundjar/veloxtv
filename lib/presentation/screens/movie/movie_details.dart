@@ -325,16 +325,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   context
                       .read<FavoritesCubit>()
                       .removeMovie(_movie.streamId ?? "");
-                  Get.snackbar("Removed", "Removed from My List",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.grey.shade900,
-                      colorText: Colors.white);
                 } else {
                   context.read<FavoritesCubit>().addMovie(_movie);
-                  Get.snackbar("Added", "Added to My List",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.grey.shade900,
-                      colorText: Colors.white);
                 }
               },
               scale: 1.05,
@@ -346,8 +338,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   border: Border.all(color: Colors.white30),
                 ),
                 child: Icon(
-                  isFav ? Icons.check : Icons.add,
-                  color: Colors.white,
+                  isFav ? Icons.favorite : Icons.favorite_border,
+                  color: isFav ? Colors.yellow : Colors.white,
                   size: 24,
                 ),
               ),
@@ -356,22 +348,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         ),
 
         const SizedBox(width: 12),
-
-        // Share/More Button
-        FocusableCard(
-          onTap: () {},
-          scale: 1.05,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white30),
-            ),
-            child:
-                const Icon(Icons.share_outlined, color: Colors.white, size: 24),
-          ),
-        ),
       ],
     );
   }
