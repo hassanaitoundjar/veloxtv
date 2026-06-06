@@ -111,12 +111,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
           bufferSize: 32 * 1024 * 1024,
         ),
       );
-      _videoController = VideoController(
-        _player,
-        configuration: const VideoControllerConfiguration(
-          enableHardwareAcceleration: false,
-        ),
-      );
+      _videoController = VideoController(_player);
       _player.open(
         Media(
           widget.link,
@@ -681,11 +676,21 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                               _onInteraction(),
                                         ),
                                       ],
-                                      _PlayerControlButton(
-                                        icon: Icons.volume_up,
-                                        onPressed: _toggleMute,
-                                        onFocusChange: (_) =>
-                                            _onInteraction(),
+                                      StreamBuilder<double>(
+                                        stream: _player.stream.volume,
+                                        initialData: _player.state.volume,
+                                        builder: (context, snapshot) {
+                                          final muted =
+                                              (snapshot.data ?? 0) <= 0;
+                                          return _PlayerControlButton(
+                                            icon: muted
+                                                ? Icons.volume_off
+                                                : Icons.volume_up,
+                                            onPressed: _toggleMute,
+                                            onFocusChange: (_) =>
+                                                _onInteraction(),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -830,8 +835,9 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
               builder: (context, state) {
                 if (state is ChannelsLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (state is ChannelsSuccess) {
-                  final channels = state.channels.cast<ChannelLive>();
+                } else if (state is ChannelsSuccess &&
+                    state.type == TypeCategory.live) {
+                  final channels = List<ChannelLive>.from(state.channels);
                   if (channels.isEmpty) {
                     return const Center(child: Text("No channels", style: TextStyle(color: Colors.white54)));
                   }

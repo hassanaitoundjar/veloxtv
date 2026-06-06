@@ -9,7 +9,8 @@ class ChannelsLoading extends ChannelsState {}
 
 class ChannelsSuccess extends ChannelsState {
   final List<dynamic> channels;
-  ChannelsSuccess(this.channels);
+  final TypeCategory type;
+  ChannelsSuccess(this.channels, this.type);
 }
 
 class ChannelsFailed extends ChannelsState {

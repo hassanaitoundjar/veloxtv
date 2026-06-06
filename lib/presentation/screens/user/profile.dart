@@ -67,6 +67,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         listener: (context, state) {
           if (state is AuthSuccess) {
             Get.offAllNamed(screenHome);
+          } else if (state is AuthFailed) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
           }
         },
         builder: (context, state) {
@@ -134,7 +138,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           itemBuilder: (context, index) {
                             final user = filteredProfiles[index];
                             final isActive = _isActive(user, activeUser);
-                            return _buildProfileCard(context, user, isActive);
+                            return _buildProfileCard(
+                                context, user, isActive, index == 0);
                           },
                         ),
                 ),
@@ -172,76 +177,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileCard(
-      BuildContext context, UserModel user, bool isActive) {
+      BuildContext context, UserModel user, bool isActive, bool autoFocus) {
     final name = user.userInfo?.username ?? user.name ?? "Playlist";
     final sub = user.connectionType == ConnectionType.xtream
         ? (user.serverInfo?.url ?? "Xtream Codes")
         : "M3U Playlist";
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive
-            ? kColorPrimary.withOpacity(0.2)
-            : Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: isActive ? kColorPrimary : Colors.white.withOpacity(0.1)),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-                color:
-                    isActive ? kColorPrimary : Colors.white.withOpacity(0.3)),
-            color: isActive ? kColorPrimary : Colors.transparent,
-          ),
-          child: Icon(Icons.person_outline,
-              color: isActive ? Colors.white : Colors.white.withOpacity(0.7)),
+    return FocusableCard(
+      autoFocus: autoFocus,
+      onTap: () => context.read<AuthBloc>().add(AuthSwitchProfile(user)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isActive
+              ? kColorPrimary.withOpacity(0.2)
+              : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+              color: isActive ? kColorPrimary : Colors.white.withOpacity(0.1)),
         ),
-        title: Text(name,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle:
-            Text(sub, style: TextStyle(color: Colors.white.withOpacity(0.6))),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isActive)
-              Container(
-                margin: const EdgeInsets.only(right: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: kColorPrimary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text("ACTIVE",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold)),
-              ),
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.delete_outline,
-                    color: Colors.red, size: 20),
-              ),
-              onPressed: () => _confirmDelete(context, user),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: isActive
+                      ? kColorPrimary
+                      : Colors.white.withOpacity(0.3)),
+              color: isActive ? kColorPrimary : Colors.transparent,
             ),
-          ],
+            child: Icon(Icons.person_outline,
+                color:
+                    isActive ? Colors.white : Colors.white.withOpacity(0.7)),
+          ),
+          title: Text(name,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold)),
+          subtitle: Text(sub,
+              style: TextStyle(color: Colors.white.withOpacity(0.6))),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isActive)
+                Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: kColorPrimary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text("ACTIVE",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
+                ),
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.delete_outline,
+                      color: Colors.red, size: 20),
+                ),
+                onPressed: () => _confirmDelete(context, user),
+              ),
+            ],
+          ),
         ),
-        onTap: () {
-          if (!isActive) {
-            context.read<AuthBloc>().add(AuthSwitchProfile(user));
-          }
-        },
       ),
     );
   }

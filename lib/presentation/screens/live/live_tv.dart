@@ -207,11 +207,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
 
               // Handle EPG Timeline navigation
               onTimeline: () async {
-                final channels = context.read<ChannelsBloc>().state
-                        is ChannelsSuccess
-                    ? (context.read<ChannelsBloc>().state as ChannelsSuccess)
-                        .channels
-                        .cast<ChannelLive>()
+                final blocState = context.read<ChannelsBloc>().state;
+                final channels = blocState is ChannelsSuccess &&
+                        blocState.type == TypeCategory.live
+                    ? List<ChannelLive>.from(blocState.channels)
                     : <ChannelLive>[];
 
                 if (channels.isNotEmpty) {
@@ -416,9 +415,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                 if (state is ChannelsLoading) {
                                   return const Center(
                                       child: CircularProgressIndicator());
-                                } else if (state is ChannelsSuccess) {
+                                } else if (state is ChannelsSuccess &&
+                                    state.type == TypeCategory.live) {
                                   final channels =
-                                      state.channels.cast<ChannelLive>();
+                                      List<ChannelLive>.from(state.channels);
 
                                   if (channels.isEmpty) {
                                     return const Center(

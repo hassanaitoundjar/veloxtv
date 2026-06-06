@@ -171,8 +171,10 @@ class _SeriesScreenState extends State<SeriesScreen> {
                         if (state is ChannelsLoading) {
                           return const Center(
                               child: CircularProgressIndicator());
-                        } else if (state is ChannelsSuccess) {
-                          var seriesList = state.channels.cast<ChannelSerie>();
+                        } else if (state is ChannelsSuccess &&
+                            state.type == TypeCategory.series) {
+                          var seriesList =
+                              List<ChannelSerie>.from(state.channels);
 
                           // Apply search filter
                           if (_searchQuery.isNotEmpty) {

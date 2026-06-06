@@ -17,13 +17,13 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
         try {
           if (event.type == TypeCategory.live) {
             final list = await repo.getLiveChannels(event.catyId);
-            emit(ChannelsSuccess(list));
+            emit(ChannelsSuccess(list, TypeCategory.live));
           } else if (event.type == TypeCategory.movies) {
             final list = await repo.getMovieChannels(event.catyId);
-            emit(ChannelsSuccess(list));
+            emit(ChannelsSuccess(list, TypeCategory.movies));
           } else if (event.type == TypeCategory.series) {
             final list = await repo.getSeriesChannels(event.catyId);
-            emit(ChannelsSuccess(list));
+            emit(ChannelsSuccess(list, TypeCategory.series));
           }
         } catch (e) {
           emit(ChannelsFailed(e.toString()));

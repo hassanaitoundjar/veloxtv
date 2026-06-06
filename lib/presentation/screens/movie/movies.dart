@@ -194,9 +194,10 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         if (state is ChannelsLoading) {
                           return const Center(
                               child: CircularProgressIndicator());
-                        } else if (state is ChannelsSuccess) {
+                        } else if (state is ChannelsSuccess &&
+                            state.type == TypeCategory.movies) {
                           var movies =
-                              state.channels.whereType<ChannelMovie>().toList();
+                              List<ChannelMovie>.from(state.channels);
 
                           // Apply search filter
                           if (_searchQuery.isNotEmpty) {
