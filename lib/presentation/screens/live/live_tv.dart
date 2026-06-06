@@ -1,6 +1,15 @@
 // This screen is part of a larger screens library defined in screens.dart
 part of '../screens.dart';
 
+/// Internal helper that pairs a raw [EpgModel] with its parsed time
+/// window so the EPG list builder does not have to re-parse every entry.
+class _ProcessedEpg {
+  final EpgModel epg;
+  final ({DateTime start, DateTime end}) window;
+
+  const _ProcessedEpg(this.epg, this.window);
+}
+
 class LiveTvScreen extends StatefulWidget {
   final bool
       isPicker; // If true, tapping a channel returns it instead of playing
@@ -22,6 +31,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
   final _searchController = TextEditingController();
   late FocusNode _searchFocusNode;
   String _searchQuery = "";
+
+  // ScrollController to auto-scroll EPG list to the current program
+  final ScrollController _epgScrollController = ScrollController();
+  int _epgScrollEpoch = 0;
 
   // Video playback controller (using media_kit)
   late final Player _previewPlayer;
@@ -86,6 +99,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
   void dispose() {
     _searchFocusNode.dispose();
     _searchController.dispose();
+    _epgScrollController.dispose();
     _previewPlayer.dispose();
     super.dispose();
   }
@@ -749,91 +763,128 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                 .white24)));
                                               }
 
-                                              final epgList = snapshot.data!;
+                                              final now = DateTime.now();
+
+                                              // Parse and process EPG entries: keep only
+                                              // entries with a valid window that have not
+                                              // already ended, sorted by start time.
+                                              final processed = <_ProcessedEpg>[];
+                                              for (final epg in snapshot.data!) {
+                                                final window = parseEpgWindow(
+                                                  startTimestamp:
+                                                      epg.startTimestamp,
+                                                  stopTimestamp:
+                                                      epg.stopTimestamp,
+                                                  start: epg.start,
+                                                  end: epg.end,
+                                                );
+                                                if (window == null) continue;
+                                                if (window.end.isBefore(now)) {
+                                                  continue;
+                                                }
+                                                processed.add(
+                                                    _ProcessedEpg(epg, window));
+                                              }
+
+                                              processed.sort((a, b) =>
+                                                  a.window.start
+                                                      .compareTo(b.window.start));
+
+                                              if (processed.isEmpty) {
+                                                return const Center(
+                                                    child: Text(
+                                                        "No upcoming programs",
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .white24)));
+                                              }
+
+                                              // Find the index of the currently airing
+                                              // program (or the next upcoming one if
+                                              // nothing is airing right now).
+                                              int currentIndex = 0;
+                                              for (int i = 0;
+                                                  i < processed.length;
+                                                  i++) {
+                                                final w = processed[i].window;
+                                                if (!w.start.isAfter(now) &&
+                                                    w.end.isAfter(now)) {
+                                                  currentIndex = i;
+                                                  break;
+                                                }
+                                                if (w.start.isAfter(now)) {
+                                                  currentIndex = i;
+                                                  break;
+                                                }
+                                              }
+
+                                              // Auto-scroll to the current/next program
+                                              // exactly once per data load.
+                                              _epgScrollEpoch++;
+                                              final epoch = _epgScrollEpoch;
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback((_) {
+                                                if (!mounted) {
+                                                  return;
+                                                }
+                                                if (epoch !=
+                                                    _epgScrollEpoch) {
+                                                  return;
+                                                }
+                                                if (!_epgScrollController
+                                                    .hasClients) {
+                                                  return;
+                                                }
+                                                const itemHeight = 78.0;
+                                                final target = currentIndex *
+                                                    itemHeight;
+                                                final maxScroll = _epgScrollController
+                                                    .position.maxScrollExtent;
+                                                _epgScrollController.jumpTo(
+                                                    target.clamp(
+                                                        0.0, maxScroll));
+                                              });
 
                                               return ListView.builder(
-                                                itemCount: epgList.length,
+                                                controller: _epgScrollController,
+                                                itemCount: processed.length,
                                                 itemBuilder: (context, index) {
-                                                  final epg = epgList[index];
+                                                  final entry = processed[index];
+                                                  final epg = entry.epg;
+                                                  final startDt =
+                                                      entry.window.start;
+                                                  final endDt = entry.window.end;
 
                                                   // Data usually comes as base64 or raw strings
-                                                  final start = epg.start ?? "";
-                                                  final end = epg.end ?? "";
                                                   final title =
                                                       _decodeText(epg.title);
                                                   final desc = _decodeText(
                                                       epg.description);
 
-                                                  // Default time display if parsing fails
-                                                  String timeDisplay =
-                                                      "$start\n$end";
-
-                                                  DateTime? startDt;
-                                                  DateTime? endDt;
-
-                                                  // Try to parse Unix timestamps if available from the API
-                                                  if (epg.startTimestamp !=
-                                                          null &&
-                                                      epg.stopTimestamp !=
-                                                          null) {
-                                                    try {
-                                                      startDt = DateTime
-                                                          .fromMillisecondsSinceEpoch(
-                                                              int.parse(epg
-                                                                      .startTimestamp!) *
-                                                                  1000);
-                                                      endDt = DateTime
-                                                          .fromMillisecondsSinceEpoch(
-                                                              int.parse(epg
-                                                                      .stopTimestamp!) *
-                                                                  1000);
-                                                    } catch (_) {}
-                                                  }
-
-                                                  // Format time display as HH:mm if we have valid DateTime objects
-                                                  if (startDt != null &&
-                                                      endDt != null) {
-                                                    String fmt(DateTime dt) =>
-                                                        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-                                                    timeDisplay =
-                                                        "${fmt(startDt)}\n${fmt(endDt)}";
-                                                  } else {
-                                                    // Fallback: Try to parse formatted strings (e.g., YYYY-MM-DD HH:MM:SS)
-                                                    try {
-                                                      if (start.length >= 16) {
-                                                        final s =
-                                                            DateTime.parse(
-                                                                start);
-                                                        final e =
-                                                            DateTime.parse(end);
-                                                        String fmt(
-                                                                DateTime dt) =>
-                                                            "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-                                                        timeDisplay =
-                                                            "${fmt(s)}\n${fmt(e)}";
-
-                                                        // Update DateTime objects for status checks below
-                                                        startDt = s;
-                                                        endDt = e;
-                                                      }
-                                                    } catch (_) {}
-                                                  }
-
-                                                  final now = DateTime.now();
+                                                  // Format the time display,
+                                                  // appending a "(+N)" suffix if
+                                                  // the program crosses midnight
+                                                  // so the user can see the end
+                                                  // is on a different day.
+                                                  final timeDisplay =
+                                                      DateTimeFormatService
+                                                          .formatTimeRange(
+                                                              startDt, endDt);
 
                                                   // Determine program status relative to current time
-                                                  bool isPast = endDt != null &&
+                                                  final bool isPast =
                                                       endDt.isBefore(now);
 
                                                   // 'isNow' identifies the currently airing program
-                                                  bool isNow = startDt !=
-                                                          null &&
-                                                      endDt != null &&
-                                                      startDt.isBefore(now) &&
-                                                      endDt.isAfter(now);
+                                                  final bool isNow =
+                                                      !startDt.isAfter(now) &&
+                                                          endDt.isAfter(now);
 
-                                                  // isCurrent is a naive check based on list order (usually first is current)
-                                                  final isCurrent = index == 0;
+                                                  // The current program is the one closest to
+                                                  // 'now' that is still airing, or the next
+                                                  // upcoming one if nothing is airing.
+                                                  final bool isCurrent =
+                                                      index == currentIndex;
 
                                                   // Check if the channel supports catch-up (archive)
                                                   bool hasArchive =

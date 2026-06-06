@@ -44,8 +44,8 @@ class _AppBarLiveState extends State<AppBarLive> {
     final now = DateTime.now();
     if (mounted) {
       setState(() {
-        _currentTime = DateFormat('hh:mm a').format(now);
-        _currentDate = DateFormat('MMM d, yyyy').format(now);
+        _currentTime = DateTimeFormatService.formatTime(now);
+        _currentDate = DateTimeFormatService.formatDate(now);
       });
     }
   }

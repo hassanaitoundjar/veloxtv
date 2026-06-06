@@ -243,8 +243,9 @@ class IpTvApi {
         queryParameters: {
           "password": user.userInfo!.password,
           "username": user.userInfo!.username,
-          "action": "get_simple_data_table", // Changed from get_short_epg
+          "action": "get_short_epg",
           "stream_id": streamId,
+          "limit": 30,
         },
       );
 
@@ -258,7 +259,6 @@ class IpTvApi {
             return list;
           }
         } else if (decoded is List) {
-          // Should not happen for get_simple_data_table usually, but handle it
           return [];
         }
       }

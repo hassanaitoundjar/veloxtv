@@ -15,6 +15,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     "Account",
     "Parental Control",
     "Player",
+    "Date & Time",
     "Speed Test",
     "About"
   ];
@@ -22,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Icons.person,
     Icons.lock,
     Icons.play_circle_filled,
+    Icons.access_time,
     Icons.speed,
     Icons.info
   ];
@@ -105,8 +107,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 2:
         return _buildPlayerSettings();
       case 3:
-        return _buildSpeedTestPreview();
+        return _buildDateTimeSettings();
       case 4:
+        return _buildSpeedTestPreview();
+      case 5:
         return _buildAboutSettings();
       default:
         // Default to About just in case, or empty
@@ -302,6 +306,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Generic radio option for any enum [T] keyed by [T.name].
+  Widget _buildEnumRadioOption<T extends Enum>(
+    String label,
+    T value,
+    T groupValue,
+    Future<void> Function(T) onSelected,
+  ) {
+    final isSelected = value.name == groupValue.name;
+    return InkWell(
+      onTap: () async {
+        await onSelected(value);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? kColorPrimary : Colors.white10,
+          borderRadius: BorderRadius.circular(8),
+          border:
+              Border.all(color: isSelected ? kColorPrimary : Colors.white12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: Colors.white,
+                size: 20),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAboutSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,6 +352,245 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildInfoTile("App Name", kAppName),
         _buildInfoTile("Version", "1.0.0"),
         _buildInfoTile("Developer", "Dev Team"),
+      ],
+    );
+  }
+
+  Widget _buildDateTimeSettings() {
+    final timeFormat = DateTimeFormatService.getTimeFormat();
+    final dateFormat = DateTimeFormatService.getDateFormat();
+    final tzMode = DateTimeFormatService.getTimezoneMode();
+    final activeTz = DateTimeFormatService.getActiveTimezone();
+    final manualTzId = _storage.read(DateTimeFormatService.getManualTzKey());
+
+    // Sample DateTime used to preview formatting choices.
+    final sample = DateTime.now();
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Date & Time", style: Get.textTheme.headlineMedium),
+          const SizedBox(height: 8),
+          Text(
+            "Configure how dates and times are displayed across the app, "
+            "and pick the timezone used for the TV guide.",
+            style: Get.textTheme.bodyMedium
+                ?.copyWith(color: kColorTextSecondary),
+          ),
+          const SizedBox(height: 20),
+
+          // ----- Time format -----
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: kDecorCard,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Time Format",
+                    style:
+                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                const SizedBox(height: 6),
+                Text(
+                  "Preview: ${DateTimeFormatService.formatTime(sample)}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildEnumRadioOption<TimeFormatOption>(
+                        "24-hour (21:30)", TimeFormatOption.h24, timeFormat,
+                        (v) async {
+                      await DateTimeFormatService.setTimeFormat(v);
+                      setState(() {});
+                    }),
+                    const SizedBox(width: 20),
+                    _buildEnumRadioOption<TimeFormatOption>(
+                        "12-hour (09:30 PM)", TimeFormatOption.h12, timeFormat,
+                        (v) async {
+                      await DateTimeFormatService.setTimeFormat(v);
+                      setState(() {});
+                    }),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ----- Date format -----
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: kDecorCard,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Date Format",
+                    style:
+                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                const SizedBox(height: 6),
+                Text(
+                  "Preview: ${DateTimeFormatService.formatDate(sample)}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _buildEnumRadioOption<DateFormatOption>(
+                        "Jun 6, 2026", DateFormatOption.mmmDY, dateFormat,
+                        (v) async {
+                      await DateTimeFormatService.setDateFormat(v);
+                      setState(() {});
+                    }),
+                    _buildEnumRadioOption<DateFormatOption>(
+                        "06/06/2026", DateFormatOption.ddmmyyyy, dateFormat,
+                        (v) async {
+                      await DateTimeFormatService.setDateFormat(v);
+                      setState(() {});
+                    }),
+                    _buildEnumRadioOption<DateFormatOption>(
+                        "2026-06-06", DateFormatOption.yyyymmdd, dateFormat,
+                        (v) async {
+                      await DateTimeFormatService.setDateFormat(v);
+                      setState(() {});
+                    }),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ----- Timezone -----
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: kDecorCard,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Timezone",
+                    style:
+                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                const SizedBox(height: 6),
+                Text(
+                  "Active: ${activeTz.label} (${activeTz.offsetLabel})",
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                if (tzMode == TimezoneMode.auto)
+                  Text(
+                    "Detected from device: "
+                    "${DateTimeFormatService.detectDeviceTimezone().label}",
+                    style: const TextStyle(
+                        color: Colors.white54, fontSize: 12),
+                  ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildEnumRadioOption<TimezoneMode>(
+                        "Auto-detect", TimezoneMode.auto, tzMode,
+                        (v) async {
+                      await DateTimeFormatService.setTimezoneMode(v);
+                      setState(() {});
+                    }),
+                    const SizedBox(width: 20),
+                    _buildEnumRadioOption<TimezoneMode>(
+                        "Manual", TimezoneMode.manual, tzMode,
+                        (v) async {
+                      await DateTimeFormatService.setTimezoneMode(v);
+                      setState(() {});
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorCardLight,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                        ),
+                        icon: const Icon(Icons.public,
+                            color: kColorPrimary, size: 18),
+                        label: const Text("Auto-detect by country",
+                            style: TextStyle(color: Colors.white)),
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          messenger.showSnackBar(const SnackBar(
+                              content: Text(
+                                  "Detecting country, please wait...")));
+                          final tz = await DateTimeFormatService
+                              .detectTimezoneByCountry();
+                          await DateTimeFormatService.setTimezoneMode(
+                              TimezoneMode.manual);
+                          await DateTimeFormatService
+                              .setManualTimezone(tz.id);
+                          if (mounted) {
+                            setState(() {});
+                            messenger.showSnackBar(SnackBar(
+                                content: Text(
+                                    "Detected timezone: ${tz.label} (${tz.country})")));
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                if (tzMode == TimezoneMode.manual) ...[
+                  const SizedBox(height: 20),
+                  _buildTimezoneDropdown(manualTzId),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimezoneDropdown(String? currentId) {
+    final selectedId = currentId ??
+        DateTimeFormatService.getActiveTimezone().id;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Select Timezone",
+            style: TextStyle(color: kColorTextSecondary, fontSize: 14)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: kColorCardLight,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              dropdownColor: kColorCard,
+              value: kTimezones.any((t) => t.id == selectedId)
+                  ? selectedId
+                  : kTimezones.first.id,
+              iconEnabledColor: Colors.white,
+              style: const TextStyle(color: Colors.white),
+              items: kTimezones.map((tz) {
+                return DropdownMenuItem<String>(
+                  value: tz.id,
+                  child: Text(
+                      "${tz.label} (${tz.country}) - ${tz.offsetLabel}"),
+                );
+              }).toList(),
+              onChanged: (val) async {
+                if (val == null) return;
+                await DateTimeFormatService.setManualTimezone(val);
+                setState(() {});
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

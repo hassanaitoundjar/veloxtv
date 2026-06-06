@@ -71,18 +71,16 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
                       // Use epg.title, start, end, description
                       String timeDisplay =
                           "${epg.start ?? ""} - ${epg.end ?? ""}";
-                      try {
-                        if (epg.startTimestamp != null &&
-                            epg.stopTimestamp != null) {
-                          final s = DateTime.fromMillisecondsSinceEpoch(
-                              int.parse(epg.startTimestamp!) * 1000);
-                          final e = DateTime.fromMillisecondsSinceEpoch(
-                              int.parse(epg.stopTimestamp!) * 1000);
-                          String fmt(DateTime dt) =>
-                              "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-                          timeDisplay = "${fmt(s)} - ${fmt(e)}";
-                        }
-                      } catch (_) {}
+                      final window = parseEpgWindow(
+                        startTimestamp: epg.startTimestamp,
+                        stopTimestamp: epg.stopTimestamp,
+                        start: epg.start,
+                        end: epg.end,
+                      );
+                      if (window != null) {
+                        timeDisplay = DateTimeFormatService.formatTimeRange(
+                            window.start, window.end);
+                      }
 
                       // Logic to play
                       return Card(

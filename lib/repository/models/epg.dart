@@ -33,5 +33,6 @@ class EpgModel {
         description = json['description']?.toString(),
         channelId = json['channel_id']?.toString(),
         startTimestamp = json['start_timestamp']?.toString(),
-        stopTimestamp = json['stop_timestamp']?.toString();
+        stopTimestamp =
+            (json['stop_timestamp'] ?? json['end_timestamp'])?.toString();
 }
