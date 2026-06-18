@@ -18,12 +18,12 @@ class WatchingModel {
 
   factory WatchingModel.fromJson(Map<String, dynamic> json) {
     return WatchingModel(
-      streamId: json["streamId"],
-      image: json["image"],
-      title: json["title"],
-      sliderValue: double.parse(json["sliderValue"].toString()),
-      stream: json["stream"],
-      durationStrm: double.parse(json['durationStrm'].toString()),
+      streamId: json["streamId"]?.toString() ?? '',
+      image: json["image"]?.toString() ?? '',
+      title: json["title"]?.toString() ?? '',
+      sliderValue: double.tryParse(json["sliderValue"]?.toString() ?? '') ?? 0.0,
+      stream: json["stream"]?.toString() ?? '',
+      durationStrm: double.tryParse(json['durationStrm']?.toString() ?? '') ?? 0.0,
     );
   }
 

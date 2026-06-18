@@ -25,10 +25,32 @@ class _AppBarLiveState extends State<AppBarLive> {
   Timer? _timer;
   String _currentTime = "";
   String _currentDate = "";
+  late FocusNode _internalFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _internalFocusNode = widget.focusNode ?? FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.down);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.up);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.left);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.right);
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    });
     _updateTime();
     _timer =
         Timer.periodic(const Duration(seconds: 1), (timer) => _updateTime());
@@ -36,6 +58,9 @@ class _AppBarLiveState extends State<AppBarLive> {
 
   @override
   void dispose() {
+    if (widget.focusNode == null) {
+      _internalFocusNode.dispose();
+    }
     _timer?.cancel();
     super.dispose();
   }
@@ -121,7 +146,7 @@ class _AppBarLiveState extends State<AppBarLive> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
-                      focusNode: widget.focusNode,
+                      focusNode: _internalFocusNode,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: "Search...",
@@ -179,11 +204,19 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
     _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
       if (event is KeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          FocusScope.of(context).nextFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.down);
           return KeyEventResult.handled;
         }
         if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          FocusScope.of(context).previousFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.up);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.left);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.right);
           return KeyEventResult.handled;
         }
       }
@@ -209,6 +242,9 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                     .contains(_catSearch.toLowerCase()) ??
                 false)
             .toList();
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final catFontSize = screenWidth < 600 ? 14.0 : (screenWidth < 1200 ? 16.0 : 18.0);
 
     return Container(
       width: 25.w,
@@ -261,7 +297,8 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                         Expanded(
                           child: Text(
                             cat.categoryName ?? "Unknown",
-                            style: Get.textTheme.bodyLarge?.copyWith(
+                            style: TextStyle(
+                              fontSize: catFontSize,
                               color: isSelected
                                   ? kColorPrimary
                                   : kColorTextSecondary,
@@ -269,7 +306,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                                   ? FontWeight.bold
                                   : FontWeight.normal,
                             ),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

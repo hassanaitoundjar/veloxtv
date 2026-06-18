@@ -39,56 +39,58 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
       child: Row(
         children: [
-          Image.asset(kIconSplash, width: 40, height: 40),
-          const SizedBox(width: 12),
-          Text(kAppName, style: Get.textTheme.headlineMedium),
-          Container(
-            height: 30,
-            width: 1,
-            color: Colors.white24,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-          ),
+          // LEFT: Logo
+          Image.asset(kIconSplash, width: 36, height: 36),
+          const SizedBox(width: 10),
+          Text(kAppName,
+              style: Get.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+
           const Spacer(),
 
           // CENTER: Clock and Date
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const Icon(Icons.access_time, size: 16, color: Colors.white54),
+              const SizedBox(width: 6),
               Text(_currentTime,
-                  style: Get.textTheme.titleMedium?.copyWith(
+                  style: Get.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold, color: kColorPrimary)),
               Container(
                   width: 1,
                   height: 14,
-                  color: Colors.white54,
+                  color: Colors.white24,
                   margin: const EdgeInsets.symmetric(horizontal: 10)),
               Text(_currentDate,
-                  style: Get.textTheme.bodyMedium
-                      ?.copyWith(color: Colors.white70)),
+                  style: Get.textTheme.bodySmall
+                      ?.copyWith(color: Colors.white54)),
             ],
           ),
 
           const Spacer(),
 
-          // RIGHT: Expiration and Settings
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Expiration: ${formatExpiration(widget.expiration)}",
-                style: Get.textTheme.bodySmall
-                    ?.copyWith(color: kColorTextSecondary),
-              ),
-              const SizedBox(width: 16),
-              IconButton(
-                onPressed: () => Get.toNamed(screenSettings),
-                icon: const Icon(FontAwesomeIcons.gear),
-                tooltip: "Settings",
-              ),
-            ],
+          // RIGHT: Icon-only buttons
+          IconButton(
+            onPressed: () => Get.toNamed(screenSearch),
+            icon: const Icon(Icons.search, color: Colors.white70),
+            tooltip: "Search",
+            iconSize: 22,
+          ),
+          IconButton(
+            onPressed: () => Get.toNamed(screenSettings),
+            icon: const Icon(Icons.person_outline, color: Colors.white70),
+            tooltip: "Account",
+            iconSize: 22,
+          ),
+          IconButton(
+            onPressed: () => Get.toNamed(screenSettings),
+            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+            tooltip: "Settings",
+            iconSize: 22,
           ),
         ],
       ),

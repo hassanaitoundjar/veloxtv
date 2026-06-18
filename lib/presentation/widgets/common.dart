@@ -45,14 +45,19 @@ class _FocusableCardState extends State<FocusableCard> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         child: Container(
+          clipBehavior: _isFocused ? Clip.antiAlias : Clip.none,
           decoration: _isFocused
               ? BoxDecoration(
                   border: Border.all(color: Colors.white, width: 1.5),
-                  borderRadius: BorderRadius.circular(
-                      10), // Should match kRadiusCard if possible, or hardcode
+                  borderRadius: BorderRadius.circular(10),
                 )
               : null,
-          child: widget.child,
+          child: ClipRRect(
+            borderRadius: _isFocused
+                ? BorderRadius.circular(8.5)
+                : BorderRadius.zero,
+            child: widget.child,
+          ),
         ),
       ),
     );

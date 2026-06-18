@@ -53,6 +53,53 @@ class _HomeScreenState extends State<HomeScreen> {
                     : _buildLandscapeLayout(),
               ),
             ),
+
+            // Bottom Status Bar: Username & Expiration
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                String username = "";
+                String expDate = "Unlimited";
+                if (state is AuthSuccess) {
+                  username = state.user.userInfo?.username ?? "User";
+                  expDate = state.user.userInfo?.expDate ?? "Unlimited";
+                }
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: kColorCardLight.withValues(alpha: 0.15),
+                    border: const Border(
+                      top: BorderSide(color: Colors.white10, width: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Bottom Left: Expiration Date
+                      Row(
+                        children: [
+                          Text(
+                            "Expiration date: ${formatExpiration(expDate)}",
+                            style: Get.textTheme.bodySmall
+                                ?.copyWith(color: Colors.white54),
+                          ),
+                        ],
+                      ),
+                      
+                      // Bottom Right: Username
+                      Row(
+                        children: [
+                          Text(
+                            "Username: $username",
+                            style: Get.textTheme.bodySmall
+                                ?.copyWith(color: Colors.white54, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -60,14 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLandscapeLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
       children: [
-        // LEFT SIDE: 3x2 GRID
-        Expanded(
-          flex: 4,
-          child: Column(
-            children: [
               // ROW 1: LIVE, MOVIES, SERIES
               Expanded(
                 child: Row(
@@ -126,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: "Catch Up",
                         icon: FontAwesomeIcons.clockRotateLeft,
                         isIconData: true,
-                        onTap: () => Get.toNamed(screenCatchUp),
+                        onTap: () => Get.toNamed(screenLiveTv),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -155,40 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-
-        const SizedBox(width: 24),
-
-        // RIGHT SIDE: SIDE MENU
-        Expanded(
-          flex: 1,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildSideItem(
-                  "Account", Icons.person, () => Get.toNamed(screenSettings)),
-              const SizedBox(height: 16),
-              _buildSideItem("Settings", Icons.settings,
-                  () => Get.toNamed(screenSettings)),
-              const SizedBox(height: 16),
-              _buildSideItem(
-                  "Search", Icons.search, () => Get.toNamed(screenSearch)),
-              const SizedBox(height: 16),
-              _buildSideItem("Reload Data", Icons.refresh, () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Reloading data...",
-                          style: TextStyle(color: Colors.white))),
-                );
-                context.read<LiveCatyBloc>().add(GetLiveCategories());
-                context.read<MovieCatyBloc>().add(GetMovieCategories());
-                context.read<SeriesCatyBloc>().add(GetSeriesCategories());
-              }),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -238,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: "Catch Up",
                       icon: FontAwesomeIcons.clockRotateLeft,
                       isIconData: true,
-                      onTap: () => Get.toNamed(screenCatchUp),
+                      onTap: () => Get.toNamed(screenLiveTv),
                       height: 100)),
               const SizedBox(width: 12),
               Expanded(
@@ -264,26 +271,6 @@ class _HomeScreenState extends State<HomeScreen> {
           const Divider(color: Colors.white24),
           const SizedBox(height: 24),
 
-          // Side Menu Items
-          _buildSideItem(
-              "Account", Icons.person, () => Get.toNamed(screenSettings)),
-          const SizedBox(height: 12),
-          _buildSideItem(
-              "Settings", Icons.settings, () => Get.toNamed(screenSettings)),
-          const SizedBox(height: 12),
-          _buildSideItem(
-              "Search", Icons.search, () => Get.toNamed(screenSearch)),
-          const SizedBox(height: 12),
-          _buildSideItem("Reload Data", Icons.refresh, () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text("Reloading data...",
-                      style: TextStyle(color: Colors.white))),
-            );
-            context.read<LiveCatyBloc>().add(GetLiveCategories());
-            context.read<MovieCatyBloc>().add(GetMovieCategories());
-            context.read<SeriesCatyBloc>().add(GetSeriesCategories());
-          }),
           const SizedBox(height: 50), // Bottom padding
         ],
       ),
@@ -361,23 +348,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSideItem(String title, IconData icon, VoidCallback onTap) {
-    return FocusableCard(
-      onTap: onTap,
-      scale: 1.02,
-      child: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration:
-            kDecorCard.copyWith(color: kColorCardLight.withOpacity(0.2)),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: Colors.white70),
-            const SizedBox(width: 12),
-            Expanded(child: Text(title, style: Get.textTheme.bodyLarge)),
-          ],
-        ),
-      ),
-    );
-  }
 }

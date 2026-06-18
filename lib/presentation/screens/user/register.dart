@@ -14,12 +14,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _urlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  bool _obscurePassword = true;
+
   final _backFocus = FocusNode();
   final _nameFocus = FocusNode();
   final _userFocus = FocusNode();
   final _passFocus = FocusNode();
-  final _urlFocus = FocusNode();
-  final _btnFocus = FocusNode();
+  final _eyeFocus  = FocusNode(); // eye-toggle button on the password field
+  final _urlFocus  = FocusNode();
+  final _btnFocus  = FocusNode();
+  final _usersFocus = FocusNode();
 
   @override
   void dispose() {
@@ -32,8 +36,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameFocus.dispose();
     _userFocus.dispose();
     _passFocus.dispose();
+    _eyeFocus.dispose();
     _urlFocus.dispose();
     _btnFocus.dispose();
+    _usersFocus.dispose();
     super.dispose();
   }
 
@@ -72,12 +78,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
         (node, event) => _handleKeyEvent(event, node, _backFocus, _userFocus);
     _userFocus.onKeyEvent =
         (node, event) => _handleKeyEvent(event, node, _nameFocus, _passFocus);
-    _passFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _userFocus, _urlFocus);
+
+    // Password field: ▼ → URL field, ▲ → Username, ▶ → eye icon
+    _passFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          _eyeFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return _handleKeyEvent(event, node, _userFocus, _urlFocus);
+    };
+
+    // Eye-toggle button: ◀ → back to password, ▼ → URL, ▲ → Username, Select/Enter → toggle
+    _eyeFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          _passFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          _urlFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          _userFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.select ||
+            event.logicalKey == LogicalKeyboardKey.enter) {
+          setState(() => _obscurePassword = !_obscurePassword);
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+
     _urlFocus.onKeyEvent =
         (node, event) => _handleKeyEvent(event, node, _passFocus, _btnFocus);
     _btnFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _urlFocus, null);
+        (node, event) => _handleKeyEvent(event, node, _urlFocus, _usersFocus);
+    _usersFocus.onKeyEvent =
+        (node, event) => _handleKeyEvent(event, node, _btnFocus, null);
   }
 
   @override
@@ -129,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.15),
+                    color: kColorPrimary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.api, color: kColorPrimary, size: 40),
@@ -173,7 +215,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               icon: Icons.lock_outline,
               focusNode: _passFocus,
               nextFocus: _urlFocus,
-              obscure: true,
+              obscure: _obscurePassword,
+              onToggleObscure: () => setState(() => _obscurePassword = !_obscurePassword),
+              eyeFocusNode: _eyeFocus,
               validator: (v) => v!.isEmpty ? "Required" : null,
             ),
             SizedBox(height: isTvLayout ? 2.h : 16),
@@ -188,6 +232,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             SizedBox(height: isTvLayout ? 4.h : 32),
             _buildSubmitButton(),
+            SizedBox(height: isTvLayout ? 2.h : 16),
+            _buildUserListButton(),
           ],
         ),
       ),
@@ -208,7 +254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.15),
+                    color: kColorPrimary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.api, color: kColorPrimary, size: 50),
@@ -260,9 +306,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required IconData icon,
     required FocusNode focusNode,
     FocusNode? nextFocus,
+    FocusNode? eyeFocusNode,
     String? Function(String?)? validator,
     bool autofocus = false,
     bool obscure = false,
+    VoidCallback? onToggleObscure,
   }) {
     return TextFormField(
       controller: controller,
@@ -280,6 +328,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderSide: const BorderSide(color: kColorFocus, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
+        suffixIcon: onToggleObscure != null && eyeFocusNode != null
+            ? ListenableBuilder(
+                listenable: eyeFocusNode,
+                builder: (ctx, _) {
+                  final hasFocus = eyeFocusNode.hasFocus;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: hasFocus
+                          ? kColorFocus.withValues(alpha: 0.2)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      border: hasFocus
+                          ? Border.all(color: kColorFocus, width: 2)
+                          : null,
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      focusNode: eyeFocusNode,
+                      icon: Icon(
+                        obscure
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: hasFocus ? kColorFocus : Colors.white54,
+                      ),
+                      onPressed: onToggleObscure,
+                      tooltip: obscure ? 'Show password' : 'Hide password',
+                    ),
+                  );
+                },
+              )
+            : null,
       ),
       textInputAction:
           nextFocus != null ? TextInputAction.next : TextInputAction.done,
@@ -301,7 +382,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         } else if (state is AuthFailed) {
           Get.snackbar("Error", state.message,
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red.withOpacity(0.8),
+              backgroundColor: Colors.red.withValues(alpha: 0.8),
               colorText: Colors.white);
         }
       },
@@ -339,6 +420,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildUserListButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: OutlinedButton(
+        focusNode: _usersFocus,
+        onPressed: () => Get.toNamed(screenProfiles),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: kColorPrimary, width: 2),
+          foregroundColor: Colors.white,
+        ).copyWith(
+          side: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return const BorderSide(color: kColorFocus, width: 2);
+            }
+            return const BorderSide(color: kColorPrimary, width: 2);
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return kColorFocus;
+            }
+            return Colors.white;
+          }),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return kColorFocus.withValues(alpha: 0.1);
+            }
+            return Colors.transparent;
+          }),
+        ),
+        child: const Text("USER LIST",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ),
     );
   }
 }

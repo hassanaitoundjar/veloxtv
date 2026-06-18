@@ -33,14 +33,14 @@ class Info {
   });
 
   Info.fromJson(Map<String, dynamic> json)
-      : movieImage = json['movie_image'].toString(),
-        tmdbId = json['tmdb_id'].toString(),
-        plot = json['plot'].toString(),
-        cast = json['cast'].toString(),
-        rating = json['rating'].toString(),
-        director = json['director'].toString(),
-        genre = json['genre'].toString(),
-        releaseDate = json['releasedate'].toString();
+      : movieImage = json['movie_image']?.toString(),
+        tmdbId = json['tmdb_id']?.toString(),
+        plot = json['plot']?.toString(),
+        cast = json['cast']?.toString(),
+        rating = json['rating']?.toString(),
+        director = json['director']?.toString(),
+        genre = json['genre']?.toString(),
+        releaseDate = json['releasedate']?.toString();
 }
 
 class MovieData {
@@ -51,7 +51,7 @@ class MovieData {
   MovieData({this.streamId, this.name, this.containerExtension});
 
   MovieData.fromJson(Map<String, dynamic> json)
-      : streamId = json['stream_id'].toString(),
-        name = json['name'].toString(),
-        containerExtension = json['container_extension'].toString();
+      : streamId = json['stream_id']?.toString(),
+        name = json['name']?.toString(),
+        containerExtension = json['container_extension']?.toString();
 }

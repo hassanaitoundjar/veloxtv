@@ -514,18 +514,6 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                   },
                                   onFocusChange: (_) => _onInteraction(),
                                 ),
-                              const Spacer(),
-                              _PlayerControlButton(
-                                icon: Icons.flag_outlined,
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Report feature coming soon')),
-                                  );
-                                },
-                                onFocusChange: (_) => _onInteraction(),
-                              ),
                             ],
                           ),
                         ),

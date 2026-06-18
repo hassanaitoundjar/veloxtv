@@ -22,14 +22,14 @@ class ChannelSerie {
   });
 
   ChannelSerie.fromJson(Map<String, dynamic> json)
-      : num = json['num'].toString(),
-        name = json['name'].toString(),
-        seriesId = json['series_id'].toString(),
-        cover = json['cover'].toString(),
-        plot = json['plot'].toString(),
-        rating = json['rating'].toString(),
-        rating5based = json['rating_5based'].toString(),
-        categoryId = json['category_id'].toString();
+      : num = json['num']?.toString(),
+        name = json['name']?.toString(),
+        seriesId = json['series_id']?.toString(),
+        cover = json['cover']?.toString(),
+        plot = json['plot']?.toString(),
+        rating = json['rating']?.toString(),
+        rating5based = json['rating_5based']?.toString(),
+        categoryId = json['category_id']?.toString();
 
   Map<String, dynamic> toJson() => {
         'num': num,

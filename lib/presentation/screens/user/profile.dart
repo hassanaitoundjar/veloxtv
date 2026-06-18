@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
                 return Text("$count profiles",
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.7), fontSize: 12));
+                        color: Colors.white.withValues(alpha: 0.7), fontSize: 12));
               },
             ),
           ],
@@ -108,11 +108,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: "Search profiles...",
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                     prefixIcon: Icon(Icons.search,
-                        color: Colors.white.withOpacity(0.5)),
+                        color: Colors.white.withValues(alpha: 0.5)),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.05),
+                    fillColor: Colors.white.withValues(alpha: 0.05),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -130,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? Center(
                           child: Text("No profiles found",
                               style: TextStyle(
-                                  color: Colors.white.withOpacity(0.5))))
+                                  color: Colors.white.withValues(alpha: 0.5))))
                       : ListView.separated(
                           itemCount: filteredProfiles.length,
                           separatorBuilder: (_, __) =>
@@ -189,11 +189,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: isActive
-              ? kColorPrimary.withOpacity(0.2)
-              : Colors.white.withOpacity(0.05),
+              ? kColorPrimary.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: isActive ? kColorPrimary : Colors.white.withOpacity(0.1)),
+              color: isActive ? kColorPrimary : Colors.white.withValues(alpha: 0.1)),
         ),
         child: ListTile(
           contentPadding:
@@ -202,21 +202,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
+                  border: Border.all(
                   color: isActive
                       ? kColorPrimary
-                      : Colors.white.withOpacity(0.3)),
+                      : Colors.white.withValues(alpha: 0.3)),
               color: isActive ? kColorPrimary : Colors.transparent,
             ),
             child: Icon(Icons.person_outline,
                 color:
-                    isActive ? Colors.white : Colors.white.withOpacity(0.7)),
+                    isActive ? Colors.white : Colors.white.withValues(alpha: 0.7)),
           ),
           title: Text(name,
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold)),
           subtitle: Text(sub,
-              style: TextStyle(color: Colors.white.withOpacity(0.6))),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -239,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
+                    color: Colors.red.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.delete_outline,

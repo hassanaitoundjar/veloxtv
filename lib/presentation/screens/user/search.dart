@@ -32,11 +32,19 @@ class _SearchScreenState extends State<SearchScreen>
     _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
       if (event is KeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          FocusScope.of(context).nextFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.down);
           return KeyEventResult.handled;
         }
         if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          FocusScope.of(context).previousFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.up);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.left);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.right);
           return KeyEventResult.handled;
         }
       }

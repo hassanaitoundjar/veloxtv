@@ -28,18 +28,19 @@ class ChannelLive {
   });
 
   ChannelLive.fromJson(Map<String, dynamic> json)
-      : num = int.tryParse(json['num'].toString()),
-        name = json['name'].toString(),
-        streamType = json['stream_type'].toString(),
-        streamId = json['stream_id'].toString(),
-        streamIcon = json['stream_icon'].toString(),
-        epgChannelId = json['epg_channel_id'].toString(),
-        added = json['added'].toString(),
-        categoryId = json['category_id'].toString(),
-        customSid = json['custom_sid'].toString(),
-        tvArchive = int.tryParse(json['tv_archive'].toString()),
-        directSource = json['direct_source'].toString(),
-        tvArchiveDuration = int.tryParse(json['tv_archive_duration'].toString());
+      : num = int.tryParse(json['num']?.toString() ?? ''),
+        name = json['name']?.toString(),
+        streamType = json['stream_type']?.toString(),
+        streamId = json['stream_id']?.toString(),
+        streamIcon = json['stream_icon']?.toString(),
+        epgChannelId = json['epg_channel_id']?.toString(),
+        added = json['added']?.toString(),
+        categoryId = json['category_id']?.toString(),
+        customSid = json['custom_sid']?.toString(),
+        tvArchive = int.tryParse(json['tv_archive']?.toString() ?? ''),
+        directSource = json['direct_source']?.toString(),
+        tvArchiveDuration =
+            int.tryParse(json['tv_archive_duration']?.toString() ?? '');
 
   Map<String, dynamic> toJson() => {
         'num': num,

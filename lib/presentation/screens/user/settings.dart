@@ -9,6 +9,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _selectedIndex = 0;
+  bool _showMobileDetails = false;
   final _storage = GetStorage("settings");
 
   final List<String> _titles = [
@@ -30,70 +31,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).size.width > MediaQuery.of(context).size.height;
+    final isTvDevice = isTv(context);
+    final isTvLayout = isLandscape || isTvDevice;
+
     return Scaffold(
       body: Container(
         width: 100.w,
         height: 100.h,
         decoration: kDecorBackground,
-        child: Row(
-          children: [
-            // Left Panel
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: kColorPanel,
-                child: Column(
-                  children: [
-                    SizedBox(height: 5.h),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: IconButton(
-                          icon:
-                              const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Get.back(),
-                        ),
-                      ),
+        child: isTvLayout ? _buildTvLayout() : _buildMobileLayout(),
+      ),
+    );
+  }
+
+  Widget _buildTvLayout() {
+    return Row(
+      children: [
+        // Left Panel
+        Expanded(
+          flex: 1,
+          child: Container(
+            color: kColorPanel,
+            child: Column(
+              children: [
+                SizedBox(height: 5.h),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Get.back(),
                     ),
-                    const Icon(Icons.settings, size: 40, color: Colors.white),
-                    const SizedBox(height: 10),
-                    Text("Settings", style: Get.textTheme.titleLarge),
-                    const SizedBox(height: 40),
-                    ...List.generate(_titles.length, (index) {
-                      return _buildSettingItem(
-                        icon: _icons[index],
-                        title: _titles[index],
-                        isSelected: _selectedIndex == index,
-                        onTap: () => setState(() => _selectedIndex = index),
-                      );
-                    }),
-                    const Spacer(),
-                    _buildSettingItem(
-                      icon: Icons.logout,
-                      title: "Logout",
-                      color: kColorError,
-                      onTap: () {
-                        context.read<AuthBloc>().add(AuthLogout());
-                        Get.offAllNamed(screenSplash);
-                      },
-                    ),
-                    SizedBox(height: 5.h),
-                  ],
+                  ),
                 ),
+                const Icon(Icons.settings, size: 40, color: Colors.white),
+                const SizedBox(height: 10),
+                Text("Settings", style: Get.textTheme.titleLarge),
+                const SizedBox(height: 40),
+                ...List.generate(_titles.length, (index) {
+                  return _buildSettingItem(
+                    icon: _icons[index],
+                    title: _titles[index],
+                    isSelected: _selectedIndex == index,
+                    onTap: () => setState(() => _selectedIndex = index),
+                  );
+                }),
+                const Spacer(),
+                _buildSettingItem(
+                  icon: Icons.logout,
+                  title: "Logout",
+                  color: kColorError,
+                  onTap: () {
+                    context.read<AuthBloc>().add(AuthLogout());
+                    Get.offAllNamed(screenSplash);
+                  },
+                ),
+                SizedBox(height: 5.h),
+              ],
+            ),
+          ),
+        ),
+
+        // Right Panel (Content)
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: _buildRightPanel(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    if (_showMobileDetails) {
+      return SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => setState(() => _showMobileDetails = false),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_titles[_selectedIndex], style: Get.textTheme.titleLarge),
+                ],
               ),
             ),
-
-            // Right Panel (Content)
             Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(40.0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
                 child: _buildRightPanel(),
               ),
             ),
           ],
         ),
+      );
+    }
+
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Get.back(),
+                ),
+                const SizedBox(width: 8),
+                Text("Settings", style: Get.textTheme.titleLarge),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _titles.length + 1,
+              itemBuilder: (context, index) {
+                if (index == _titles.length) {
+                  return _buildSettingItem(
+                    icon: Icons.logout,
+                    title: "Logout",
+                    color: kColorError,
+                    onTap: () {
+                      context.read<AuthBloc>().add(AuthLogout());
+                      Get.offAllNamed(screenSplash);
+                    },
+                  );
+                }
+                return _buildSettingItem(
+                  icon: _icons[index],
+                  title: _titles[index],
+                  isSelected: false,
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = index;
+                      _showMobileDetails = true;
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -166,47 +255,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   final userId = authState.user.id;
                   final enabled =
                       _storage.read("parental_control_enabled_$userId") ?? true;
-                  return SwitchListTile(
-                    title: const Text("Enable Parental Control",
-                        style: TextStyle(color: Colors.white)),
-                    activeColor: kColorPrimary,
-                    value: enabled,
-                    onChanged: (val) {
-                      if (val) {
-                        // Enable directly
-                        _storage.write(
-                            "parental_control_enabled_$userId", true);
-                        setState(() {});
-                      } else {
-                        // To disable, require PIN?
-                        Get.dialog(
-                          ParentalControlWidget(
-                            userId: userId,
-                            mode: ParentalMode.verify,
-                            onVerifySuccess: () {
-                              _storage.write(
-                                  "parental_control_enabled_$userId", false);
-                              setState(() {});
-                            },
-                          ),
-                        );
-                      }
-                    },
+                  void toggleParentalControl(bool val) {
+                    if (val) {
+                      _storage.write("parental_control_enabled_$userId", true);
+                      setState(() {});
+                    } else {
+                      Get.dialog(
+                        ParentalControlWidget(
+                          userId: userId,
+                          mode: ParentalMode.verify,
+                          onVerifySuccess: () {
+                            _storage.write("parental_control_enabled_$userId", false);
+                            setState(() {});
+                          },
+                        ),
+                      );
+                    }
+                  }
+
+                  return FocusableCard(
+                    onTap: () => toggleParentalControl(!enabled),
+                    child: SwitchListTile(
+                      title: const Text("Enable Parental Control",
+                          style: TextStyle(color: Colors.white)),
+                      activeColor: kColorPrimary,
+                      value: enabled,
+                      onChanged: toggleParentalControl,
+                    ),
                   );
                 },
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kColorPrimary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                ),
-                icon: const Icon(Icons.lock_reset),
-                label: const Text("Change PIN",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  // Flow: Verify Old PIN first (if default 0000, maybe skip? No, always verify).
+              Builder(builder: (context) {
+                void changePin() {
                   final authState = context.read<AuthBloc>().state;
                   if (authState is! AuthSuccess) return;
                   final userId = authState.user.id;
@@ -216,10 +297,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       userId: userId,
                       mode: ParentalMode.verify,
                       onVerifySuccess: () {
-                        // Close the verify dialog is handled by widget,
-                        // but we need to wait for it to close or open next one?
-                        // My widget calls Get.back() on success.
-                        // So we wait a bit then open the new one.
                         Future.delayed(const Duration(milliseconds: 300), () {
                           Get.dialog(
                             ParentalControlWidget(
@@ -231,8 +308,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                   );
-                },
-              ),
+                }
+
+                return FocusableCard(
+                  onTap: changePin,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kColorPrimary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                    ),
+                    icon: const Icon(Icons.lock_reset),
+                    label: const Text("Change PIN",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    onPressed: changePin,
+                  ),
+                );
+              }),
             ],
           ),
         ),
@@ -277,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildRadioOption(String label, String value, String groupValue) {
     final isSelected = value == groupValue;
-    return InkWell(
+    return FocusableCard(
       onTap: () {
         _storage.write("stream_format", value);
         setState(() {});
@@ -314,7 +406,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Future<void> Function(T) onSelected,
   ) {
     final isSelected = value.name == groupValue.name;
-    return InkWell(
+    return FocusableCard(
       onTap: () async {
         await onSelected(value);
       },
@@ -507,17 +599,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kColorCardLight,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
-                        icon: const Icon(Icons.public,
-                            color: kColorPrimary, size: 18),
-                        label: const Text("Auto-detect by country",
-                            style: TextStyle(color: Colors.white)),
-                        onPressed: () async {
+                      child: Builder(builder: (context) {
+                        Future<void> detectCountry() async {
                           final messenger = ScaffoldMessenger.of(context);
                           messenger.showSnackBar(const SnackBar(
                               content: Text(
@@ -534,8 +617,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 content: Text(
                                     "Detected timezone: ${tz.label} (${tz.country})")));
                           }
-                        },
-                      ),
+                        }
+
+                        return FocusableCard(
+                          onTap: detectCountry,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kColorCardLight,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 14),
+                            ),
+                            icon: const Icon(Icons.public,
+                                color: kColorPrimary, size: 18),
+                            label: const Text("Auto-detect by country",
+                                style: TextStyle(color: Colors.white)),
+                            onPressed: detectCountry,
+                          ),
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -662,16 +761,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(color: kColorTextSecondary)),
         const SizedBox(height: 30),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: kColorPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          ),
-          onPressed: () {
+        FocusableCard(
+          onTap: () {
             Get.to(const SpeedTestScreen());
           },
-          child: const Text("Open Speed Test",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kColorPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+            onPressed: () {
+              Get.to(const SpeedTestScreen());
+            },
+            child: const Text("Open Speed Test",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
         ),
       ],
     );

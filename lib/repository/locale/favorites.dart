@@ -7,7 +7,8 @@ class FavoriteLocale {
   static Future<void> saveChannelLive(
       ChannelLive channel, String userId) async {
     final key = _key("live", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
 
     // Check if already exists
     final index =
@@ -20,7 +21,8 @@ class FavoriteLocale {
 
   static Future<void> removeChannelLive(String streamId, String userId) async {
     final key = _key("live", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
     list.removeWhere((element) => element['stream_id'] == streamId);
     await favoritesLocale.write(key, list);
   }
@@ -32,11 +34,11 @@ class FavoriteLocale {
 
   static Future<List<ChannelLive>> getChannelLive(String userId) async {
     final key = _key("live", userId);
-    List<dynamic>? list = await favoritesLocale.read(key);
+    List<dynamic>? list = favoritesLocale.read(key) as List<dynamic>?;
 
     // Migration Logic
     if (list == null) {
-      final legacy = await favoritesLocale.read("live");
+      final legacy = favoritesLocale.read("live") as List<dynamic>?;
       if (legacy != null) {
         list = legacy;
         await favoritesLocale.write(key, list);
@@ -46,7 +48,7 @@ class FavoriteLocale {
       }
     }
 
-    return list?.map((e) => ChannelLive.fromJson(e)).toList() ?? [];
+    return list.map((e) => ChannelLive.fromJson(e)).toList();
   }
 
   static bool isLikedLive(String streamId, String userId) {
@@ -58,7 +60,8 @@ class FavoriteLocale {
   /// Save Movie
   static Future<void> saveMovie(ChannelMovie movie, String userId) async {
     final key = _key("movie", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
 
     final index =
         list.indexWhere((element) => element['stream_id'] == movie.streamId);
@@ -70,7 +73,8 @@ class FavoriteLocale {
 
   static Future<void> removeMovie(String streamId, String userId) async {
     final key = _key("movie", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
     list.removeWhere((element) => element['stream_id'] == streamId);
     await favoritesLocale.write(key, list);
   }
@@ -82,11 +86,11 @@ class FavoriteLocale {
 
   static Future<List<ChannelMovie>> getMovies(String userId) async {
     final key = _key("movie", userId);
-    List<dynamic>? list = await favoritesLocale.read(key);
+    List<dynamic>? list = favoritesLocale.read(key) as List<dynamic>?;
 
     // Migration Logic
     if (list == null) {
-      final legacy = await favoritesLocale.read("movie");
+      final legacy = favoritesLocale.read("movie") as List<dynamic>?;
       if (legacy != null) {
         list = legacy;
         await favoritesLocale.write(key, list);
@@ -96,7 +100,7 @@ class FavoriteLocale {
       }
     }
 
-    return list?.map((e) => ChannelMovie.fromJson(e)).toList() ?? [];
+    return list.map((e) => ChannelMovie.fromJson(e)).toList();
   }
 
   static bool isLikedMovie(String streamId, String userId) {
@@ -108,7 +112,8 @@ class FavoriteLocale {
   /// Save Series
   static Future<void> saveSeries(ChannelSerie serie, String userId) async {
     final key = _key("series", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
 
     final index =
         list.indexWhere((element) => element['series_id'] == serie.seriesId);
@@ -120,7 +125,8 @@ class FavoriteLocale {
 
   static Future<void> removeSeries(String seriesId, String userId) async {
     final key = _key("series", userId);
-    final List<dynamic> list = await favoritesLocale.read(key) ?? [];
+    final List<dynamic> list =
+        (favoritesLocale.read(key) as List<dynamic>?) ?? [];
     list.removeWhere((element) => element['series_id'] == seriesId);
     await favoritesLocale.write(key, list);
   }
@@ -132,11 +138,11 @@ class FavoriteLocale {
 
   static Future<List<ChannelSerie>> getSeries(String userId) async {
     final key = _key("series", userId);
-    List<dynamic>? list = await favoritesLocale.read(key);
+    List<dynamic>? list = favoritesLocale.read(key) as List<dynamic>?;
 
     // Migration Logic
     if (list == null) {
-      final legacy = await favoritesLocale.read("series");
+      final legacy = favoritesLocale.read("series") as List<dynamic>?;
       if (legacy != null) {
         list = legacy;
         await favoritesLocale.write(key, list);
@@ -146,7 +152,7 @@ class FavoriteLocale {
       }
     }
 
-    return list?.map((e) => ChannelSerie.fromJson(e)).toList() ?? [];
+    return list.map((e) => ChannelSerie.fromJson(e)).toList();
   }
 
   static bool isLikedSeries(String seriesId, String userId) {

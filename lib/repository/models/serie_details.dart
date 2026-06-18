@@ -41,15 +41,15 @@ class Season {
   });
 
   Season.fromJson(Map<String, dynamic> json)
-      : airDate = json['air_date'].toString(),
-        episodeCount = int.tryParse(json['episode_count'].toString()),
-        id = int.tryParse(json['id'].toString()),
-        name = json['name'].toString(),
-        overview = json['overview'].toString(),
-        seasonNumber = int.tryParse(json['season_number'].toString()),
-        voteAverage = json['vote_average'].toString(),
-        cover = json['cover'].toString(),
-        coverBig = json['cover_big'].toString();
+      : airDate = json['air_date']?.toString(),
+        episodeCount = int.tryParse(json['episode_count']?.toString() ?? ''),
+        id = int.tryParse(json['id']?.toString() ?? ''),
+        name = json['name']?.toString(),
+        overview = json['overview']?.toString(),
+        seasonNumber = int.tryParse(json['season_number']?.toString() ?? ''),
+        voteAverage = json['vote_average']?.toString(),
+        cover = json['cover']?.toString(),
+        coverBig = json['cover_big']?.toString();
 }
 
 class InfoSerie {
@@ -86,21 +86,22 @@ class InfoSerie {
   });
 
   InfoSerie.fromJson(Map<String, dynamic> json)
-      : name = json['name'].toString(),
-        cover = json['cover'].toString(),
-        plot = json['plot'].toString(),
-        cast = json['cast'].toString(),
-        director = json['director'].toString(),
-        genre = json['genre'].toString(),
-        releaseDate = json['releaseDate'].toString(),
-        lastModified = json['last_modified'].toString(),
-        rating = json['rating'].toString(),
-        rating5based = json['rating_5based'].toString(),
-        backdropPath =
-            (json['backdrop_path'] as List?)?.map((e) => e.toString()).toList(),
-        youtubeTrailer = json['youtube_trailer'].toString(),
-        episodeRunTime = json['episode_run_time'].toString(),
-        categoryId = json['category_id'].toString();
+      : name = json['name']?.toString(),
+        cover = json['cover']?.toString(),
+        plot = json['plot']?.toString(),
+        cast = json['cast']?.toString(),
+        director = json['director']?.toString(),
+        genre = json['genre']?.toString(),
+        releaseDate = json['releaseDate']?.toString(),
+        lastModified = json['last_modified']?.toString(),
+        rating = json['rating']?.toString(),
+        rating5based = json['rating_5based']?.toString(),
+        backdropPath = (json['backdrop_path'] as List?)
+            ?.map((e) => e.toString())
+            .toList(),
+        youtubeTrailer = json['youtube_trailer']?.toString(),
+        episodeRunTime = json['episode_run_time']?.toString(),
+        categoryId = json['category_id']?.toString();
 }
 
 class Episode {
@@ -121,10 +122,10 @@ class Episode {
   });
 
   Episode.fromJson(Map<String, dynamic> json)
-      : id = json['id'].toString(),
-        episodeNum = int.tryParse(json['episode_num'].toString()),
-        title = json['title'].toString(),
-        containerExtension = json['container_extension'].toString(),
-        info = json['info'].toString(),
-        duration = int.tryParse(json['duration'].toString());
+      : id = json['id']?.toString(),
+        episodeNum = int.tryParse(json['episode_num']?.toString() ?? ''),
+        title = json['title']?.toString(),
+        containerExtension = json['container_extension']?.toString(),
+        info = json['info']?.toString(),
+        duration = int.tryParse(json['duration']?.toString() ?? '');
 }

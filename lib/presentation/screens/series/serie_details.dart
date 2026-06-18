@@ -65,7 +65,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    kColorBackground.withOpacity(0.8),
+                    kColorBackground.withValues(alpha: 0.8),
                     kColorBackground,
                   ],
                   stops: const [0.0, 0.4, 0.7],
@@ -82,7 +82,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    kColorBackground.withOpacity(0.95),
+                    kColorBackground.withValues(alpha: 0.95),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.6],
@@ -112,7 +112,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Colors.white24),
                             ),
@@ -252,9 +252,83 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
     );
   }
 
+  Episode? _getFirstEpisode() {
+    if (_details?.seasons == null || _details!.seasons!.isEmpty) return null;
+    if (_details?.episodes == null) return null;
+    
+    final firstSeason = _details!.seasons!.first;
+    final seasonNum = firstSeason.seasonNumber.toString();
+    final episodes = _details!.episodes?[seasonNum];
+    
+    if (episodes != null && episodes.isNotEmpty) {
+      return episodes.first;
+    }
+    return null;
+  }
+
   Widget _buildActionButtons() {
+    final firstEpisode = _getFirstEpisode();
+
     return Row(
       children: [
+        // Watch Now Button
+        if (firstEpisode != null)
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is! AuthSuccess) return const SizedBox();
+              final userAuth = state.user;
+
+              return FocusableCard(
+                onTap: () {
+                  final link =
+                      "${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${firstEpisode.id}.${firstEpisode.containerExtension}";
+
+                  Get.to(() => MediaKitPlayerScreen(
+                            link: link,
+                            title: firstEpisode.title ?? "",
+                          ))!
+                      .then((slider) {
+                    if (slider != null &&
+                        slider is List &&
+                        slider.isNotEmpty) {
+                      var model = WatchingModel(
+                        sliderValue: slider[0],
+                        durationStrm: slider[1] ?? 0.0,
+                        stream: link,
+                        title: firstEpisode.title ?? "",
+                        image: _details!.info!.cover ?? "",
+                        streamId: firstEpisode.id.toString(),
+                      );
+                      context.read<WatchingCubit>().addSerie(model);
+                    }
+                  });
+                },
+                scale: 1.05,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: kColorPrimary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                    Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text("Watch Now",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold))
+                  ]),
+                ),
+              );
+            },
+          ),
+        if (firstEpisode != null) const SizedBox(width: 12),
+
         // Favorite Button
         BlocBuilder<FavoritesCubit, FavoritesState>(
           builder: (context, favState) {
@@ -285,7 +359,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isFav ? Colors.white : Colors.white.withOpacity(0.1),
+                  color: isFav ? Colors.white : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.white30),
                 ),
@@ -296,7 +370,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text(isFav ? "My List" : "Add to List",
+                  Text(isFav ? "My List" : "Add Favorite",
                       style: TextStyle(
                           color: isFav ? Colors.black : Colors.white,
                           fontWeight: FontWeight.bold))
@@ -315,7 +389,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.white30),
             ),
@@ -330,7 +404,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
   Widget _buildSeasonsAndEpisodes() {
     return Container(
       decoration: BoxDecoration(
-          color: kColorCardLight.withOpacity(0.5),
+          color: kColorCardLight.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(16)),
       child: Row(
         children: [
@@ -339,7 +413,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
             width: 180,
             decoration: BoxDecoration(
                 border: Border(
-                    right: BorderSide(color: Colors.white.withOpacity(0.1)))),
+                    right: BorderSide(color: Colors.white.withValues(alpha: 0.1)))),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -363,7 +437,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           color: isSelected
-                              ? Colors.white.withOpacity(0.1)
+                              ? Colors.white.withValues(alpha: 0.1)
                               : Colors.transparent,
                           child: Row(
                             children: [
@@ -458,7 +532,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.05),
+                                color: Colors.white.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
@@ -470,8 +544,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      episode.title ??
-                                          "Episode ${episode.episodeNum}",
+                                      _cleanEpisodeTitle(
+                                          episode.title,
+                                          episode.episodeNum),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold),
                                       maxLines: 1,
@@ -503,6 +578,32 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
     );
   }
 
+  /// Cleans up episode titles sent by the IPTV server.
+  /// Many servers return the full series name as the title, e.g.:
+  ///   "My Series [MULTI-SUB] - S01E03"
+  /// This strips the series name prefix and shows only the meaningful part.
+  String _cleanEpisodeTitle(String? rawTitle, int? episodeNum) {
+    final epLabel = episodeNum != null ? "Ep $episodeNum" : "Episode";
+
+    if (rawTitle == null || rawTitle.isEmpty) return epLabel;
+
+    // Check if the title contains the series name as a prefix (server sends full name)
+    final serieName = _serie.name ?? '';
+    String cleaned = rawTitle;
+
+    if (serieName.isNotEmpty && cleaned.startsWith(serieName)) {
+      // Remove the series name prefix and any separator like " - "
+      cleaned = cleaned.substring(serieName.length).replaceFirst(RegExp(r'^\s*[-–]\s*'), '').trim();
+    }
+
+    // If what's left is just an episode code like "S01E03" or empty, show "Ep N"
+    if (cleaned.isEmpty || RegExp(r'^S\d+E\d+$', caseSensitive: false).hasMatch(cleaned)) {
+      return episodeNum != null ? "Ep $episodeNum" : cleaned.isEmpty ? epLabel : cleaned;
+    }
+
+    return cleaned;
+  }
+
   Widget _buildPoster() {
     return Hero(
       tag: _serie.seriesId ?? "hero",
@@ -511,7 +612,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 30,
               spreadRadius: 5,
               offset: const Offset(-10, 10),

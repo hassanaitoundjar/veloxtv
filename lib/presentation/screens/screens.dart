@@ -27,7 +27,6 @@ import '../../logic/blocs/categories/live_caty_bloc.dart';
 import '../../logic/blocs/categories/movie_caty_bloc.dart';
 import '../../logic/blocs/categories/series_caty_bloc.dart';
 import '../../logic/cubits/favorites/favorites_cubit.dart';
-import '../../logic/cubits/settings/settings_cubit.dart';
 import '../../logic/cubits/watch/watching_cubit.dart';
 import '../../repository/api/api.dart';
 import '../../repository/models/category.dart';

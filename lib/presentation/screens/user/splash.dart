@@ -39,7 +39,6 @@ class _SplashScreenState extends State<SplashScreen> {
       }
 
       // Initialize settings and auth check
-      context.read<SettingsCubit>().getSettingsCode();
       context.read<AuthBloc>().add(AuthGetUser());
     });
   }

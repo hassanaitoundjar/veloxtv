@@ -26,17 +26,17 @@ class ChannelMovie {
   });
 
   ChannelMovie.fromJson(Map<String, dynamic> json)
-      : num = int.tryParse(json['num'].toString()),
-        name = json['name'].toString(),
-        streamType = json['stream_type'].toString(),
-        streamId = json['stream_id'].toString(),
-        streamIcon = json['stream_icon'].toString(),
-        rating = json['rating'].toString(),
-        rating5based = double.tryParse(json['rating_5based'].toString()),
-        added = json['added'].toString(),
-        categoryId = json['category_id'].toString(),
-        customSid = json['custom_sid'].toString(),
-        directSource = json['direct_source'].toString();
+      : num = int.tryParse(json['num']?.toString() ?? ''),
+        name = json['name']?.toString(),
+        streamType = json['stream_type']?.toString(),
+        streamId = json['stream_id']?.toString(),
+        streamIcon = json['stream_icon']?.toString(),
+        rating = json['rating']?.toString(),
+        rating5based = double.tryParse(json['rating_5based']?.toString() ?? ''),
+        added = json['added']?.toString(),
+        categoryId = json['category_id']?.toString(),
+        customSid = json['custom_sid']?.toString(),
+        directSource = json['direct_source']?.toString();
 
   Map<String, dynamic> toJson() => {
         'num': num,

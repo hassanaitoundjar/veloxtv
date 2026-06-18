@@ -58,14 +58,20 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
     // Initialize focus node with keyboard navigation handling (important for Android TV)
     _searchFocusNode = FocusNode(onKeyEvent: (node, event) {
       if (event is KeyDownEvent) {
-        // Handle D-Pad down
         if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          FocusScope.of(context).nextFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.down);
           return KeyEventResult.handled;
         }
-        // Handle D-Pad up
         if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          FocusScope.of(context).previousFocus();
+          FocusScope.of(context).focusInDirection(TraversalDirection.up);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.left);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          FocusScope.of(context).focusInDirection(TraversalDirection.right);
           return KeyEventResult.handled;
         }
       }
@@ -221,16 +227,49 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
 
               // Handle EPG Timeline navigation
               onTimeline: () async {
-                final blocState = context.read<ChannelsBloc>().state;
-                final channels = blocState is ChannelsSuccess &&
-                        blocState.type == TypeCategory.live
-                    ? List<ChannelLive>.from(blocState.channels)
-                    : <ChannelLive>[];
+                // Capture context-bound helpers before the async gap so we
+                // don't reach for BuildContext after awaiting.
+                final navigator = Navigator.of(context, rootNavigator: true);
+                final messenger = ScaffoldMessenger.of(context);
+
+                // Show a loading indicator while we fetch every live channel
+                // across all categories for the full TV Guide.
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => const Center(
+                    child: CircularProgressIndicator(color: kColorPrimary),
+                  ),
+                );
+
+                List<ChannelLive> channels = const [];
+                String? fetchError;
+                try {
+                  channels = await IpTvApi().getLiveChannels(null);
+                  channels.sort(
+                      (a, b) => (a.num ?? 0).compareTo(b.num ?? 0));
+                } catch (e) {
+                  fetchError = e.toString();
+                }
+
+                if (!context.mounted) return;
+                navigator.pop();
+
+                if (fetchError != null || channels.isEmpty) {
+                  // Fall back to the current category's channels if the full
+                  // fetch failed, so the timeline is still usable.
+                  final blocState = context.read<ChannelsBloc>().state;
+                  channels = blocState is ChannelsSuccess &&
+                          blocState.type == TypeCategory.live
+                      ? List<ChannelLive>.from(blocState.channels)
+                      : <ChannelLive>[];
+                }
 
                 if (channels.isNotEmpty) {
                   await _previewPlayer
                       .stop(); // Stop background playback before moving to timeline
 
+                  if (!context.mounted) return;
                   // Navigate to the EPG Timeline Screen
                   await Navigator.push(
                       context,
@@ -247,7 +286,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                   }
                 } else {
                   // Show snackbar if no channels are available to display in timeline
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  messenger.showSnackBar(const SnackBar(
                       content: Text("No channels available for timeline")));
                 }
               },
@@ -361,9 +400,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                               Expanded(
                                                 child: Text(
                                                   cat.categoryName ?? "Unknown",
-                                                  style: Get
-                                                      .textTheme.bodyMedium
-                                                      ?.copyWith(
+                                                  style: TextStyle(
+                                                    fontSize: MediaQuery.of(context).size.width < 600
+                                                        ? 14
+                                                        : (MediaQuery.of(context).size.width < 1200 ? 16 : 18),
                                                     color: isSelected
                                                         ? Colors.white
                                                         : kColorTextSecondary,
@@ -371,7 +411,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                         ? FontWeight.bold
                                                         : FontWeight.normal,
                                                   ),
-                                                  maxLines: 1,
+                                                  maxLines: 2,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
@@ -409,10 +449,13 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                             child: Text(
                               _selectedCategory?.categoryName ??
                                   "Select Category",
-                              style: Get.textTheme.titleMedium?.copyWith(
+                              style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.width < 600
+                                      ? 14
+                                      : 16,
                                   color: kColorPrimary,
                                   fontWeight: FontWeight.bold),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -528,12 +571,15 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                       child: Column(
                         children: [
                           // MINI PLAYER AREA (Top section of the third pane)
-                          FocusableCard(
-                            onTap: () {
-                              // If a channel is selected, verify access and open a full-screen player
-                              if (_selectedChannel != null) {
-                                _checkChannelAccess(_selectedChannel!,
-                                    () async {
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FocusableCard(
+                              scale: 1.0, // Prevent scaling from clipping the border
+                              onTap: () {
+                                // If a channel is selected, verify access and open a full-screen player
+                                if (_selectedChannel != null) {
+                                  _checkChannelAccess(_selectedChannel!,
+                                      () async {
                                   final user = await LocaleApi.getUser();
                                   if (user != null) {
                                     // Use the user-preferred stream format (defaults to .ts)
@@ -631,6 +677,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                 ),
                               ),
                             ),
+                          ),
                           ),
 
                           // Channel Info & EPG (Bottom)
