@@ -80,12 +80,12 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
             tooltip: "Search",
             iconSize: 22,
           ),
-          // IconButton(
-          //   onPressed: () => Get.toNamed(screenSettings),
-          //   icon: const Icon(Icons.person_outline, color: Colors.white70),
-          //   tooltip: "Account",
-          //   iconSize: 22,
-          // ),
+          IconButton(
+            onPressed: () => Get.toNamed(screenSettings),
+            icon: const Icon(Icons.person_outline, color: Colors.white70),
+            tooltip: "Account",
+            iconSize: 22,
+          ),
           IconButton(
             onPressed: () => Get.toNamed(screenSettings),
             icon: const Icon(Icons.settings_outlined, color: Colors.white70),
@@ -95,9 +95,26 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
           IconButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text("Reloading data...",
-                        style: TextStyle(color: Colors.white))),
+                SnackBar(
+                  content: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.refresh, color: Colors.white, size: 20),
+                      SizedBox(width: 12),
+                      Text(
+                        "Reloading data...",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.black87,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  width: 300, // Keep it centered and not full width
+                  duration: const Duration(seconds: 2),
+                ),
               );
               context.read<LiveCatyBloc>().add(GetLiveCategories());
               context.read<MovieCatyBloc>().add(GetMovieCategories());
