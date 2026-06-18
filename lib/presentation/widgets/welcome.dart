@@ -92,6 +92,21 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
             tooltip: "Settings",
             iconSize: 22,
           ),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text("Reloading data...",
+                        style: TextStyle(color: Colors.white))),
+              );
+              context.read<LiveCatyBloc>().add(GetLiveCategories());
+              context.read<MovieCatyBloc>().add(GetMovieCategories());
+              context.read<SeriesCatyBloc>().add(GetSeriesCategories());
+            },
+            icon: const Icon(Icons.refresh, color: Colors.white70),
+            tooltip: "Reload Data",
+            iconSize: 22,
+          ),
         ],
       ),
     );
