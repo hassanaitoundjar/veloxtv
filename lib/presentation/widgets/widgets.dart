@@ -11,6 +11,10 @@ import 'dart:async';
 
 import '../../core/helpers/helpers.dart';
 import '../../repository/models/category.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../logic/blocs/categories/live_caty_bloc.dart';
+import '../../logic/blocs/categories/movie_caty_bloc.dart';
+import '../../logic/blocs/categories/series_caty_bloc.dart';
 
 part 'common.dart';
 part 'welcome.dart';
