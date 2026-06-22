@@ -333,7 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildPlayerSettings() {
-    final format = _storage.read("stream_format") ?? "ts";
+    final format = _storage.read("stream_format") ?? "default";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,16 +349,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const Text("Stream Format",
                   style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
               const SizedBox(height: 16),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
+                  _buildRadioOption("Default (Auto)", "default", format),
                   _buildRadioOption("MPEG-TS (.ts)", "ts", format),
-                  const SizedBox(width: 20),
                   _buildRadioOption("HLS (.m3u8)", "m3u8", format),
                 ],
               ),
               const SizedBox(height: 8),
               const Text(
-                  "Note: 'ts' is faster but 'm3u8' is more stable on slow connections.",
+                  "Default works best for most servers. Use 'ts' for speed or 'm3u8' for stability.",
                   style: TextStyle(color: Colors.white38, fontSize: 12)),
             ],
           ),

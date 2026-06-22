@@ -116,9 +116,11 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
     final user = await LocaleApi.getUser();
     if (user == null || channel.streamId == null) return;
 
-    // Construct the stream URL using server URL, username, password, and stream ID
-    final url =
+    // Build URL respecting the user-preferred stream format
+    final format = GetStorage().read('stream_format') ?? 'default';
+    final base =
         "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
+    final url = format == 'default' ? base : "$base.$format";
 
     // Open the media in the preview player
     await _previewPlayer.open(
@@ -584,12 +586,13 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                       () async {
                                   final user = await LocaleApi.getUser();
                                   if (user != null) {
-                                    // Use the user-preferred stream format (defaults to .ts)
+                                    // Use the user-preferred stream format
                                     final format =
                                         GetStorage().read('stream_format') ??
-                                            'ts';
-                                    final link =
-                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}.$format";
+                                            'default';
+                                    final base =
+                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+                                    final link = format == 'default' ? base : "$base.$format";
 
                                     // Navigate to the dedicated player screen
                                     Get.to(() => MediaKitPlayerScreen(

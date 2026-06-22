@@ -328,12 +328,15 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                                       MaterialPageRoute(builder: (_) {
                                     final format =
                                         GetStorage().read('stream_format') ??
-                                            'ts';
+                                            'default';
+                                    final base =
+                                        "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}";
+                                    final link = format == 'default' ? base : "$base.$format";
                                     return MediaKitPlayerScreen(
-                                      link:
-                                          "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}.$format",
+                                      link: link,
                                       title: channel.name ?? "Live Stream",
                                       isLive: true,
+                                      channel: channel,
                                     );
                                   }));
                                 },
@@ -545,12 +548,15 @@ class _EpgRowItemState extends State<EpgRowItem> {
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (_) {
                                 final format =
-                                    GetStorage().read('stream_format') ?? 'ts';
+                                    GetStorage().read('stream_format') ?? 'default';
+                                final base =
+                                    "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${widget.channel.streamId}";
+                                final link = format == 'default' ? base : "$base.$format";
                                 return MediaKitPlayerScreen(
-                                  link:
-                                      "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${widget.channel.streamId}.$format",
+                                  link: link,
                                   title: widget.channel.name ?? "Live Stream",
                                   isLive: true,
+                                  channel: widget.channel,
                                 );
                               }));
                             },

@@ -411,14 +411,19 @@ class _SearchScreenState extends State<SearchScreen>
   void _openPlayer(
       String streamId, String name, String type, ChannelLive channel) async {
     final user = await LocaleApi.getUser();
-    if (user != null) {
-      final url =
-          "${user.serverInfo!.serverUrl}/live/${user.userInfo!.username}/${user.userInfo!.password}/$streamId.ts";
-      Get.to(() => MediaKitPlayerScreen(
-            title: name,
-            link: url,
-            isLive: true,
-          ));
-    }
+    if (user == null) return;
+
+    // Build URL respecting the user-preferred stream format
+    final format = GetStorage().read('stream_format') ?? 'default';
+    final base =
+        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/$streamId";
+    final url = format == 'default' ? base : "$base.$format";
+
+    Get.to(() => MediaKitPlayerScreen(
+          title: name,
+          link: url,
+          isLive: true,
+          channel: channel, // Pass channel so side panel loads its category
+        ));
   }
 }

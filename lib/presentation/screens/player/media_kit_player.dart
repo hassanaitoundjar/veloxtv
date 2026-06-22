@@ -6,6 +6,9 @@ class MediaKitPlayerScreen extends StatefulWidget {
   final bool isLive;
   final Player? player;
   final VideoController? videoController;
+  /// If provided (e.g. from Search), the player will load this channel's
+  /// category in the side panel so the list is always contextually correct.
+  final ChannelLive? channel;
   const MediaKitPlayerScreen({
     super.key,
     required this.link,
@@ -13,6 +16,7 @@ class MediaKitPlayerScreen extends StatefulWidget {
     this.isLive = false,
     this.player,
     this.videoController,
+    this.channel,
   });
   @override
   State<MediaKitPlayerScreen> createState() => _MediaKitPlayerScreenState();
@@ -121,6 +125,17 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         ),
         play: true,
       );
+    }
+    // If a channel was passed (e.g. from Search), load its category
+    // so the side panel shows the correct channel list.
+    if (widget.isLive && widget.channel?.categoryId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<ChannelsBloc>().add(
+            GetChannels(widget.channel!.categoryId!, TypeCategory.live),
+          );
+        }
+      });
     }
   }
 
@@ -809,11 +824,13 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   void _onChannelSelected(ChannelLive channel) async {
     final user = await LocaleApi.getUser();
     if (user != null && channel.streamId != null) {
-      final link = "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
+      final format = GetStorage().read('stream_format') ?? 'default';
+      final base =
+          "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
+      final link = format == 'default' ? base : "$base.$format";
       
       setState(() {
         _currentTitle = channel.name ?? "Live TV";
-        // Do not hide the channel list automatically, let the user browse.
       });
       
       await _player.open(

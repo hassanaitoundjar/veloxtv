@@ -55,12 +55,19 @@ class FavoriteScreen extends StatelessWidget {
                               onTap: () async {
                                 final user = await LocaleApi.getUser();
                                 if (user != null) {
-                                  final link =
+                                  final format =
+                                      GetStorage().read('stream_format') ??
+                                          'default';
+                                  final base =
                                       "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${item.streamId}";
+                                  final link = format == 'default'
+                                      ? base
+                                      : "$base.$format";
                                   Get.to(() => MediaKitPlayerScreen(
                                         link: link,
                                         title: item.name ?? "",
                                         isLive: true,
+                                        channel: item,
                                       ));
                                 }
                               },
