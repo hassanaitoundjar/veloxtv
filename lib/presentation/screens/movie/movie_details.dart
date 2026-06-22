@@ -339,7 +339,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 ),
                 child: Icon(
                   isFav ? Icons.favorite : Icons.favorite_border,
-                  color: isFav ? Colors.yellow : Colors.white,
+                  color: isFav ? Colors.blue : Colors.white,
                   size: 24,
                 ),
               ),

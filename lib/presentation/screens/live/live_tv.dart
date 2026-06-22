@@ -213,6 +213,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    // Use the shorter dimension so a phone in landscape is still treated as a phone
+    final isPhone = screenSize.shortestSide < 600;
     return Scaffold(
       body: Container(
         width: 100.w,
@@ -296,22 +299,22 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
             Expanded(
               child: Row(
                 children: [
-                  // PANE 1: CATEGORIES (Flex 3)
+                  // PANE 1: CATEGORIES
                   Expanded(
-                    flex: 3,
+                    flex: isPhone ? 2 : 3,
                     child: Container(
                       color: kColorPanel,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(16, 1.h, 16, 2.h),
+                            padding: EdgeInsets.fromLTRB(16, 1.h, 16, isPhone ? 0.5.h : 2.h),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Inline Search Bar for categories
                                 Container(
-                                  height: 40,
+                                  height: isPhone ? 32 : 40,
                                   margin: const EdgeInsets.only(bottom: 12),
                                   decoration: BoxDecoration(
                                     color: Colors.white10,
@@ -381,8 +384,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                         },
                                         scale: 1.02,
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12, horizontal: 16),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: isPhone ? 6 : 12,
+                                              horizontal: isPhone ? 8 : 16),
                                           decoration: BoxDecoration(
                                             color: isSelected
                                                 ? kColorPrimary
@@ -401,9 +405,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                 child: Text(
                                                   cat.categoryName ?? "Unknown",
                                                   style: TextStyle(
-                                                    fontSize: MediaQuery.of(context).size.width < 600
-                                                        ? 14
-                                                        : (MediaQuery.of(context).size.width < 1200 ? 16 : 18),
+                                                    fontSize: isPhone ? 13 : (screenSize.width < 1200 ? 16 : 18),
                                                     color: isSelected
                                                         ? Colors.white
                                                         : kColorTextSecondary,
@@ -434,25 +436,26 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                     ),
                   ),
 
-                  // PANE 2: CHANNELS (Flex 4)
+                  // PANE 2: CHANNELS
                   Expanded(
-                    flex: 4,
+                    flex: isPhone ? 3 : 4,
                     child: Container(
                       color: kColorPanel,
                       child: Column(
                         children: [
                           // Header showing the currently selected category name
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: isPhone ? 10 : 16,
+                            ),
                             alignment: Alignment.centerLeft,
                             color: kColorCardDark,
                             child: Text(
                               _selectedCategory?.categoryName ??
                                   "Select Category",
                               style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width < 600
-                                      ? 14
-                                      : 16,
+                                  fontSize: isPhone ? 13 : 16,
                                   color: kColorPrimary,
                                   fontWeight: FontWeight.bold),
                               maxLines: 2,
@@ -562,17 +565,16 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                     ),
                   ),
 
-                  // PANE 3: PREVIEW & EPG (Flex 5)
+                  // PANE 3: PREVIEW & EPG (flex 3 on phone, 5 on large screen)
                   Expanded(
-                    flex: 5,
+                    flex: isPhone ? 3 : 5,
                     child: Container(
-                      color:
-                          Colors.black, // Dark background for the preview area
+                      color: Colors.black,
                       child: Column(
                         children: [
                           // MINI PLAYER AREA (Top section of the third pane)
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(isPhone ? 4.0 : 8.0),
                             child: FocusableCard(
                               scale: 1.0, // Prevent scaling from clipping the border
                               onTap: () {
@@ -683,7 +685,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                           // Channel Info & EPG (Bottom)
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.all(24),
+                              padding: EdgeInsets.all(isPhone ? 10 : 24),
                               color: kColorBackground,
                               width: double.infinity,
                               child: Column(
@@ -693,8 +695,8 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                   Row(
                                     children: [
                                       Container(
-                                        width: 60,
-                                        height: 60,
+                                        width: isPhone ? 36 : 60,
+                                        height: isPhone ? 36 : 60,
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
                                           color: Colors.white10,
@@ -702,13 +704,11 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                               BorderRadius.circular(8),
                                         ),
                                         child: CachedNetworkImage(
-                                          imageUrl:
-                                              _selectedChannel?.streamIcon ??
-                                                  "",
-                                          errorWidget: (_, __, ___) =>
-                                              const Icon(Icons.tv,
-                                                  size: 30,
-                                                  color: Colors.white24),
+                                          imageUrl: _selectedChannel?.streamIcon ?? "",
+                                          errorWidget: (_, __, ___) => Icon(
+                                              Icons.tv,
+                                              size: isPhone ? 18 : 30,
+                                              color: Colors.white24),
                                           placeholder: (_, __) => const Center(
                                               child: CircularProgressIndicator(
                                                   strokeWidth: 2)),
@@ -744,10 +744,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 24),
-
-                                  // EPG Section Header with Catch-up shortcut
-                                  Row(
+                                  SizedBox(height: isPhone ? 10 : 24),
+                                  // EPG Section Header
+                                  if (!isPhone)
+                                    Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -961,7 +961,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                     child: Row(
                                                       children: [
                                                         SizedBox(
-                                                          width: 100,
+                                                          width: isPhone ? 70 : 100,
                                                           child: Text(
                                                             timeDisplay,
                                                             style: TextStyle(
@@ -1006,8 +1006,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                           .normal,
                                                                 ),
                                                               ),
-                                                              if (desc
-                                                                  .isNotEmpty)
+                                                              if (desc.isNotEmpty && !isPhone)
                                                                 Padding(
                                                                   padding:
                                                                       const EdgeInsets

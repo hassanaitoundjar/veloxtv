@@ -76,6 +76,7 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
@@ -86,8 +87,8 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
         ),
       ),
       body: Container(
-        width: 100.w,
-        height: 100.h,
+        width: double.infinity,
+        height: double.infinity,
         decoration: kDecorBackground,
         child: isLandscape || isTvDevice
             ? _buildTvLayout(context)
@@ -202,8 +203,14 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
         ),
         Expanded(
           flex: 3,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.only(
+              left: 5.w,
+              right: 5.w,
+              top: 4.h,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 4.h,
+            ),
             child: Center(
               child: SingleChildScrollView(
                 child: _buildForm(isTvLayout: true),
@@ -217,8 +224,14 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
 
   Widget _buildMobileLayout(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
         child: Center(
           child: SingleChildScrollView(
             child: _buildForm(isTvLayout: false),

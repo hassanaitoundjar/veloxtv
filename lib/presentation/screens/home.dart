@@ -16,6 +16,113 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<MovieCatyBloc>().add(GetMovieCategories());
     context.read<SeriesCatyBloc>().add(GetSeriesCategories());
     context.read<FavoritesCubit>().initialData();
+
+    // Show first-login parental PIN notice once per user account
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showFirstLoginDialog();
+    });
+  }
+
+  void _showFirstLoginDialog() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthSuccess) return;
+
+    final userId = authState.user.id;
+    final storage = GetStorage('settings');
+    final key = 'first_login_shown_$userId';
+
+    if (storage.read(key) == true) return; // Already shown
+    storage.write(key, true);
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: kColorPrimary.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_outline,
+                      color: kColorPrimary, size: 28),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Parental Control PIN',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Your default parental control PIN is:',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                      color: Colors.white70, fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                // PIN display
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: kColorPrimary.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: kColorPrimary.withOpacity(0.4), width: 1),
+                  ),
+                  child: Text(
+                    '0  0  0  0',
+                    style: GoogleFonts.outfit(
+                      color: kColorPrimary,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 6,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'You can change it anytime in Settings → Parental Control.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                      color: Colors.white54, fontSize: 12),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kColorPrimary,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => Get.back(),
+                    child: Text('Got it',
+                        style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override

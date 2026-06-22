@@ -97,99 +97,118 @@ class _ParentalControlWidgetState extends State<ParentalControlWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isPhone = size.shortestSide < 600;
+    // Landscape phone: width > height and it's a phone
+    final isLandscape = size.width > size.height;
+    final isCompact = isPhone && isLandscape;
+
+    final dialogWidth = isPhone ? size.width * 0.50 : 300.0;
+    final pad = isCompact ? 10.0 : (isPhone ? 12.0 : 24.0);
+    final titleSize = isCompact ? 13.0 : (isPhone ? 16.0 : 20.0);
+    final dotSize = isCompact ? 10.0 : (isPhone ? 12.0 : 16.0);
+    final dotMargin = isCompact ? 5.0 : (isPhone ? 6.0 : 8.0);
+    final vGap1 = isCompact ? 6.0 : (isPhone ? 14.0 : 20.0);
+    final vGap2 = isCompact ? 8.0 : (isPhone ? 20.0 : 30.0);
+    final vGap3 = isCompact ? 6.0 : (isPhone ? 16.0 : 24.0);
+
     return Dialog(
       backgroundColor: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: 300,
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(_title,
-                style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: index < _pin.length ? Colors.red : Colors.white24,
-                    shape: BoxShape.circle,
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 30),
-            _buildKeypad(),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () => Get.back(),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white70,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: dialogWidth,
+          maxHeight: size.height * 0.92,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(pad),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_title,
+                  style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: titleSize,
+                      fontWeight: FontWeight.bold)),
+              SizedBox(height: vGap1),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(4, (index) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: dotMargin),
+                    width: dotSize,
+                    height: dotSize,
+                    decoration: BoxDecoration(
+                      color: index < _pin.length ? Colors.red : Colors.white24,
+                      shape: BoxShape.circle,
+                    ),
+                  );
+                }),
               ),
-              child: Text(
-                "Cancel",
-                style: GoogleFonts.outfit(fontSize: 16),
+              SizedBox(height: vGap2),
+              _buildKeypad(isCompact: isCompact, isPhone: isPhone),
+              SizedBox(height: vGap3),
+              TextButton(
+                onPressed: () => Get.back(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white70,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 12 : (isPhone ? 16 : 24),
+                      vertical: isCompact ? 4 : (isPhone ? 8 : 12)),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  "Cancel",
+                  style: GoogleFonts.outfit(
+                      fontSize: isCompact ? 12 : (isPhone ? 14 : 16)),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildKeypad() {
+  Widget _buildKeypad({bool isPhone = false, bool isCompact = false}) {
+    final btnSize = isCompact ? 38.0 : (isPhone ? 48.0 : 60.0);
+    final rowGap = isCompact ? 6.0 : (isPhone ? 10.0 : 16.0);
+
+    Widget btn(String label) =>
+        _KeypadButton(label: label, onTap: () => _onDigit(label), size: btnSize);
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _KeypadButton(label: "1", onTap: () => _onDigit("1")),
-            _KeypadButton(label: "2", onTap: () => _onDigit("2")),
-            _KeypadButton(label: "3", onTap: () => _onDigit("3")),
-          ],
+          children: [btn("1"), btn("2"), btn("3")],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: rowGap),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _KeypadButton(label: "4", onTap: () => _onDigit("4")),
-            _KeypadButton(label: "5", onTap: () => _onDigit("5")),
-            _KeypadButton(label: "6", onTap: () => _onDigit("6")),
-          ],
+          children: [btn("4"), btn("5"), btn("6")],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: rowGap),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _KeypadButton(label: "7", onTap: () => _onDigit("7")),
-            _KeypadButton(label: "8", onTap: () => _onDigit("8")),
-            _KeypadButton(label: "9", onTap: () => _onDigit("9")),
-          ],
+          children: [btn("7"), btn("8"), btn("9")],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: rowGap),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(
-              width: 60,
-              height: 60,
+              width: btnSize,
+              height: btnSize,
               child: _KeypadButton(
                 icon: Icons.backspace_outlined,
                 onTap: _delete,
+                size: btnSize,
               ),
             ),
-            _KeypadButton(label: "0", onTap: () => _onDigit("0")),
-            const SizedBox(width: 60, height: 60), // Alignment spacer
+            btn("0"),
+            SizedBox(width: btnSize, height: btnSize), // spacer
           ],
         ),
       ],
@@ -201,8 +220,14 @@ class _KeypadButton extends StatefulWidget {
   final String? label;
   final IconData? icon;
   final VoidCallback onTap;
+  final double size;
 
-  const _KeypadButton({this.label, this.icon, required this.onTap});
+  const _KeypadButton({
+    this.label,
+    this.icon,
+    required this.onTap,
+    this.size = 60,
+  });
 
   @override
   State<_KeypadButton> createState() => _KeypadButtonState();
@@ -213,18 +238,22 @@ class _KeypadButtonState extends State<_KeypadButton> {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = widget.size < 55 ? 20.0 : 24.0;
+    final iconSize = widget.size < 55 ? 20.0 : 24.0;
+
     return InkWell(
       onTap: widget.onTap,
       onFocusChange: (val) => setState(() => _isFocused = val),
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(widget.size / 2),
       child: Container(
-        width: 60,
-        height: 60,
+        width: widget.size,
+        height: widget.size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: _isFocused ? kColorPrimary : Colors.white10,
           shape: BoxShape.circle,
-          border: _isFocused ? Border.all(color: Colors.white, width: 2) : null,
+          border:
+              _isFocused ? Border.all(color: Colors.white, width: 2) : null,
           boxShadow: _isFocused
               ? [
                   BoxShadow(
@@ -236,12 +265,12 @@ class _KeypadButtonState extends State<_KeypadButton> {
               : null,
         ),
         child: widget.icon != null
-            ? Icon(widget.icon, color: Colors.white, size: 24)
+            ? Icon(widget.icon, color: Colors.white, size: iconSize)
             : Text(
                 widget.label!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),

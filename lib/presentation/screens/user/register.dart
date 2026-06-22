@@ -74,16 +74,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return KeyEventResult.ignored;
     };
 
-    _nameFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _backFocus, _userFocus);
-    _userFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _nameFocus, _passFocus);
+    _nameFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _backFocus, _userFocus);
+    };
 
-    // Password field: ▼ → URL field, ▲ → Username, ▶ → eye icon
+    _userFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _nameFocus, _passFocus);
+    };
+
+    // Password field: ▼ → URL field, ▲ → Username, ▶ → eye icon, ◀ → user list
     _passFocus.onKeyEvent = (node, event) {
       if (event is KeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           _eyeFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          _usersFocus.requestFocus();
           return KeyEventResult.handled;
         }
       }
@@ -114,12 +129,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return KeyEventResult.ignored;
     };
 
-    _urlFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _passFocus, _btnFocus);
-    _btnFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _urlFocus, _usersFocus);
-    _usersFocus.onKeyEvent =
-        (node, event) => _handleKeyEvent(event, node, _btnFocus, null);
+    _urlFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _passFocus, _btnFocus);
+    };
+
+    _btnFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _urlFocus, null);
+    };
+
+    _usersFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        _nameFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    };
   }
 
   @override
@@ -130,6 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
@@ -140,8 +173,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: Container(
-        width: 100.w,
-        height: 100.h,
+        width: double.infinity,
+        height: double.infinity,
         decoration: kDecorBackground,
         child: isLandscape || isTvDevice
             ? _buildTvLayout(context)
@@ -186,6 +219,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: Get.textTheme.bodyMedium
                       ?.copyWith(color: kColorTextSecondary),
                   textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              _buildUserListButton(),
             ],
             SizedBox(height: isTvLayout ? 4.h : 40),
             _buildTvInput(
@@ -232,8 +267,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             SizedBox(height: isTvLayout ? 4.h : 32),
             _buildSubmitButton(),
-            SizedBox(height: isTvLayout ? 2.h : 16),
-            _buildUserListButton(),
           ],
         ),
       ),
@@ -267,14 +300,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text("Login with Xtream Codes",
                     style: Get.textTheme.bodyLarge
                         ?.copyWith(color: kColorPrimary)),
+                const SizedBox(height: 40),
+                _buildUserListButton(),
               ],
             ),
           ),
         ),
         Expanded(
           flex: 3,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.only(
+              left: 5.w,
+              right: 5.w,
+              top: 4.h,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 4.h,
+            ),
             child: Center(
               child: SingleChildScrollView(
                 child: _buildForm(isTvLayout: true),
@@ -288,8 +329,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildMobileLayout(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
         child: Center(
           child: SingleChildScrollView(
             child: _buildForm(isTvLayout: false),

@@ -682,20 +682,20 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       ),
                                     ],
                                   ),
-                                  // CENTER: Title
-                                  if (!context.isPhone)
-                                    Expanded(
-                                      child: Text(
-                                        _currentTitle,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                  // CENTER: Title (always visible, smaller on phone)
+                                  Expanded(
+                                    child: Text(
+                                      _currentTitle,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: context.isPhone ? 11 : 14,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                  ),
                                   // RIGHT: Subs, Speed, Fit/Size
                                   Row(
                                     children: [
@@ -740,16 +740,62 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                       ],
                     ),
                   ),
+                // 📌 CHANNEL NAME — persistent top-left badge (phone only)
+                if (context.isPhone && widget.isLive)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: IgnorePointer(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              margin: const EdgeInsets.only(right: 5),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 120),
+                              child: Text(
+                                _currentTitle,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 // 📺 LIVE CHANNELS SIDE PANEL
                 if (widget.isLive && _showChannelList)
                   Positioned(
                     top: 0,
                     bottom: 0,
                     left: 0,
-                    width: context.isPhone ? MediaQuery.of(context).size.width * 0.7 : 350,
+                    width: context.isPhone
+                        ? MediaQuery.of(context).size.width * 0.40
+                        : 350,
                     child: SafeArea(
                       right: false,
-                      child: _buildSideChannelList(),
+                      child: _buildSideChannelList(
+                          isPhone: context.isPhone),
                     ),
                   ),
               ],
@@ -783,113 +829,151 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
     }
   }
 
-  Widget _buildSideChannelList() {
+  Widget _buildSideChannelList({bool isPhone = false}) {
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          color: Colors.black.withOpacity(0.4),
+          color: Colors.black.withOpacity(0.5),
           child: Column(
             children: [
               // Header
               Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.transparent,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Channels",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isPhone ? 12 : 16,
+                  vertical: isPhone ? 8 : 12,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _showChannelList = false;
-                    });
+                color: Colors.black38,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Channels",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isPhone ? 15 : 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close,
+                          color: Colors.white,
+                          size: isPhone ? 20 : 24),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        setState(() {
+                          _showChannelList = false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              // Channels List
+              Expanded(
+                child: BlocBuilder<ChannelsBloc, ChannelsState>(
+                  builder: (context, state) {
+                    if (state is ChannelsLoading) {
+                      return const Center(
+                          child: CircularProgressIndicator());
+                    } else if (state is ChannelsSuccess &&
+                        state.type == TypeCategory.live) {
+                      final channels =
+                          List<ChannelLive>.from(state.channels);
+                      if (channels.isEmpty) {
+                        return const Center(
+                            child: Text("No channels",
+                                style:
+                                    TextStyle(color: Colors.white54)));
+                      }
+                      return ListView.builder(
+                        itemCount: channels.length,
+                        itemBuilder: (context, index) {
+                          final channel = channels[index];
+                          final isPlaying = _currentTitle == channel.name;
+                          final iconSize = isPhone ? 32.0 : 40.0;
+                          return Material(
+                            color: isPlaying
+                                ? kColorPrimary.withOpacity(0.15)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () => _onChannelSelected(channel),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isPhone ? 8 : 12,
+                                  vertical: isPhone ? 5 : 7,
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Channel icon
+                                    Container(
+                                      width: iconSize,
+                                      height: iconSize,
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white10,
+                                        borderRadius:
+                                            BorderRadius.circular(4),
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            channel.streamIcon ?? "",
+                                        errorWidget: (_, __, ___) =>
+                                            Icon(Icons.tv,
+                                                color: Colors.white24,
+                                                size: isPhone ? 16 : 20),
+                                        placeholder: (_, __) =>
+                                            const CircularProgressIndicator(
+                                                strokeWidth: 1.5),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                    SizedBox(width: isPhone ? 8 : 12),
+                                    // Channel name
+                                    Expanded(
+                                      child: Text(
+                                        channel.name ?? "Channel",
+                                        style: TextStyle(
+                                          color: isPlaying
+                                              ? kColorPrimary
+                                              : Colors.white,
+                                          fontWeight: isPlaying
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                          fontSize: isPhone ? 12 : 14,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    // Now-playing indicator
+                                    if (isPlaying)
+                                      Icon(Icons.play_arrow,
+                                          color: kColorPrimary,
+                                          size: isPhone ? 16 : 20),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                    return const Center(
+                        child: Text("Select Category",
+                            style:
+                                TextStyle(color: Colors.white54)));
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          // Channels List
-          Expanded(
-            child: BlocBuilder<ChannelsBloc, ChannelsState>(
-              builder: (context, state) {
-                if (state is ChannelsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is ChannelsSuccess &&
-                    state.type == TypeCategory.live) {
-                  final channels = List<ChannelLive>.from(state.channels);
-                  if (channels.isEmpty) {
-                    return const Center(child: Text("No channels", style: TextStyle(color: Colors.white54)));
-                  }
-                  return ListView.builder(
-                    itemCount: channels.length,
-                    itemBuilder: (context, index) {
-                      final channel = channels[index];
-                      final isPlaying = _currentTitle == channel.name;
-                      return Material(
-                        color: Colors.transparent,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          child: ListTile(
-                            autofocus: isPlaying,
-                            focusColor: Colors.blue.withOpacity(0.5),
-                            hoverColor: Colors.blue.withOpacity(0.3),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            leading: Container(
-                              width: 40,
-                              height: 40,
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.white10,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: CachedNetworkImage(
-                                imageUrl: channel.streamIcon ?? "",
-                                errorWidget: (_, __, ___) => const Icon(Icons.tv, color: Colors.white24),
-                                placeholder: (_, __) => const CircularProgressIndicator(strokeWidth: 2),
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                            title: Text(
-                              channel.name ?? "Channel",
-                              style: TextStyle(
-                                color: isPlaying ? kColorPrimary : Colors.white,
-                                fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
-                                fontSize: 14,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: isPlaying ? const Icon(Icons.play_arrow, color: kColorPrimary, size: 20) : null,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            onTap: () {
-                              _onChannelSelected(channel);
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }
-                return const Center(child: Text("Select Category", style: TextStyle(color: Colors.white54)));
-              },
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 

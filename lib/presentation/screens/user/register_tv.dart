@@ -16,6 +16,83 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
   final FocusNode _passFocus = FocusNode();
   final FocusNode _urlFocus = FocusNode();
   final FocusNode _btnFocus = FocusNode();
+  final FocusNode _usersFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _urlController.dispose();
+
+    _userFocus.dispose();
+    _passFocus.dispose();
+    _urlFocus.dispose();
+    _btnFocus.dispose();
+    _usersFocus.dispose();
+    super.dispose();
+  }
+
+  /// Handle D-Pad arrow keys to move focus between fields
+  KeyEventResult _handleKeyEvent(
+      KeyEvent event, FocusNode current, FocusNode? prev, FocusNode? next) {
+    if (event is KeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowDown && next != null) {
+        next.requestFocus();
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.arrowUp && prev != null) {
+        prev.requestFocus();
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _usersFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          _userFocus.requestFocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+
+    _userFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, null, _passFocus);
+    };
+    
+    _passFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _userFocus, _urlFocus);
+    };
+
+    _urlFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _passFocus, _btnFocus);
+    };
+
+    _btnFocus.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _usersFocus.requestFocus();
+        return KeyEventResult.handled;
+      }
+      return _handleKeyEvent(event, node, _urlFocus, null);
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +103,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: !isTvLayout
           ? AppBar(
               backgroundColor: Colors.transparent,
@@ -37,15 +115,15 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
             )
           : null,
       body: Container(
-        width: 100.w,
-        height: 100.h,
+        width: double.infinity,
+        height: double.infinity,
         decoration: kDecorBackground,
-        child: isTvLayout ? _buildTvLayout() : _buildMobileLayout(),
+        child: isTvLayout ? _buildTvLayout(context) : _buildMobileLayout(context),
       ),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm({bool isTvLayout = false}) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 500),
       child: Column(
@@ -54,6 +132,10 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
         children: [
           Text("Add User",
               style: Get.textTheme.headlineMedium, textAlign: TextAlign.center),
+          if (!isTvLayout) ...[
+            const SizedBox(height: 24),
+            _buildUserListButton(),
+          ],
           const SizedBox(height: 30),
           _buildTvInput(
             controller: _usernameController,
@@ -129,7 +211,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
     );
   }
 
-  Widget _buildTvLayout() {
+  Widget _buildTvLayout(BuildContext context) {
     return Row(
       children: [
         // Left Panel (Logo)
@@ -151,6 +233,11 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
                   "Login with Xtream Codes",
                   style: Get.textTheme.bodyMedium,
                 ),
+                const SizedBox(height: 40),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  child: _buildUserListButton(),
+                ),
               ],
             ),
           ),
@@ -159,11 +246,17 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
         // Right Panel (Form)
         Expanded(
           flex: 3,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.only(
+              left: 5.w,
+              right: 5.w,
+              top: 4.h,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 4.h,
+            ),
             child: Center(
               child: SingleChildScrollView(
-                child: _buildForm(),
+                child: _buildForm(isTvLayout: true),
               ),
             ),
           ),
@@ -172,12 +265,20 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(BuildContext context) {
     return SafeArea(
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-          child: _buildForm(),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 40,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 40,
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: _buildForm(isTvLayout: false),
+          ),
         ),
       ),
     );
@@ -206,6 +307,42 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
           borderSide: const BorderSide(color: kColorFocus, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+    );
+  }
+
+  Widget _buildUserListButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: OutlinedButton(
+        focusNode: _usersFocus,
+        onPressed: () => Get.toNamed(screenProfiles),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: kColorPrimary, width: 2),
+          foregroundColor: Colors.white,
+        ).copyWith(
+          side: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return const BorderSide(color: kColorFocus, width: 2);
+            }
+            return const BorderSide(color: kColorPrimary, width: 2);
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return kColorFocus;
+            }
+            return Colors.white;
+          }),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return kColorFocus.withValues(alpha: 0.1);
+            }
+            return Colors.transparent;
+          }),
+        ),
+        child: const Text("USER LIST",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }

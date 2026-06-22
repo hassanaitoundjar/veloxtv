@@ -427,15 +427,25 @@ class ListChannelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Detect narrow screen (phone) using shortestSide
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final iconSize = isPhone ? 36.0 : 50.0;
+    final hPad = isPhone ? 6.0 : 12.0;
+    final vPad = isPhone ? 6.0 : 10.0;
+    final gap = isPhone ? 6.0 : 12.0;
+
     return FocusableCard(
       onTap: onTap,
       scale: 1.02,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 60),
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        constraints: BoxConstraints(minHeight: isPhone ? 44 : 60),
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         decoration: kDecorCard.copyWith(
-          color: isFocus ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green, kColorPrimary.blue, 0.2) : kColorCardLight,
+          color: isFocus
+              ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green,
+                  kColorPrimary.blue, 0.2)
+              : kColorCardLight,
           border: isFocus
               ? Border(left: BorderSide(color: kColorPrimary, width: 4))
               : null,
@@ -444,23 +454,23 @@ class ListChannelItem extends StatelessWidget {
           children: [
             // Logo
             Container(
-              width: 50,
-              height: 50,
-              padding: const EdgeInsets.all(4),
+              width: iconSize,
+              height: iconSize,
+              padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 color: Colors.white10,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: CachedNetworkImage(
                 imageUrl: icon ?? "",
-                errorWidget: (_, __, ___) =>
-                    const Icon(Icons.tv, size: 24, color: Colors.white24),
+                errorWidget: (_, __, ___) => Icon(Icons.tv,
+                    size: isPhone ? 18 : 24, color: Colors.white24),
                 placeholder: (_, __) => const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: CircularProgressIndicator(strokeWidth: 1.5)),
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: gap),
             // Info
             Expanded(
               child: Column(
@@ -469,19 +479,24 @@ class ListChannelItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Get.textTheme.bodyMedium?.copyWith(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: isPhone ? 11 : 14,
                       color: isFocus ? Colors.white : kColorTextPrimary,
                     ),
-                    maxLines: 1,
+                    // Allow 2 lines on phone so long names are readable
+                    maxLines: isPhone ? 2 : 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (epg != null) ...[
+                  // Hide EPG subtitle on phone to save vertical space
+                  if (epg != null && !isPhone) ...[
                     const SizedBox(height: 4),
                     Text(
                       epg!,
-                      style: Get.textTheme.bodySmall?.copyWith(
-                        color: isFocus ? Colors.white70 : kColorTextSecondary,
+                      style: TextStyle(
+                        color: isFocus
+                            ? Colors.white70
+                            : kColorTextSecondary,
                         fontSize: 11,
                       ),
                       maxLines: 1,
@@ -497,11 +512,13 @@ class ListChannelItem extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(
                     isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: isFavorite ? Colors.yellow : Colors.white38,
-                    size: 22,
+                    color: isFavorite ? Colors.blue : Colors.white38,
+                    size: 20,
                   ),
                   onPressed: onFavoriteToggle,
-                  splashRadius: 20,
+                  splashRadius: 18,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ),
           ],

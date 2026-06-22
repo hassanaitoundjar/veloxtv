@@ -1,339 +1,322 @@
 part of '../screens.dart';
 
+// Screen size tiers, auto-detected from available width.
+enum _ScreenTier { phone, tablet, large }
+
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
 
+  _ScreenTier _tierFor(double width) {
+    if (width < 650) return _ScreenTier.phone;
+    if (width < 1100) return _ScreenTier.tablet;
+    return _ScreenTier.large;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Detect orientation or screen width
-    final isPortrait = MediaQuery.of(context).size.width < 600 ||
-        MediaQuery.of(context).size.height > MediaQuery.of(context).size.width;
-    final isMobile = Device.screenType == ScreenType.mobile;
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width >= 650;
 
     return Scaffold(
       body: Container(
-        width: 100.w,
-        height: 100.h,
-        // New Modern Gradient Background
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F172A), // Deep Dark Blue
-              Color(0xFF1E293B), // Slate Blue
-              Color(0xFF020617), // Almost Black
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
+        width: double.infinity,
+        height: double.infinity,
+        // Original dark color scheme
+        decoration: kDecorBackground,
         child: SafeArea(
-          child: Column(
-            children: [
-              // Header Section with New Logo
-              Expanded(
-                flex: isMobile ? 3 : 4,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: kColorPrimary.withOpacity(0.1),
-                        boxShadow: [
-                          BoxShadow(
-                            color: kColorPrimary.withOpacity(0.2),
-                            blurRadius: 30,
-                            spreadRadius: 10,
-                          )
-                        ],
-                      ),
-                      child: Image.asset(
-                        "assets/images/logo.png",
-                        width: isMobile ? 80 : 120,
-                        height: isMobile ? 80 : 120,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      kAppName.toUpperCase(),
-                      style: GoogleFonts.outfit(
-                        fontSize: isMobile ? 28 : 42,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.5,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: kColorPrimary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border:
-                            Border.all(color: kColorPrimary.withOpacity(0.3)),
-                      ),
-                      child: Text(
-                        "PREMIUM IPTV PLAYER",
-                        style: GoogleFonts.outfit(
-                          fontSize: isMobile ? 12 : 14,
-                          fontWeight: FontWeight.w600,
-                          color: kColorPrimary,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final tier = _tierFor(constraints.maxWidth);
+              final isLarge = tier == _ScreenTier.large;
 
-              // Bottom Content - Cards
-              Expanded(
-                flex: isMobile ? 5 : 4,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 24.0 : 5.w,
-                    vertical: 24.0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
+              // Scale factor only kicks in for large/TV screens so phone and
+              // tablet behavior stays exactly as before.
+              final logoSize = isLarge ? 64.0 : (isWide ? 48.0 : 36.0);
+              final titleFont = isLarge ? 30.0 : (isWide ? 22.0 : 16.0);
+              final proFont = isLarge ? 16.0 : (isWide ? 13.0 : 10.0);
+              final cardMaxWidth = isLarge ? 1200.0 : 860.0;
+              final cardPadding = isLarge ? 48.0 : (isWide ? 32.0 : 20.0);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Top-left Logo ──
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isLarge ? 56 : (isWide ? 40 : 20),
+                      vertical: 16,
                     ),
-                    border: Border(
-                      top: BorderSide(
-                          color: Colors.white.withOpacity(0.05), width: 1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          kIconSplash,
+                          width: logoSize,
+                          height: logoSize,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(width: 10),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: kAppName.toUpperCase(),
+                                style: GoogleFonts.outfit(
+                                  fontSize: titleFont,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "  PRO",
+                                style: GoogleFonts.outfit(
+                                  fontSize: proFont,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorPrimary,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        "Select Connection Method",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
-                          fontSize: isMobile ? 18 : 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+
+                  // ── Center White Card ──
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isLarge ? 80 : (isWide ? 60 : 16),
+                          vertical: 16,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: cardMaxWidth),
+                          child: Container(
+                            padding: EdgeInsets.all(cardPadding),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.35),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                            ),
+                            child: isWide
+                                ? _buildWideLayout(context, tier)
+                                : _buildNarrowLayout(context),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Choose how you want to access your content",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: isMobile ? 14 : 16,
-                          color: kColorTextSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Expanded(
-                        child: isPortrait
-                            ? _buildMobileLayout()
-                            : _buildTvLayout(),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMobileLayout() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _ConnectionCard(
-            icon: Icons.api_rounded,
-            color: kColorPrimary,
-            title: "Xtream Codes",
-            subtitle: "Login with API Credentials",
-            onTap: () => Get.toNamed(screenRegister),
-          ),
-          const SizedBox(height: 16),
-          _ConnectionCard(
-            icon: Icons.playlist_play_rounded,
-            color: Colors.orange,
-            title: "M3U Playlist",
-            subtitle: "Load from URL or File",
-            onTap: () => Get.toNamed(screenRegisterM3u),
-          ),
+  // ── Wide: 2-column grid + centered bottom button ──
+  Widget _buildWideLayout(BuildContext context, _ScreenTier tier) {
+    final isLarge = tier == _ScreenTier.large;
+    final buttonHeight = isLarge ? 72.0 : 56.0;
+    final fontSize = isLarge ? 17.0 : 13.0;
+    final iconSize = isLarge ? 28.0 : 22.0;
 
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTvLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: _ConnectionCard(
-            icon: Icons.api_rounded,
-            color: kColorPrimary,
-            title: "Xtream Codes",
-            subtitle: "Recommended\nBest Experience",
-            onTap: () => Get.toNamed(screenRegister),
-            isTv: true,
-            autoFocus: true,
+        Row(
+          children: [
+            Expanded(
+              child: _SmOption(
+                icon: Icons.playlist_play_rounded,
+                label: "LOGIN WITH M3U FILE OR URL",
+                highlighted: true,
+                onTap: () => Get.toNamed(screenRegisterM3u),
+                autoFocus: false,
+                height: buttonHeight,
+                fontSize: fontSize,
+                iconSize: iconSize,
+              ),
+            ),
+            SizedBox(width: isLarge ? 24 : 16),
+            Expanded(
+              child: _SmOption(
+                icon: Icons.api_rounded,
+                label: "LOGIN WITH XTREAM CODES API",
+                onTap: () => Get.toNamed(screenRegister),
+                autoFocus: true,
+                height: buttonHeight,
+                fontSize: fontSize,
+                iconSize: iconSize,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: isLarge ? 24 : 16),
+        // Centered "List Users" button
+        Center(
+          child: SizedBox(
+            width: isLarge ? 360 : 300,
+            child: _SmOption(
+              icon: Icons.people_alt_rounded,
+              label: "LIST USERS",
+              onTap: () => Get.toNamed(screenProfiles),
+              height: buttonHeight,
+              fontSize: fontSize,
+              iconSize: iconSize,
+            ),
           ),
         ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: _ConnectionCard(
-            icon: Icons.playlist_play_rounded,
-            color: Colors.orange,
-            title: "M3U Playlist",
-            subtitle: "Classic Method\nURL Loading",
-            onTap: () => Get.toNamed(screenRegisterM3u),
-            isTv: true,
-          ),
-        ),
+      ],
+    );
+  }
 
+  // ── Narrow: stacked list ──
+  Widget _buildNarrowLayout(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _SmOption(
+          icon: Icons.playlist_play_rounded,
+          label: "LOAD YOUR PLAYLIST OR FILE/URL",
+          highlighted: true,
+          onTap: () => Get.toNamed(screenRegisterM3u),
+        ),
+        const SizedBox(height: 12),
+        _SmOption(
+          icon: Icons.api_rounded,
+          label: "LOGIN WITH XTREAM CODES API",
+          onTap: () => Get.toNamed(screenRegister),
+          autoFocus: true,
+        ),
+        const SizedBox(height: 12),
+        _SmOption(
+          icon: Icons.people_alt_rounded,
+          label: "LIST USERS",
+          onTap: () => Get.toNamed(screenProfiles),
+        ),
       ],
     );
   }
 }
 
-class _ConnectionCard extends StatelessWidget {
+// ── Smarters-style option row button (focus-aware for TV remote) ──
+class _SmOption extends StatefulWidget {
   final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
+  final String label;
   final VoidCallback onTap;
-  final bool isTv;
+  final bool highlighted;
   final bool autoFocus;
+  final double height;
+  final double fontSize;
+  final double iconSize;
 
-  const _ConnectionCard({
+  const _SmOption({
     required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
+    required this.label,
     required this.onTap,
-    this.isTv = false,
+    this.highlighted = false,
     this.autoFocus = false,
+    this.height = 56,
+    this.fontSize = 13,
+    this.iconSize = 22,
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Modern Glassmorphism Card Style
-    final cardContent = Container(
-      padding: EdgeInsets.all(isTv ? 24 : 16),
-      decoration: BoxDecoration(
-        color: kColorCard.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: isTv
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: color.withOpacity(0.2), width: 2),
-                  ),
-                  child: Icon(icon, color: color, size: 32),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: kColorTextSecondary,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: color.withOpacity(0.2), width: 1),
-                  ),
-                  child: Icon(icon, color: color, size: 28),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: kColorTextSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded,
-                      color: Colors.white54, size: 14),
-                ),
-              ],
-            ),
-    );
+  State<_SmOption> createState() => _SmOptionState();
+}
 
-    return FocusableCard(
-      onTap: onTap,
-      autoFocus: autoFocus,
-      scale: 1.02,
-      child: cardContent,
+class _SmOptionState extends State<_SmOption> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // Blue ONLY when focused (TV remote or touch) — never by default
+    final bool isBlue = _isFocused;
+
+    return Focus(
+      autofocus: widget.autoFocus,
+      onFocusChange: (focused) => setState(() => _isFocused = focused),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: widget.height,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          decoration: BoxDecoration(
+            gradient: isBlue
+                ? const LinearGradient(
+                    colors: [kColorPrimary, kColorPrimaryDark],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            color: isBlue ? null : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isBlue ? kColorPrimary : const Color(0xFFCBD5E1),
+              width: isBlue ? 2 : 1.5,
+            ),
+            boxShadow: isBlue
+                ? [
+                    BoxShadow(
+                      color: kColorPrimary.withOpacity(0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Row(
+            children: [
+              Icon(
+                widget.icon,
+                color: isBlue ? Colors.white : kColorPrimary,
+                size: widget.iconSize,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.label,
+                    style: GoogleFonts.outfit(
+                      fontSize: widget.fontSize,
+                      fontWeight: FontWeight.w700,
+                      color: isBlue ? Colors.white : const Color(0xFF1E293B),
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: isBlue ? Colors.white70 : const Color(0xFF94A3B8),
+                size: widget.iconSize,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

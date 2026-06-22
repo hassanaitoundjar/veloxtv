@@ -196,7 +196,7 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
   Color _getSpeedColor(double mbps) {
     if (mbps < 5) return Colors.red;
     if (mbps < 20) return Colors.orange;
-    if (mbps < 50) return Colors.yellow;
+    if (mbps < 50) return Colors.blue;
     if (mbps < 100) return Colors.lightGreen;
     return kColorPrimary;
   }
