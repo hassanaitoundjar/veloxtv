@@ -24,6 +24,7 @@ void main() async {
   await GetStorage.init();
   await GetStorage.init("favorites");
   await GetStorage.init("watching");
+  await GetStorage.init("settings");
 
   // Lock orientation to landscape for the best TV/Tablet experience
   SystemChrome.setPreferredOrientations([
