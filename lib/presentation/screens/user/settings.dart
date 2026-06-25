@@ -47,16 +47,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildTvLayout() {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final padding = isPhone ? 16.0 : 40.0;
+    final iconSize = isPhone ? 28.0 : 40.0;
+    final topMargin = isPhone ? 2.h : 5.h;
+
     return Row(
       children: [
         // Left Panel
         Expanded(
-          flex: 1,
+          flex: isPhone ? 2 : 1,
           child: Container(
             color: kColorPanel,
             child: Column(
               children: [
-                SizedBox(height: 5.h),
+                SizedBox(height: topMargin),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Align(
@@ -67,19 +72,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                const Icon(Icons.settings, size: 40, color: Colors.white),
+                Icon(Icons.settings, size: iconSize, color: Colors.white),
                 const SizedBox(height: 10),
-                Text("Settings", style: Get.textTheme.titleLarge),
-                const SizedBox(height: 40),
-                ...List.generate(_titles.length, (index) {
-                  return _buildSettingItem(
-                    icon: _icons[index],
-                    title: _titles[index],
-                    isSelected: _selectedIndex == index,
-                    onTap: () => setState(() => _selectedIndex = index),
-                  );
-                }),
-                const Spacer(),
+                Text("Settings",
+                    style: isPhone
+                        ? Get.textTheme.titleMedium
+                        : Get.textTheme.titleLarge),
+                SizedBox(height: isPhone ? 20 : 40),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _titles.length,
+                    itemBuilder: (context, index) {
+                      return _buildSettingItem(
+                        icon: _icons[index],
+                        title: _titles[index],
+                        isSelected: _selectedIndex == index,
+                        onTap: () => setState(() => _selectedIndex = index),
+                        isPhone: isPhone,
+                      );
+                    },
+                  ),
+                ),
                 _buildSettingItem(
                   icon: Icons.logout,
                   title: "Logout",
@@ -88,8 +101,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     context.read<AuthBloc>().add(AuthLogout());
                     Get.offAllNamed(screenSplash);
                   },
+                  isPhone: isPhone,
                 ),
-                SizedBox(height: 5.h),
+                SizedBox(height: topMargin),
               ],
             ),
           ),
@@ -97,10 +111,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         // Right Panel (Content)
         Expanded(
-          flex: 2,
+          flex: isPhone ? 3 : 2,
           child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: _buildRightPanel(),
+            padding: EdgeInsets.all(padding),
+            child: SingleChildScrollView(child: _buildRightPanel(isPhone)),
           ),
         ),
       ],
@@ -113,7 +127,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
                   IconButton(
@@ -121,7 +136,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: () => setState(() => _showMobileDetails = false),
                   ),
                   const SizedBox(width: 8),
-                  Text(_titles[_selectedIndex], style: Get.textTheme.titleLarge),
+                  Text(_titles[_selectedIndex],
+                      style: Get.textTheme.titleLarge),
                 ],
               ),
             ),
@@ -140,7 +156,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
                 IconButton(
@@ -187,27 +204,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildRightPanel() {
+  Widget _buildRightPanel([bool isPhone = false]) {
     switch (_selectedIndex) {
       case 0:
-        return _buildAccountSettings();
+        return _buildAccountSettings(isPhone);
       case 1:
-        return _buildParentalControlSettings();
+        return _buildParentalControlSettings(isPhone);
       case 2:
-        return _buildPlayerSettings();
+        return _buildPlayerSettings(isPhone);
       case 3:
-        return _buildDateTimeSettings();
+        return _buildDateTimeSettings(isPhone);
       case 4:
-        return _buildSpeedTestPreview();
+        return _buildSpeedTestPreview(isPhone);
       case 5:
-        return _buildAboutSettings();
+        return _buildAboutSettings(isPhone);
       default:
         // Default to About just in case, or empty
         return const SizedBox();
     }
   }
 
-  Widget _buildAccountSettings() {
+  Widget _buildAccountSettings(bool isPhone) {
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthSuccess) {
@@ -215,14 +234,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Account Information", style: Get.textTheme.headlineMedium),
-              const SizedBox(height: 20),
-              _buildInfoTile("Username", info.username ?? "-"),
-              _buildInfoTile("Status", info.status ?? "-"),
+              Text("Account Information", style: titleStyle),
+              SizedBox(height: isPhone ? 10 : 20),
+              _buildInfoTile("Username", info.username ?? "-",
+                  isPhone: isPhone),
+              _buildInfoTile("Status", info.status ?? "-", isPhone: isPhone),
               _buildInfoTile(
-                  "Expiry Date", formatExpiration(info.expDate ?? "Unlimited")),
-              _buildInfoTile("Active Connections", info.activeCons ?? "0"),
-              _buildInfoTile("Max Connections", info.maxConnections ?? "1"),
+                  "Expiry Date", formatExpiration(info.expDate ?? "Unlimited"),
+                  isPhone: isPhone),
+              _buildInfoTile("Active Connections", info.activeCons ?? "0",
+                  isPhone: isPhone),
+              _buildInfoTile("Max Connections", info.maxConnections ?? "1",
+                  isPhone: isPhone),
             ],
           );
         }
@@ -231,23 +254,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildParentalControlSettings() {
+  Widget _buildParentalControlSettings(bool isPhone) {
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
+    final padding = isPhone ? 16.0 : 24.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Parental Control", style: Get.textTheme.headlineMedium),
-        const SizedBox(height: 20),
+        Text("Parental Control", style: titleStyle),
+        SizedBox(height: isPhone ? 10 : 20),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(padding),
           decoration: kDecorCard,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Protect sensitive content with a PIN code.",
-                style: TextStyle(color: kColorTextSecondary, fontSize: 16),
+                style: TextStyle(
+                    color: kColorTextSecondary, fontSize: isPhone ? 14 : 16),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: isPhone ? 16 : 24),
               Builder(
                 builder: (context) {
                   final authState = context.read<AuthBloc>().state;
@@ -265,7 +292,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           userId: userId,
                           mode: ParentalMode.verify,
                           onVerifySuccess: () {
-                            _storage.write("parental_control_enabled_$userId", false);
+                            _storage.write(
+                                "parental_control_enabled_$userId", false);
                             setState(() {});
                           },
                         ),
@@ -332,36 +360,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildPlayerSettings() {
+  Widget _buildPlayerSettings(bool isPhone) {
     final format = _storage.read("stream_format") ?? "default";
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
+    final padding = isPhone ? 16.0 : 24.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Player Settings", style: Get.textTheme.headlineMedium),
-        const SizedBox(height: 20),
+        Text("Player Settings", style: titleStyle),
+        SizedBox(height: isPhone ? 10 : 20),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(padding),
           decoration: kDecorCard,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Stream Format",
-                  style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
-              const SizedBox(height: 16),
+              Text("Stream Format",
+                  style: TextStyle(
+                      color: kColorTextSecondary, fontSize: isPhone ? 14 : 16)),
+              SizedBox(height: isPhone ? 10 : 16),
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
                 children: [
-                  _buildRadioOption("Default (Auto)", "default", format),
-                  _buildRadioOption("MPEG-TS (.ts)", "ts", format),
-                  _buildRadioOption("HLS (.m3u8)", "m3u8", format),
+                  _buildRadioOption("Default (Auto)", "default", format,
+                      isPhone: isPhone),
+                  _buildRadioOption("MPEG-TS (.ts)", "ts", format,
+                      isPhone: isPhone),
+                  _buildRadioOption("HLS (.m3u8)", "m3u8", format,
+                      isPhone: isPhone),
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                   "Default works best for most servers. Use 'ts' for speed or 'm3u8' for stability.",
-                  style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  style: TextStyle(
+                      color: Colors.white38, fontSize: isPhone ? 10 : 12)),
             ],
           ),
         ),
@@ -369,7 +405,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildRadioOption(String label, String value, String groupValue) {
+  Widget _buildRadioOption(String label, String value, String groupValue,
+      {bool isPhone = false}) {
     final isSelected = value == groupValue;
     return FocusableCard(
       onTap: () {
@@ -400,13 +437,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// Generic radio option for any enum [T] keyed by [T.name].
   Widget _buildEnumRadioOption<T extends Enum>(
     String label,
     T value,
     T groupValue,
-    Future<void> Function(T) onSelected,
-  ) {
+    Future<void> Function(T) onSelected, {
+    bool isPhone = false,
+  }) {
     final isSelected = value.name == groupValue.name;
     return FocusableCard(
       onTap: () async {
@@ -437,20 +474,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildAboutSettings() {
+  Widget _buildAboutSettings(bool isPhone) {
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("About", style: Get.textTheme.headlineMedium),
-        const SizedBox(height: 20),
-        _buildInfoTile("App Name", kAppName),
-        _buildInfoTile("Version", "1.0.0"),
-        _buildInfoTile("Developer", "Dev Team"),
+        Text("About", style: titleStyle),
+        SizedBox(height: isPhone ? 10 : 20),
+        _buildInfoTile("App Name", kAppName, isPhone: isPhone),
+        _buildInfoTile("Version", "1.0.0", isPhone: isPhone),
+        _buildInfoTile("Developer", "Dev Team", isPhone: isPhone),
       ],
     );
   }
 
-  Widget _buildDateTimeSettings() {
+  Widget _buildDateTimeSettings(bool isPhone) {
     final timeFormat = DateTimeFormatService.getTimeFormat();
     final dateFormat = DateTimeFormatService.getDateFormat();
     final tzMode = DateTimeFormatService.getTimezoneMode();
@@ -460,17 +499,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Sample DateTime used to preview formatting choices.
     final sample = DateTime.now();
 
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
+    final padding = isPhone ? 16.0 : 24.0;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Date & Time", style: Get.textTheme.headlineMedium),
+          Text("Date & Time", style: titleStyle),
           const SizedBox(height: 8),
           Text(
             "Configure how dates and times are displayed across the app, "
             "and pick the timezone used for the TV guide.",
-            style: Get.textTheme.bodyMedium
-                ?.copyWith(color: kColorTextSecondary),
+            style:
+                Get.textTheme.bodyMedium?.copyWith(color: kColorTextSecondary),
           ),
           const SizedBox(height: 20),
 
@@ -482,8 +525,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Time Format",
-                    style:
-                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
                 const SizedBox(height: 6),
                 Text(
                   "Preview: ${DateTimeFormatService.formatTime(sample)}",
@@ -520,8 +562,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Date Format",
-                    style:
-                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
                 const SizedBox(height: 6),
                 Text(
                   "Preview: ${DateTimeFormatService.formatDate(sample)}",
@@ -565,8 +606,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Timezone",
-                    style:
-                        TextStyle(color: kColorTextSecondary, fontSize: 16)),
+                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
                 const SizedBox(height: 6),
                 Text(
                   "Active: ${activeTz.label} (${activeTz.offsetLabel})",
@@ -576,22 +616,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     "Detected from device: "
                     "${DateTimeFormatService.detectDeviceTimezone().label}",
-                    style: const TextStyle(
-                        color: Colors.white54, fontSize: 12),
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
                   ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     _buildEnumRadioOption<TimezoneMode>(
-                        "Auto-detect", TimezoneMode.auto, tzMode,
-                        (v) async {
+                        "Auto-detect", TimezoneMode.auto, tzMode, (v) async {
                       await DateTimeFormatService.setTimezoneMode(v);
                       setState(() {});
                     }),
                     const SizedBox(width: 20),
                     _buildEnumRadioOption<TimezoneMode>(
-                        "Manual", TimezoneMode.manual, tzMode,
-                        (v) async {
+                        "Manual", TimezoneMode.manual, tzMode, (v) async {
                       await DateTimeFormatService.setTimezoneMode(v);
                       setState(() {});
                     }),
@@ -605,14 +642,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Future<void> detectCountry() async {
                           final messenger = ScaffoldMessenger.of(context);
                           messenger.showSnackBar(const SnackBar(
-                              content: Text(
-                                  "Detecting country, please wait...")));
+                              content:
+                                  Text("Detecting country, please wait...")));
                           final tz = await DateTimeFormatService
                               .detectTimezoneByCountry();
                           await DateTimeFormatService.setTimezoneMode(
                               TimezoneMode.manual);
-                          await DateTimeFormatService
-                              .setManualTimezone(tz.id);
+                          await DateTimeFormatService.setManualTimezone(tz.id);
                           if (mounted) {
                             setState(() {});
                             messenger.showSnackBar(SnackBar(
@@ -653,8 +689,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildTimezoneDropdown(String? currentId) {
-    final selectedId = currentId ??
-        DateTimeFormatService.getActiveTimezone().id;
+    final selectedId =
+        currentId ?? DateTimeFormatService.getActiveTimezone().id;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -680,8 +716,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               items: kTimezones.map((tz) {
                 return DropdownMenuItem<String>(
                   value: tz.id,
-                  child: Text(
-                      "${tz.label} (${tz.country}) - ${tz.offsetLabel}"),
+                  child:
+                      Text("${tz.label} (${tz.country}) - ${tz.offsetLabel}"),
                 );
               }).toList(),
               onChanged: (val) async {
@@ -702,19 +738,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool isSelected = false,
     Color color = Colors.white,
     required VoidCallback onTap,
+    bool isPhone = false,
   }) {
     return FocusableCard(
       onTap: onTap,
       scale: 1.02,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+        padding: EdgeInsets.symmetric(
+            vertical: isPhone ? 14 : 20, horizontal: isPhone ? 16 : 24),
         color: isSelected ? kColorPrimary.withOpacity(0.1) : null,
         child: Row(
           children: [
             Icon(icon,
                 color: isSelected ? kColorPrimary : kColorTextSecondary,
-                size: 24),
-            const SizedBox(width: 16),
+                size: isPhone ? 20 : 24),
+            SizedBox(width: isPhone ? 12 : 16),
             Text(
               title,
               style: TextStyle(
@@ -722,7 +760,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? kColorError
                     : (isSelected ? kColorPrimary : kColorTextSecondary),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 16,
+                fontSize: isPhone ? 14 : 16,
               ),
             ),
           ],
@@ -731,52 +769,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildInfoTile(String label, String value) {
+  Widget _buildInfoTile(String label, String value, {bool isPhone = false}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.only(bottom: isPhone ? 10 : 16),
+      padding: EdgeInsets.all(isPhone ? 14 : 20),
       decoration: kDecorCard,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label,
-              style: Get.textTheme.bodyLarge
-                  ?.copyWith(color: kColorTextSecondary)),
+              style:
+                  (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                      ?.copyWith(color: kColorTextSecondary)),
           Text(value,
-              style: Get.textTheme.titleMedium
+              style: (isPhone
+                      ? Get.textTheme.titleSmall
+                      : Get.textTheme.titleMedium)
                   ?.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _buildSpeedTestPreview() {
+  Widget _buildSpeedTestPreview(bool isPhone) {
+    final titleStyle =
+        isPhone ? Get.textTheme.titleLarge : Get.textTheme.headlineMedium;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.speed, size: 80, color: kColorPrimary),
-        const SizedBox(height: 20),
-        Text("Internet Speed Test", style: Get.textTheme.headlineMedium),
-        const SizedBox(height: 10),
-        const Text(
-            "Check your internet connection speed to ensure smooth streaming.",
+        Icon(Icons.speed, size: isPhone ? 60 : 80, color: kColorPrimary),
+        SizedBox(height: isPhone ? 12 : 20),
+        Text("Internet Speed Test", style: titleStyle),
+        SizedBox(height: isPhone ? 6 : 10),
+        Text("Check your internet connection speed to ensure smooth streaming.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: kColorTextSecondary)),
-        const SizedBox(height: 30),
+            style: TextStyle(
+                color: kColorTextSecondary, fontSize: isPhone ? 12 : 14)),
+        SizedBox(height: isPhone ? 20 : 30),
         FocusableCard(
           onTap: () {
-            Get.to(const SpeedTestScreen());
+            Get.to(() => const SpeedTestScreen());
           },
-          child: ElevatedButton(
+          child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: kColorPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: EdgeInsets.symmetric(
+                  horizontal: isPhone ? 24 : 32, vertical: isPhone ? 12 : 16),
             ),
+            icon: Icon(Icons.play_arrow, size: isPhone ? 20 : 24),
+            label: Text("Start Test",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: isPhone ? 14 : 16)),
             onPressed: () {
-              Get.to(const SpeedTestScreen());
+              Get.to(() => const SpeedTestScreen());
             },
-            child: const Text("Open Speed Test",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
         ),
       ],

@@ -42,82 +42,84 @@ class _HomeScreenState extends State<HomeScreen> {
           constraints: const BoxConstraints(maxWidth: 340),
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.15),
-                    shape: BoxShape.circle,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icon
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: kColorPrimary.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.lock_outline,
+                        color: kColorPrimary, size: 28),
                   ),
-                  child: const Icon(Icons.lock_outline,
-                      color: kColorPrimary, size: 28),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Parental Control PIN',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Your default parental control PIN is:',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                      color: Colors.white70, fontSize: 13),
-                ),
-                const SizedBox(height: 12),
-                // PIN display
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: kColorPrimary.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: kColorPrimary.withOpacity(0.4), width: 1),
-                  ),
-                  child: Text(
-                    '0  0  0  0',
+                  const SizedBox(height: 16),
+                  Text(
+                    'Parental Control PIN',
                     style: GoogleFonts.outfit(
-                      color: kColorPrimary,
-                      fontSize: 28,
+                      color: Colors.white,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 6,
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'You can change it anytime in Settings → Parental Control.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                      color: Colors.white54, fontSize: 12),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kColorPrimary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    onPressed: () => Get.back(),
-                    child: Text('Got it',
-                        style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your default parental control PIN is:',
+                    textAlign: TextAlign.center,
+                    style:
+                        GoogleFonts.outfit(color: Colors.white70, fontSize: 13),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  // PIN display
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: kColorPrimary.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: kColorPrimary.withOpacity(0.4), width: 1),
+                    ),
+                    child: Text(
+                      '0  0  0  0',
+                      style: GoogleFonts.outfit(
+                        color: kColorPrimary,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 6,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'You can change it anytime in Settings → Parental Control.',
+                    textAlign: TextAlign.center,
+                    style:
+                        GoogleFonts.outfit(color: Colors.white54, fontSize: 12),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kColorPrimary,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => Get.back(),
+                      child: Text('Got it',
+                          style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -191,14 +193,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      
+
                       // Bottom Right: Username
                       Row(
                         children: [
                           Text(
                             "Username: $username",
-                            style: Get.textTheme.bodySmall
-                                ?.copyWith(color: Colors.white54, fontWeight: FontWeight.bold),
+                            style: Get.textTheme.bodySmall?.copyWith(
+                                color: Colors.white54,
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -216,93 +219,92 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildLandscapeLayout() {
     return Column(
       children: [
-              // ROW 1: LIVE, MOVIES, SERIES
+        // ROW 1: LIVE, MOVIES, SERIES
+        Expanded(
+          child: Row(
+            children: [
               Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Live TV",
-                        icon: FontAwesomeIcons.tv,
-                        isIconData: true,
-                        onTap: () => Get.toNamed(screenLiveTv),
-                        blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
-                          builder: (context, state) => _buildCount(state),
-                        ),
-                        autoFocus: true,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Movies",
-                        icon: FontAwesomeIcons.film,
-                        isIconData: true,
-                        onTap: () => Get.toNamed(screenMovies),
-                        blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
-                          builder: (context, state) => _buildCount(state),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Series",
-                        icon: FontAwesomeIcons.layerGroup,
-                        isIconData: true,
-                        onTap: () => Get.toNamed(screenSeries),
-                        blocBuilder:
-                            BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
-                          builder: (context, state) => _buildCount(state),
-                        ),
-                      ),
-                    ),
-                  ],
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Live TV",
+                  icon: FontAwesomeIcons.tv,
+                  isIconData: true,
+                  onTap: () => Get.toNamed(screenLiveTv),
+                  blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
+                    builder: (context, state) => _buildCount(state),
+                  ),
+                  autoFocus: true,
                 ),
               ),
-              const SizedBox(height: 16),
-              // ROW 2: CATCH UP, EPG, FAVORITES
+              const SizedBox(width: 16),
               Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Catch Up",
-                        icon: FontAwesomeIcons.clockRotateLeft,
-                        isIconData: true,
-                        onTap: () => Get.toNamed(screenLiveTv),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Multi-View",
-                        icon: FontAwesomeIcons.tableCellsLarge,
-                        isIconData: true,
-                        onTap: () {
-                          Get.to(() => const MultiViewScreen());
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: _buildGridItem(
-                        title: "Favorites",
-                        icon: FontAwesomeIcons.heart,
-                        isIconData: true,
-                        onTap: () => Get.toNamed(screenFavorites),
-                      ),
-                    ),
-                  ],
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Movies",
+                  icon: FontAwesomeIcons.film,
+                  isIconData: true,
+                  onTap: () => Get.toNamed(screenMovies),
+                  blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                    builder: (context, state) => _buildCount(state),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Series",
+                  icon: FontAwesomeIcons.layerGroup,
+                  isIconData: true,
+                  onTap: () => Get.toNamed(screenSeries),
+                  blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
+                    builder: (context, state) => _buildCount(state),
+                  ),
                 ),
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // ROW 2: CATCH UP, EPG, FAVORITES
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Catch Up",
+                  icon: FontAwesomeIcons.clockRotateLeft,
+                  isIconData: true,
+                  onTap: () => Get.toNamed(screenLiveTv),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Multi-View",
+                  icon: FontAwesomeIcons.tableCellsLarge,
+                  isIconData: true,
+                  onTap: () {
+                    Get.to(() => const MultiViewScreen());
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: _buildGridItem(
+                  title: "Favorites",
+                  icon: FontAwesomeIcons.heart,
+                  isIconData: true,
+                  onTap: () => Get.toNamed(screenFavorites),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -454,5 +456,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }

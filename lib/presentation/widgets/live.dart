@@ -30,27 +30,28 @@ class _AppBarLiveState extends State<AppBarLive> {
   @override
   void initState() {
     super.initState();
-    _internalFocusNode = widget.focusNode ?? FocusNode(onKeyEvent: (node, event) {
-      if (event is KeyDownEvent) {
-        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          FocusScope.of(context).focusInDirection(TraversalDirection.down);
-          return KeyEventResult.handled;
-        }
-        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          FocusScope.of(context).focusInDirection(TraversalDirection.up);
-          return KeyEventResult.handled;
-        }
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          FocusScope.of(context).focusInDirection(TraversalDirection.left);
-          return KeyEventResult.handled;
-        }
-        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          FocusScope.of(context).focusInDirection(TraversalDirection.right);
-          return KeyEventResult.handled;
-        }
-      }
-      return KeyEventResult.ignored;
-    });
+    _internalFocusNode = widget.focusNode ??
+        FocusNode(onKeyEvent: (node, event) {
+          if (event is KeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+              FocusScope.of(context).focusInDirection(TraversalDirection.down);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+              FocusScope.of(context).focusInDirection(TraversalDirection.up);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+              FocusScope.of(context).focusInDirection(TraversalDirection.left);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+              FocusScope.of(context).focusInDirection(TraversalDirection.right);
+              return KeyEventResult.handled;
+            }
+          }
+          return KeyEventResult.ignored;
+        });
     _updateTime();
     _timer =
         Timer.periodic(const Duration(seconds: 1), (timer) => _updateTime());
@@ -137,30 +138,31 @@ class _AppBarLiveState extends State<AppBarLive> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.25),
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.25),
                     child: Container(
-                    height: 40,
-                    margin: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      color: kColorCardLight,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      focusNode: _internalFocusNode,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Search...",
-                        hintStyle: const TextStyle(color: Colors.white38),
-                        prefixIcon: const Icon(Icons.search,
-                            color: Colors.white54, size: 20),
-                        border: InputBorder.none,
-                        filled: false,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10),
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 16),
+                      decoration: BoxDecoration(
+                        color: kColorCardLight,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      onChanged: widget.onSearch,
+                      child: TextField(
+                        focusNode: _internalFocusNode,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search...",
+                          hintStyle: const TextStyle(color: Colors.white38),
+                          prefixIcon: const Icon(Icons.search,
+                              color: Colors.white54, size: 20),
+                          border: InputBorder.none,
+                          filled: false,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onChanged: widget.onSearch,
+                      ),
                     ),
-                  ),
                   ),
                   if (widget.onTimeline != null)
                     IconButton(
@@ -244,7 +246,8 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
             .toList();
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final catFontSize = screenWidth < 600 ? 14.0 : (screenWidth < 1200 ? 16.0 : 18.0);
+    final catFontSize =
+        screenWidth < 600 ? 14.0 : (screenWidth < 1200 ? 16.0 : 18.0);
 
     return Container(
       width: 25.w,
@@ -291,7 +294,10 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: 16, horizontal: 20),
-                    color: isSelected ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green, kColorPrimary.blue, 0.2) : null,
+                    color: isSelected
+                        ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green,
+                            kColorPrimary.blue, 0.2)
+                        : null,
                     child: Row(
                       children: [
                         Expanded(
@@ -429,7 +435,7 @@ class ListChannelItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // Detect narrow screen (phone) using shortestSide
     final isPhone = MediaQuery.of(context).size.shortestSide < 600;
-    final iconSize = isPhone ? 36.0 : 50.0;
+    final iconSize = isPhone ? 25.0 : 50.0;
     final hPad = isPhone ? 6.0 : 12.0;
     final vPad = isPhone ? 6.0 : 10.0;
     final gap = isPhone ? 6.0 : 12.0;
@@ -438,7 +444,10 @@ class ListChannelItem extends StatelessWidget {
       onTap: onTap,
       scale: 1.02,
       child: Container(
-        constraints: BoxConstraints(minHeight: isPhone ? 44 : 60),
+        constraints: BoxConstraints(
+          minHeight: isPhone ? 30 : 60,
+          maxHeight: isPhone ? 50 : 40, // 👈 أضف الارتفاع الأقصى
+        ),
         margin: const EdgeInsets.only(bottom: 4),
         padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         decoration: kDecorCard.copyWith(
@@ -464,7 +473,7 @@ class ListChannelItem extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: icon ?? "",
                 errorWidget: (_, __, ___) => Icon(Icons.tv,
-                    size: isPhone ? 18 : 24, color: Colors.white24),
+                    size: isPhone ? 16 : 24, color: Colors.white24),
                 placeholder: (_, __) => const Center(
                     child: CircularProgressIndicator(strokeWidth: 1.5)),
                 fit: BoxFit.contain,
@@ -481,7 +490,7 @@ class ListChannelItem extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: isPhone ? 11 : 14,
+                      fontSize: isPhone ? 10 : 14,
                       color: isFocus ? Colors.white : kColorTextPrimary,
                     ),
                     // Allow 2 lines on phone so long names are readable
@@ -494,9 +503,7 @@ class ListChannelItem extends StatelessWidget {
                     Text(
                       epg!,
                       style: TextStyle(
-                        color: isFocus
-                            ? Colors.white70
-                            : kColorTextSecondary,
+                        color: isFocus ? Colors.white70 : kColorTextSecondary,
                         fontSize: 11,
                       ),
                       maxLines: 1,

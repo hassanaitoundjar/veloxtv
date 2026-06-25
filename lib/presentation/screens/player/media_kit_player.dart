@@ -604,20 +604,22 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                                   Colors.white24,
                                               thumbColor: kColorPrimary,
                                             ),
-                                            child: Slider(
-                                              value: position.inSeconds
-                                                  .toDouble()
-                                                  .clamp(
-                                                      0,
-                                                      duration.inSeconds
-                                                          .toDouble()),
-                                              min: 0,
-                                              max: duration.inSeconds
-                                                  .toDouble(),
-                                              onChanged: (val) {
-                                                _player.seek(Duration(
-                                                    seconds: val.toInt()));
-                                              },
+                                            child: ExcludeFocus(
+                                              child: Slider(
+                                                value: position.inSeconds
+                                                    .toDouble()
+                                                    .clamp(
+                                                        0,
+                                                        duration.inSeconds
+                                                            .toDouble()),
+                                                min: 0,
+                                                max: duration.inSeconds
+                                                    .toDouble(),
+                                                onChanged: (val) {
+                                                  _player.seek(Duration(
+                                                      seconds: val.toInt()));
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ),

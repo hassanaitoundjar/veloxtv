@@ -251,8 +251,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                 String? fetchError;
                 try {
                   channels = await IpTvApi().getLiveChannels(null);
-                  channels.sort(
-                      (a, b) => (a.num ?? 0).compareTo(b.num ?? 0));
+                  channels.sort((a, b) => (a.num ?? 0).compareTo(b.num ?? 0));
                 } catch (e) {
                   fetchError = e.toString();
                 }
@@ -310,7 +309,8 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(16, 1.h, 16, isPhone ? 0.5.h : 2.h),
+                            padding: EdgeInsets.fromLTRB(
+                                16, 1.h, 16, isPhone ? 0.5.h : 2.h),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -320,22 +320,39 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                   margin: const EdgeInsets.only(bottom: 12),
                                   decoration: BoxDecoration(
                                     color: Colors.white10,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: TextField(
                                     focusNode: _searchFocusNode,
                                     controller: _searchController,
                                     onChanged: (val) =>
                                         setState(() => _searchQuery = val),
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       hintText: "Search in categories",
-                                      prefixIcon: Icon(Icons.search, size: 18),
+                                      hintStyle: TextStyle(
+                                          fontSize: isPhone ? 10 : 14),
+                                      prefixIcon: Padding(
+                                        padding: EdgeInsets.only(
+                                            left: isPhone ? 8 : 12, right: 4),
+                                        child: Icon(Icons.search,
+                                            size: isPhone ? 14 : 18),
+                                      ),
+                                      prefixIconConstraints:
+                                          const BoxConstraints(
+                                        minWidth: 0,
+                                        minHeight: 0,
+                                      ),
                                       border: InputBorder.none,
                                       filled: false,
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 10),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: isPhone ? 8 : 10,
+                                        horizontal: 8,
+                                      ),
+                                      isDense:
+                                          true, // 👈 هذا يزيل المسافة الزائدة الافتراضية
                                     ),
-                                    style: const TextStyle(fontSize: 14),
+                                    style:
+                                        TextStyle(fontSize: isPhone ? 10 : 14),
                                   ),
                                 ),
                               ],
@@ -407,7 +424,12 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                 child: Text(
                                                   cat.categoryName ?? "Unknown",
                                                   style: TextStyle(
-                                                    fontSize: isPhone ? 13 : (screenSize.width < 1200 ? 16 : 18),
+                                                    fontSize: isPhone
+                                                        ? 10
+                                                        : (screenSize.width <
+                                                                1200
+                                                            ? 16
+                                                            : 18),
                                                     color: isSelected
                                                         ? Colors.white
                                                         : kColorTextSecondary,
@@ -457,7 +479,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                               _selectedCategory?.categoryName ??
                                   "Select Category",
                               style: TextStyle(
-                                  fontSize: isPhone ? 13 : 16,
+                                  fontSize: isPhone ? 10 : 16,
                                   color: kColorPrimary,
                                   fontWeight: FontWeight.bold),
                               maxLines: 2,
@@ -509,7 +531,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                             title: channel.name ??
                                                 "Channel ${channel.num}",
                                             icon: channel.streamIcon,
-                                            epg: "No Program Info",
+                                            // epg: "No Program Info",
                                             isFocus:
                                                 _selectedChannel?.streamId ==
                                                     channel.streamId,
@@ -571,118 +593,122 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                   Expanded(
                     flex: isPhone ? 3 : 5,
                     child: Container(
-                      color: Colors.black,
+                      // color: Colors.black,
                       child: Column(
                         children: [
                           // MINI PLAYER AREA (Top section of the third pane)
                           Padding(
                             padding: EdgeInsets.all(isPhone ? 4.0 : 8.0),
                             child: FocusableCard(
-                              scale: 1.0, // Prevent scaling from clipping the border
+                              // Prevent scaling from clipping the border
                               onTap: () {
                                 // If a channel is selected, verify access and open a full-screen player
                                 if (_selectedChannel != null) {
                                   _checkChannelAccess(_selectedChannel!,
                                       () async {
-                                  final user = await LocaleApi.getUser();
-                                  if (user != null) {
-                                    // Use the user-preferred stream format
-                                    final format =
-                                        GetStorage().read('stream_format') ??
-                                            'default';
-                                    final base =
-                                        "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
-                                    final link = format == 'default' ? base : "$base.$format";
+                                    final user = await LocaleApi.getUser();
+                                    if (user != null) {
+                                      // Use the user-preferred stream format
+                                      final format =
+                                          GetStorage().read('stream_format') ??
+                                              'default';
+                                      final base =
+                                          "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${_selectedChannel!.streamId}";
+                                      final link = format == 'default'
+                                          ? base
+                                          : "$base.$format";
 
-                                    // Navigate to the dedicated player screen
-                                    Get.to(() => MediaKitPlayerScreen(
-                                          title: _selectedChannel!.name ??
-                                              "Live TV",
-                                          link: link,
-                                          isLive: true,
-                                          player: _previewPlayer,
-                                          videoController:
-                                              _previewVideoController,
-                                        ));
-                                  }
-                                });
-                              }
-                            },
-                            child: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: Container(
-                                color: const Color.fromARGB(255, 0, 0, 0),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Render the video if a channel is selected
-                                    if (_selectedChannel != null)
-                                      Video(
-                                        controller: _previewVideoController,
-                                        fit: BoxFit.cover,
-                                        controls:
-                                            NoVideoControls, // No controls in preview mode
-                                      )
-                                    else ...[
-                                      // If no channel is selected, show a dimmed channel icon or placeholder
-                                      if (_selectedChannel?.streamIcon !=
-                                              null &&
-                                          _selectedChannel!
-                                              .streamIcon!.isNotEmpty)
-                                        SizedBox.expand(
-                                          child: Opacity(
-                                            opacity: 0.3,
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  _selectedChannel!.streamIcon!,
-                                              fit: BoxFit.cover,
-                                              errorWidget: (_, __, ___) =>
-                                                  const Center(
-                                                      child: Icon(Icons.tv,
-                                                          size: 48,
-                                                          color:
-                                                              Colors.white24)),
+                                      // Navigate to the dedicated player screen
+                                      Get.to(() => MediaKitPlayerScreen(
+                                            title: _selectedChannel!.name ??
+                                                "Live TV",
+                                            link: link,
+                                            isLive: true,
+                                            player: _previewPlayer,
+                                            videoController:
+                                                _previewVideoController,
+                                          ));
+                                    }
+                                  });
+                                }
+                              },
+                              child: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: Container(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Render the video if a channel is selected
+                                      if (_selectedChannel != null)
+                                        Video(
+                                          controller: _previewVideoController,
+                                          fit: BoxFit.cover,
+                                          controls:
+                                              NoVideoControls, // No controls in preview mode
+                                        )
+                                      else ...[
+                                        // If no channel is selected, show a dimmed channel icon or placeholder
+                                        if (_selectedChannel?.streamIcon !=
+                                                null &&
+                                            _selectedChannel!
+                                                .streamIcon!.isNotEmpty)
+                                          SizedBox.expand(
+                                            child: Opacity(
+                                              opacity: 0.3,
+                                              child: CachedNetworkImage(
+                                                imageUrl: _selectedChannel!
+                                                    .streamIcon!,
+                                                fit: BoxFit.cover,
+                                                errorWidget: (_, __, ___) =>
+                                                    const Center(
+                                                        child: Icon(Icons.tv,
+                                                            size: 48,
+                                                            color: Colors
+                                                                .white24)),
+                                              ),
                                             ),
                                           ),
+                                        // Overlay buttons for selection when no video is playing
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            if (widget.isPicker)
+                                              ElevatedButton.icon(
+                                                onPressed: () {
+                                                  if (_selectedChannel !=
+                                                      null) {
+                                                    Get.back(
+                                                        result:
+                                                            _selectedChannel);
+                                                  }
+                                                },
+                                                icon: const Icon(Icons.check,
+                                                    color: Colors.white),
+                                                label: Text("Select Channel",
+                                                    style: GoogleFonts.outfit(
+                                                        color: Colors.white)),
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        kColorPrimary),
+                                              )
+                                            else
+                                              const Icon(Icons.play_circle_fill,
+                                                  size: 64,
+                                                  color: Colors.white54),
+                                            const SizedBox(height: 8),
+                                            const Text("Preview",
+                                                style: TextStyle(
+                                                    color: Colors.white54)),
+                                          ],
                                         ),
-                                      // Overlay buttons for selection when no video is playing
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          if (widget.isPicker)
-                                            ElevatedButton.icon(
-                                              onPressed: () {
-                                                if (_selectedChannel != null) {
-                                                  Get.back(
-                                                      result: _selectedChannel);
-                                                }
-                                              },
-                                              icon: const Icon(Icons.check,
-                                                  color: Colors.white),
-                                              label: Text("Select Channel",
-                                                  style: GoogleFonts.outfit(
-                                                      color: Colors.white)),
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      kColorPrimary),
-                                            )
-                                          else
-                                            const Icon(Icons.play_circle_fill,
-                                                size: 64,
-                                                color: Colors.white54),
-                                          const SizedBox(height: 8),
-                                          const Text("Preview",
-                                              style: TextStyle(
-                                                  color: Colors.white54)),
-                                        ],
-                                      ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           ),
 
                           // Channel Info & EPG (Bottom)
@@ -707,7 +733,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                               BorderRadius.circular(8),
                                         ),
                                         child: CachedNetworkImage(
-                                          imageUrl: _selectedChannel?.streamIcon ?? "",
+                                          imageUrl:
+                                              _selectedChannel?.streamIcon ??
+                                                  "",
                                           errorWidget: (_, __, ___) => Icon(
                                               Icons.tv,
                                               size: isPhone ? 18 : 30,
@@ -751,33 +779,34 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                   // EPG Section Header
                                   if (!isPhone)
                                     Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        "EPG (Electronic Program Guide)",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "EPG (Electronic Program Guide)",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
                                         ),
-                                      ),
-                                      // Only show "View All Catch-up" if the channel supports archiving
-                                      if (_selectedChannel != null &&
-                                          _selectedChannel!.tvArchive == 1)
-                                        TextButton.icon(
-                                          icon: const Icon(Icons.history,
-                                              color: kColorPrimary, size: 18),
-                                          label: const Text("View All Catch-up",
-                                              style: TextStyle(
-                                                  color: kColorPrimary)),
-                                          onPressed: () {
-                                            Get.to(() => CatchUpScreen(
-                                                channel: _selectedChannel!));
-                                          },
-                                        ),
-                                    ],
-                                  ),
+                                        // Only show "View All Catch-up" if the channel supports archiving
+                                        if (_selectedChannel != null &&
+                                            _selectedChannel!.tvArchive == 1)
+                                          TextButton.icon(
+                                            icon: const Icon(Icons.history,
+                                                color: kColorPrimary, size: 18),
+                                            label: const Text(
+                                                "View All Catch-up",
+                                                style: TextStyle(
+                                                    color: kColorPrimary)),
+                                            onPressed: () {
+                                              Get.to(() => CatchUpScreen(
+                                                  channel: _selectedChannel!));
+                                            },
+                                          ),
+                                      ],
+                                    ),
                                   const SizedBox(height: 12),
 
                                   // EPG List with FutureBuilder to handle async data fetching
@@ -818,8 +847,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                               // Parse and process EPG entries: keep only
                                               // entries with a valid window that have not
                                               // already ended, sorted by start time.
-                                              final processed = <_ProcessedEpg>[];
-                                              for (final epg in snapshot.data!) {
+                                              final processed =
+                                                  <_ProcessedEpg>[];
+                                              for (final epg
+                                                  in snapshot.data!) {
                                                 final window = parseEpgWindow(
                                                   startTimestamp:
                                                       epg.startTimestamp,
@@ -836,9 +867,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                     _ProcessedEpg(epg, window));
                                               }
 
-                                              processed.sort((a, b) =>
-                                                  a.window.start
-                                                      .compareTo(b.window.start));
+                                              processed.sort((a, b) => a
+                                                  .window.start
+                                                  .compareTo(b.window.start));
 
                                               if (processed.isEmpty) {
                                                 return const Center(
@@ -877,8 +908,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                 if (!mounted) {
                                                   return;
                                                 }
-                                                if (epoch !=
-                                                    _epgScrollEpoch) {
+                                                if (epoch != _epgScrollEpoch) {
                                                   return;
                                                 }
                                                 if (!_epgScrollController
@@ -886,24 +916,29 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                   return;
                                                 }
                                                 const itemHeight = 78.0;
-                                                final target = currentIndex *
-                                                    itemHeight;
-                                                final maxScroll = _epgScrollController
-                                                    .position.maxScrollExtent;
+                                                final target =
+                                                    currentIndex * itemHeight;
+                                                final maxScroll =
+                                                    _epgScrollController
+                                                        .position
+                                                        .maxScrollExtent;
                                                 _epgScrollController.jumpTo(
                                                     target.clamp(
                                                         0.0, maxScroll));
                                               });
 
                                               return ListView.builder(
-                                                controller: _epgScrollController,
+                                                controller:
+                                                    _epgScrollController,
                                                 itemCount: processed.length,
                                                 itemBuilder: (context, index) {
-                                                  final entry = processed[index];
+                                                  final entry =
+                                                      processed[index];
                                                   final epg = entry.epg;
                                                   final startDt =
                                                       entry.window.start;
-                                                  final endDt = entry.window.end;
+                                                  final endDt =
+                                                      entry.window.end;
 
                                                   // Data usually comes as base64 or raw strings
                                                   final title =
@@ -964,7 +999,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                     child: Row(
                                                       children: [
                                                         SizedBox(
-                                                          width: isPhone ? 70 : 100,
+                                                          width: isPhone
+                                                              ? 70
+                                                              : 100,
                                                           child: Text(
                                                             timeDisplay,
                                                             style: TextStyle(
@@ -1009,7 +1046,8 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                           .normal,
                                                                 ),
                                                               ),
-                                                              if (desc.isNotEmpty && !isPhone)
+                                                              if (desc.isNotEmpty &&
+                                                                  !isPhone)
                                                                 Padding(
                                                                   padding:
                                                                       const EdgeInsets

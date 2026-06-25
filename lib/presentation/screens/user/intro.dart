@@ -131,81 +131,106 @@ class IntroScreen extends StatelessWidget {
     final fontSize = isLarge ? 17.0 : 13.0;
     final iconSize = isLarge ? 28.0 : 22.0;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _SmOption(
-                icon: Icons.playlist_play_rounded,
-                label: "LOGIN WITH M3U FILE OR URL",
-                highlighted: true,
-                onTap: () => Get.toNamed(screenRegisterM3u),
-                autoFocus: false,
-                height: buttonHeight,
-                fontSize: fontSize,
-                iconSize: iconSize,
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: FocusTraversalOrder(
+                  order: const NumericFocusOrder(1),
+                  child: _SmOption(
+                    icon: Icons.playlist_play_rounded,
+                    label: "LOGIN WITH M3U FILE OR URL",
+                    highlighted: true,
+                    onTap: () => Get.toNamed(screenRegisterM3u),
+                    autoFocus: true,
+                    height: buttonHeight,
+                    fontSize: fontSize,
+                    iconSize: iconSize,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: isLarge ? 24 : 16),
-            Expanded(
-              child: _SmOption(
-                icon: Icons.api_rounded,
-                label: "LOGIN WITH XTREAM CODES API",
-                onTap: () => Get.toNamed(screenRegister),
-                autoFocus: true,
-                height: buttonHeight,
-                fontSize: fontSize,
-                iconSize: iconSize,
+              SizedBox(width: isLarge ? 24 : 16),
+              Expanded(
+                child: FocusTraversalOrder(
+                  order: const NumericFocusOrder(2),
+                  child: _SmOption(
+                    icon: Icons.api_rounded,
+                    label: "LOGIN WITH XTREAM CODES API",
+                    onTap: () => Get.toNamed(screenRegister),
+                    autoFocus: false,
+                    height: buttonHeight,
+                    fontSize: fontSize,
+                    iconSize: iconSize,
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: isLarge ? 24 : 16),
-        // Centered "List Users" button
-        Center(
-          child: SizedBox(
-            width: isLarge ? 360 : 300,
-            child: _SmOption(
-              icon: Icons.people_alt_rounded,
-              label: "LIST USERS",
-              onTap: () => Get.toNamed(screenProfiles),
-              height: buttonHeight,
-              fontSize: fontSize,
-              iconSize: iconSize,
+            ],
+          ),
+          SizedBox(height: isLarge ? 24 : 16),
+          // Centered "List Users" button
+          Center(
+            child: SizedBox(
+              width: isLarge ? 360 : 300,
+              child: FocusTraversalOrder(
+                order: const NumericFocusOrder(3),
+                child: _SmOption(
+                  icon: Icons.people_alt_rounded,
+                  label: "LIST USERS",
+                  onTap: () => Get.toNamed(screenProfiles),
+                  height: buttonHeight,
+                  fontSize: fontSize,
+                  iconSize: iconSize,
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // ── Narrow: stacked list ──
   Widget _buildNarrowLayout(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _SmOption(
-          icon: Icons.playlist_play_rounded,
-          label: "LOAD YOUR PLAYLIST OR FILE/URL",
-          highlighted: true,
-          onTap: () => Get.toNamed(screenRegisterM3u),
-        ),
-        const SizedBox(height: 12),
-        _SmOption(
-          icon: Icons.api_rounded,
-          label: "LOGIN WITH XTREAM CODES API",
-          onTap: () => Get.toNamed(screenRegister),
-          autoFocus: true,
-        ),
-        const SizedBox(height: 12),
-        _SmOption(
-          icon: Icons.people_alt_rounded,
-          label: "LIST USERS",
-          onTap: () => Get.toNamed(screenProfiles),
-        ),
-      ],
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(1),
+            child: _SmOption(
+              icon: Icons.playlist_play_rounded,
+              label: "LOAD YOUR PLAYLIST OR FILE/URL",
+              highlighted: true,
+              onTap: () => Get.toNamed(screenRegisterM3u),
+              autoFocus: true,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(2),
+            child: _SmOption(
+              icon: Icons.api_rounded,
+              label: "LOGIN WITH XTREAM CODES API",
+              onTap: () => Get.toNamed(screenRegister),
+              autoFocus: false,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(3),
+            child: _SmOption(
+              icon: Icons.people_alt_rounded,
+              label: "LIST USERS",
+              onTap: () => Get.toNamed(screenProfiles),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -247,6 +272,15 @@ class _SmOptionState extends State<_SmOption> {
     return Focus(
       autofocus: widget.autoFocus,
       onFocusChange: (focused) => setState(() => _isFocused = focused),
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.select ||
+             event.logicalKey == LogicalKeyboardKey.enter)) {
+          widget.onTap();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
