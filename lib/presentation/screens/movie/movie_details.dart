@@ -39,6 +39,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+
     return Scaffold(
       backgroundColor: kColorBackground,
       body: Stack(
@@ -97,10 +99,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               children: [
                 // Left Side - Info
                 Expanded(
-                  flex: 5,
+                  flex: isPhone ? 2 : 4,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isPhone ? 2.w : 4.w,
+                        vertical: isPhone ? 2.h : 3.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -125,7 +128,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         // Title
                         Text(
                           _movie.name ?? "Unknown Movie",
-                          style: Get.textTheme.displaySmall?.copyWith(
+                          style: (isPhone
+                                  ? Get.textTheme.headlineSmall
+                                  : Get.textTheme.displaySmall)
+                              ?.copyWith(
                             fontWeight: FontWeight.bold,
                             height: 1.1,
                           ),
@@ -136,33 +142,36 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         const SizedBox(height: 16),
 
                         // Meta Row
-                        _buildMetaRow(),
+                        _buildMetaRow(isPhone),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: isPhone ? 10 : 20),
 
                         // Plot
                         if (_detail?.info?.plot != null)
                           Text(
                             _detail!.info!.plot!,
-                            style: Get.textTheme.bodyLarge?.copyWith(
+                            style: (isPhone
+                                    ? Get.textTheme.bodyMedium
+                                    : Get.textTheme.bodyLarge)
+                                ?.copyWith(
                               color: Colors.white70,
                               height: 1.5,
                             ),
-                            maxLines: 4,
+                            maxLines: isPhone ? 3 : 4,
                             overflow: TextOverflow.ellipsis,
                           ),
 
                         const SizedBox(height: 24),
 
                         // Action Buttons
-                        _buildActionButtons(),
+                        _buildActionButtons(isPhone),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: isPhone ? 10 : 20),
 
                         // Cast/Director Info
                         if (_detail?.info?.director != null ||
                             _detail?.info?.cast != null)
-                          _buildCredits(),
+                          _buildCredits(isPhone),
 
                         const Spacer(),
                       ],
@@ -172,9 +181,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
                 // Right Side - Poster
                 Expanded(
-                  flex: 3,
+                  flex: isPhone ? 1 : 3,
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4.w, top: 3.h, bottom: 3.h),
+                    padding: EdgeInsets.only(
+                        right: isPhone ? 2.w : 4.w,
+                        top: isPhone ? 2.h : 3.h,
+                        bottom: isPhone ? 2.h : 3.h),
                     child: _buildPoster(),
                   ),
                 ),
@@ -198,16 +210,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildMetaRow() {
+  Widget _buildMetaRow(bool isPhone) {
     return Wrap(
-      spacing: 16,
+      spacing: isPhone ? 8 : 16,
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         // Rating
         if (_movie.rating != null && _movie.rating!.isNotEmpty)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+                horizontal: isPhone ? 6 : 10, vertical: isPhone ? 2 : 4),
             decoration: BoxDecoration(
               color: Colors.amber,
               borderRadius: BorderRadius.circular(4),
@@ -215,14 +228,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.black, size: 16),
-                const SizedBox(width: 4),
+                Icon(Icons.star, color: Colors.black, size: isPhone ? 14 : 16),
+                SizedBox(width: isPhone ? 2 : 4),
                 Text(
                   _movie.rating!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: isPhone ? 11 : 13,
                   ),
                 ),
               ],
@@ -233,20 +246,24 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         if (_detail?.info?.releaseDate != null)
           Text(
             _detail!.info!.releaseDate!.split('-').first,
-            style: Get.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+            style:
+                (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                    ?.copyWith(color: Colors.white70),
           ),
 
         // Genre
         if (_detail?.info?.genre != null)
           Text(
             _detail!.info!.genre!.split(',').first.trim(),
-            style: Get.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+            style:
+                (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                    ?.copyWith(color: Colors.white70),
           ),
       ],
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(bool isPhone) {
     return Row(
       children: [
         // Play Button
@@ -286,22 +303,23 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 autoFocus: true,
                 scale: 1.02,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: isPhone ? 10 : 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.play_arrow, color: Colors.black, size: 28),
-                      SizedBox(width: 8),
+                      Icon(Icons.play_arrow,
+                          color: Colors.black, size: isPhone ? 20 : 28),
+                      SizedBox(width: isPhone ? 4 : 8),
                       Text(
                         "Play",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: isPhone ? 14 : 16,
                         ),
                       ),
                     ],
@@ -325,23 +343,44 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   context
                       .read<FavoritesCubit>()
                       .removeMovie(_movie.streamId ?? "");
+                  Get.snackbar("Removed", "Removed from My List",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.grey.shade900,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 1));
                 } else {
                   context.read<FavoritesCubit>().addMovie(_movie);
+                  Get.snackbar("Added", "Added to My List",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.grey.shade900,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 1));
                 }
               },
               scale: 1.05,
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isPhone ? 16 : 24, vertical: isPhone ? 10 : 12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: isFav
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.white30),
                 ),
-                child: Icon(
-                  isFav ? Icons.favorite : Icons.favorite_border,
-                  color: isFav ? Colors.blue : Colors.white,
-                  size: 24,
-                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(
+                    isFav ? Icons.check : Icons.add,
+                    color: isFav ? Colors.black : Colors.white,
+                    size: isPhone ? 16 : 20,
+                  ),
+                  SizedBox(width: isPhone ? 4 : 8),
+                  Text(isFav ? "My List" : "Add Favorite",
+                      style: TextStyle(
+                          color: isFav ? Colors.black : Colors.white,
+                          fontSize: isPhone ? 12 : 14,
+                          fontWeight: FontWeight.bold))
+                ]),
               ),
             );
           },
@@ -352,7 +391,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildCredits() {
+  Widget _buildCredits(bool isPhone) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -360,30 +399,38 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           RichText(
             text: TextSpan(
               text: "Director: ",
-              style: Get.textTheme.bodyMedium?.copyWith(color: Colors.white54),
+              style:
+                  (isPhone ? Get.textTheme.bodySmall : Get.textTheme.bodyMedium)
+                      ?.copyWith(color: Colors.white54),
               children: [
                 TextSpan(
                   text: _detail!.info!.director!,
-                  style:
-                      Get.textTheme.bodyMedium?.copyWith(color: Colors.white),
+                  style: (isPhone
+                          ? Get.textTheme.bodySmall
+                          : Get.textTheme.bodyMedium)
+                      ?.copyWith(color: Colors.white),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: isPhone ? 4 : 8),
         ],
         if (_detail?.info?.cast != null)
           RichText(
             text: TextSpan(
               text: "Cast: ",
-              style: Get.textTheme.bodyMedium?.copyWith(color: Colors.white54),
+              style:
+                  (isPhone ? Get.textTheme.bodySmall : Get.textTheme.bodyMedium)
+                      ?.copyWith(color: Colors.white54),
               children: [
                 TextSpan(
                   text: _detail!.info!.cast!.length > 100
                       ? "${_detail!.info!.cast!.substring(0, 100)}..."
                       : _detail!.info!.cast!,
-                  style:
-                      Get.textTheme.bodyMedium?.copyWith(color: Colors.white),
+                  style: (isPhone
+                          ? Get.textTheme.bodySmall
+                          : Get.textTheme.bodyMedium)
+                      ?.copyWith(color: Colors.white),
                 ),
               ],
             ),

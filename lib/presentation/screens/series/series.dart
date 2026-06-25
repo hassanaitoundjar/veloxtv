@@ -127,6 +127,10 @@ class _SeriesScreenState extends State<SeriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final gridPadding = isPhone ? 8.0 : 16.0;
+    final gridSpacing = isPhone ? 8.0 : 16.0;
+
     return Scaffold(
       body: Container(
         width: 100.w,
@@ -168,7 +172,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
                           },
                         );
                       }
-                      return const SizedBox(width: 200);
+                      return SizedBox(width: isPhone ? 35.w : 25.w);
                     },
                   ),
 
@@ -200,13 +204,13 @@ class _SeriesScreenState extends State<SeriesScreen> {
                           }
 
                           return GridView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.all(gridPadding),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: getGridColumns(context).toInt(),
                               childAspectRatio: 0.65, // Taller poster ratio
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
+                              crossAxisSpacing: gridSpacing,
+                              mainAxisSpacing: gridSpacing,
                             ),
                             itemCount: seriesList.length,
                             itemBuilder: (context, index) {
@@ -263,13 +267,12 @@ class _SeriesScreenState extends State<SeriesScreen> {
                                             serie.rating!.isNotEmpty &&
                                             serie.rating != "0")
                                           Positioned(
-                                            top: 8,
-                                            right: 8,
+                                            top: isPhone ? 4 : 8,
+                                            right: isPhone ? 4 : 8,
                                             child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: isPhone ? 4 : 6,
+                                                  vertical: isPhone ? 2 : 2),
                                               decoration: BoxDecoration(
                                                 color: Colors.amber,
                                                 borderRadius:
@@ -278,15 +281,17 @@ class _SeriesScreenState extends State<SeriesScreen> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(Icons.star,
-                                                      size: 10,
+                                                  Icon(Icons.star,
+                                                      size: isPhone ? 8 : 10,
                                                       color: Colors.black),
-                                                  const SizedBox(width: 2),
+                                                  SizedBox(
+                                                      width: isPhone ? 2 : 2),
                                                   Text(
                                                     serie.rating!,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       color: Colors.black,
-                                                      fontSize: 10,
+                                                      fontSize:
+                                                          isPhone ? 8 : 10,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -298,8 +303,8 @@ class _SeriesScreenState extends State<SeriesScreen> {
 
                                         // Favorite Heart (Top Left)
                                         Positioned(
-                                          top: 8,
-                                          left: 8,
+                                          top: isPhone ? 4 : 8,
+                                          left: isPhone ? 4 : 8,
                                           child: GestureDetector(
                                             onTap: () {
                                               if (isFav) {
@@ -332,8 +337,9 @@ class _SeriesScreenState extends State<SeriesScreen> {
                                               }
                                             },
                                             child: Container(
-                                              padding: const EdgeInsets.all(4),
-                                              decoration: BoxDecoration(
+                                              padding: EdgeInsets.all(
+                                                  isPhone ? 4 : 4),
+                                              decoration: const BoxDecoration(
                                                 color: Colors.black45,
                                                 shape: BoxShape.circle,
                                               ),
@@ -344,7 +350,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
                                                 color: isFav
                                                     ? Colors.blue
                                                     : Colors.white70,
-                                                size: 18,
+                                                size: isPhone ? 14 : 18,
                                               ),
                                             ),
                                           ),
@@ -352,15 +358,16 @@ class _SeriesScreenState extends State<SeriesScreen> {
 
                                         // Title at Bottom
                                         Positioned(
-                                          bottom: 8,
-                                          left: 8,
-                                          right: 8,
+                                          bottom: isPhone ? 4 : 8,
+                                          left: isPhone ? 4 : 8,
+                                          right: isPhone ? 4 : 8,
                                           child: Text(
                                             serie.name ?? "",
                                             style: Get.textTheme.bodySmall
                                                 ?.copyWith(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white,
+                                              fontSize: isPhone ? 10 : null,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,

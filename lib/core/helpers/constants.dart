@@ -1,6 +1,6 @@
 part of 'helpers.dart';
 
-const String kAppName = "Velo Player";
+const String kAppName = "Velo Player Pro";
 
 // Asset Paths
 const String kIconSplash = "assets/images/logo.png";

@@ -6,6 +6,7 @@ class MediaKitPlayerScreen extends StatefulWidget {
   final bool isLive;
   final Player? player;
   final VideoController? videoController;
+
   /// If provided (e.g. from Search), the player will load this channel's
   /// category in the side panel so the list is always contextually correct.
   final ChannelLive? channel;
@@ -132,8 +133,8 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.read<ChannelsBloc>().add(
-            GetChannels(widget.channel!.categoryId!, TypeCategory.live),
-          );
+                GetChannels(widget.channel!.categoryId!, TypeCategory.live),
+              );
         }
       });
     }
@@ -382,13 +383,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
             return KeyEventResult.handled;
           } else if (key == LogicalKeyboardKey.mediaFastForward) {
             _onInteraction();
-            _player.seek(
-                _player.state.position + const Duration(seconds: 10));
+            _player.seek(_player.state.position + const Duration(seconds: 10));
             return KeyEventResult.handled;
           } else if (key == LogicalKeyboardKey.mediaRewind) {
             _onInteraction();
-            _player.seek(
-                _player.state.position - const Duration(seconds: 10));
+            _player.seek(_player.state.position - const Duration(seconds: 10));
             return KeyEventResult.handled;
           }
 
@@ -402,25 +401,23 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
             }
             if (!widget.isLive) {
               if (key == LogicalKeyboardKey.arrowLeft) {
-                _player.seek(
-                    _player.state.position - const Duration(seconds: 10));
+                _player
+                    .seek(_player.state.position - const Duration(seconds: 10));
                 _onInteraction();
                 return KeyEventResult.handled;
               } else if (key == LogicalKeyboardKey.arrowRight) {
-                _player.seek(
-                    _player.state.position + const Duration(seconds: 10));
+                _player
+                    .seek(_player.state.position + const Duration(seconds: 10));
                 _onInteraction();
                 return KeyEventResult.handled;
               }
             }
             if (key == LogicalKeyboardKey.arrowUp) {
-              _player.setVolume(
-                  (_player.state.volume + 5.0).clamp(0.0, 100.0));
+              _player.setVolume((_player.state.volume + 5.0).clamp(0.0, 100.0));
               _onInteraction();
               return KeyEventResult.handled;
             } else if (key == LogicalKeyboardKey.arrowDown) {
-              _player.setVolume(
-                  (_player.state.volume - 5.0).clamp(0.0, 100.0));
+              _player.setVolume((_player.state.volume - 5.0).clamp(0.0, 100.0));
               _onInteraction();
               return KeyEventResult.handled;
             }
@@ -461,8 +458,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.data == true) {
                       return const Center(
-                        child:
-                            CircularProgressIndicator(color: kColorPrimary),
+                        child: CircularProgressIndicator(color: kColorPrimary),
                       );
                     }
                     return const SizedBox();
@@ -645,8 +641,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       StreamBuilder<bool>(
                                         stream: _player.stream.playing,
                                         builder: (context, snapshot) {
-                                          final playing =
-                                              snapshot.data ?? true;
+                                          final playing = snapshot.data ?? true;
                                           return _PlayerControlButton(
                                             focusNode: _playPauseFocusNode,
                                             icon: playing
@@ -726,8 +721,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       if (!widget.isLive)
                                         _PlayerControlButton(
                                           icon: Icons.audiotrack,
-                                          onPressed:
-                                              _showAudioTracksSelection,
+                                          onPressed: _showAudioTracksSelection,
                                           onFocusChange: (_) =>
                                               _onInteraction(),
                                         ),
@@ -744,8 +738,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                             ? Icons.aspect_ratio
                                             : Icons.fit_screen,
                                         onPressed: _toggleAspectRatio,
-                                        onFocusChange: (_) =>
-                                            _onInteraction(),
+                                        onFocusChange: (_) => _onInteraction(),
                                       ),
                                     ],
                                   ),
@@ -811,8 +804,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                         : 350,
                     child: SafeArea(
                       right: false,
-                      child: _buildSideChannelList(
-                          isPhone: context.isPhone),
+                      child: _buildSideChannelList(isPhone: context.isPhone),
                     ),
                   ),
               ],
@@ -830,11 +822,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       final base =
           "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/${channel.streamId}";
       final link = format == 'default' ? base : "$base.$format";
-      
+
       setState(() {
         _currentTitle = channel.name ?? "Live TV";
       });
-      
+
       await _player.open(
         Media(
           link,
@@ -870,14 +862,13 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                       "Channels",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isPhone ? 15 : 18,
+                        fontSize: isPhone ? 12 : 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     IconButton(
                       icon: Icon(Icons.close,
-                          color: Colors.white,
-                          size: isPhone ? 20 : 24),
+                          color: Colors.white, size: isPhone ? 20 : 24),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       onPressed: () {
@@ -894,17 +885,14 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                 child: BlocBuilder<ChannelsBloc, ChannelsState>(
                   builder: (context, state) {
                     if (state is ChannelsLoading) {
-                      return const Center(
-                          child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (state is ChannelsSuccess &&
                         state.type == TypeCategory.live) {
-                      final channels =
-                          List<ChannelLive>.from(state.channels);
+                      final channels = List<ChannelLive>.from(state.channels);
                       if (channels.isEmpty) {
                         return const Center(
                             child: Text("No channels",
-                                style:
-                                    TextStyle(color: Colors.white54)));
+                                style: TextStyle(color: Colors.white54)));
                       }
                       return ListView.builder(
                         itemCount: channels.length,
@@ -934,16 +922,14 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       padding: const EdgeInsets.all(2),
                                       decoration: BoxDecoration(
                                         color: Colors.white10,
-                                        borderRadius:
-                                            BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: CachedNetworkImage(
-                                        imageUrl:
-                                            channel.streamIcon ?? "",
-                                        errorWidget: (_, __, ___) =>
-                                            Icon(Icons.tv,
-                                                color: Colors.white24,
-                                                size: isPhone ? 16 : 20),
+                                        imageUrl: channel.streamIcon ?? "",
+                                        errorWidget: (_, __, ___) => Icon(
+                                            Icons.tv,
+                                            color: Colors.white24,
+                                            size: isPhone ? 16 : 20),
                                         placeholder: (_, __) =>
                                             const CircularProgressIndicator(
                                                 strokeWidth: 1.5),
@@ -983,8 +969,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                     }
                     return const Center(
                         child: Text("Select Category",
-                            style:
-                                TextStyle(color: Colors.white54)));
+                            style: TextStyle(color: Colors.white54)));
                   },
                 ),
               ),

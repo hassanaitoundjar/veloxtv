@@ -78,6 +78,8 @@ class _AppBarLiveState extends State<AppBarLive> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+
     return Container(
       height: 80,
       padding: EdgeInsets.symmetric(horizontal: 2.w),
@@ -139,26 +141,31 @@ class _AppBarLiveState extends State<AppBarLive> {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.25),
+                        maxWidth: MediaQuery.of(context).size.width *
+                            (isPhone ? 0.35 : 0.25)),
                     child: Container(
-                      height: 40,
-                      margin: const EdgeInsets.only(right: 16),
+                      height: isPhone ? 32 : 40,
+                      margin: EdgeInsets.only(right: isPhone ? 8 : 16),
                       decoration: BoxDecoration(
                         color: kColorCardLight,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(isPhone ? 16 : 20),
                       ),
                       child: TextField(
                         focusNode: _internalFocusNode,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: isPhone ? 12 : 14),
                         decoration: InputDecoration(
                           hintText: "Search...",
-                          hintStyle: const TextStyle(color: Colors.white38),
-                          prefixIcon: const Icon(Icons.search,
-                              color: Colors.white54, size: 20),
+                          hintStyle: TextStyle(
+                              color: Colors.white38,
+                              fontSize: isPhone ? 11 : 13),
+                          prefixIcon: Icon(Icons.search,
+                              color: Colors.white54, size: isPhone ? 16 : 20),
                           border: InputBorder.none,
                           filled: false,
+                          isDense: true,
                           contentPadding:
-                              const EdgeInsets.symmetric(vertical: 10),
+                              EdgeInsets.symmetric(vertical: isPhone ? 7 : 10),
                         ),
                         onChanged: widget.onSearch,
                       ),
@@ -167,9 +174,14 @@ class _AppBarLiveState extends State<AppBarLive> {
                   if (widget.onTimeline != null)
                     IconButton(
                       onPressed: widget.onTimeline,
-                      icon:
-                          const Icon(Icons.view_timeline, color: Colors.white),
+                      icon: Icon(Icons.view_timeline,
+                          color: Colors.white, size: isPhone ? 18 : 24),
                       tooltip: "Timeline View",
+                      padding: EdgeInsets.all(isPhone ? 4 : 8),
+                      constraints: BoxConstraints(
+                        minWidth: isPhone ? 28 : 40,
+                        minHeight: isPhone ? 28 : 40,
+                      ),
                     ),
                 ],
               ),
@@ -246,34 +258,39 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
             .toList();
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final catFontSize =
-        screenWidth < 600 ? 14.0 : (screenWidth < 1200 ? 16.0 : 18.0);
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final catFontSize = isPhone ? 11.0 : (screenWidth < 1200 ? 14.0 : 16.0);
 
     return Container(
-      width: 25.w,
+      width: isPhone ? 35.w : 25.w,
       color: kColorPanel,
       child: Column(
         children: [
           // Category Search Field
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.fromLTRB(isPhone ? 8 : 12, isPhone ? 6 : 10,
+                isPhone ? 8 : 12, isPhone ? 4 : 8),
             child: Container(
-              height: 40,
+              height: isPhone ? 30 : 40,
               decoration: BoxDecoration(
                 color: kColorCardLight,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(isPhone ? 16 : 8),
               ),
               child: TextField(
                 focusNode: _searchFocusNode,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                decoration: const InputDecoration(
+                style:
+                    TextStyle(color: Colors.white, fontSize: isPhone ? 11 : 14),
+                decoration: InputDecoration(
                   hintText: "Search By Categories...",
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
-                  prefixIcon:
-                      Icon(Icons.search, color: Colors.white54, size: 18),
+                  hintStyle: TextStyle(
+                      color: Colors.white38, fontSize: isPhone ? 10 : 13),
+                  prefixIcon: Icon(Icons.search,
+                      color: Colors.white54, size: isPhone ? 14 : 18),
                   border: InputBorder.none,
                   filled: false,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  isDense: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: isPhone ? 6 : 10),
                 ),
                 onChanged: (val) => setState(() => _catSearch = val),
               ),
@@ -292,8 +309,9 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                   onTap: () => widget.onSelect(cat),
                   scale: 1.02,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 20),
+                    padding: EdgeInsets.symmetric(
+                        vertical: isPhone ? 8 : 16,
+                        horizontal: isPhone ? 10 : 20),
                     color: isSelected
                         ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green,
                             kColorPrimary.blue, 0.2)
@@ -317,8 +335,8 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                           ),
                         ),
                         if (isSelected)
-                          const Icon(Icons.arrow_forward_ios,
-                              size: 14, color: kColorPrimary),
+                          Icon(Icons.arrow_forward_ios,
+                              size: isPhone ? 10 : 14, color: kColorPrimary),
                       ],
                     ),
                   ),
@@ -445,8 +463,7 @@ class ListChannelItem extends StatelessWidget {
       scale: 1.02,
       child: Container(
         constraints: BoxConstraints(
-          minHeight: isPhone ? 30 : 60,
-          maxHeight: isPhone ? 50 : 40, // 👈 أضف الارتفاع الأقصى
+          minHeight: isPhone ? 40 : 60,
         ),
         margin: const EdgeInsets.only(bottom: 4),
         padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),

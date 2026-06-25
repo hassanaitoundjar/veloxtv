@@ -135,6 +135,10 @@ class _MoviesScreenState extends State<MoviesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final gridPadding = isPhone ? 8.0 : 16.0;
+    final gridSpacing = isPhone ? 8.0 : 16.0;
+
     return Scaffold(
       body: Container(
         width: 100.w,
@@ -142,9 +146,6 @@ class _MoviesScreenState extends State<MoviesScreen> {
         decoration: kDecorBackground,
         child: Column(
           children: [
-            // Global Header (Same as Live TV)
-            // Global Header (Same as Live TV)
-            // Global Header (Same as Live TV)
             AppBarLive(
               onSearch: (val) {
                 setState(() => _searchQuery = val.toLowerCase());
@@ -191,7 +192,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                           },
                         );
                       }
-                      return const SizedBox(width: 200);
+                      return SizedBox(width: isPhone ? 35.w : 25.w);
                     },
                   ),
 
@@ -204,8 +205,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                               child: CircularProgressIndicator());
                         } else if (state is ChannelsSuccess &&
                             state.type == TypeCategory.movies) {
-                          var movies =
-                              List<ChannelMovie>.from(state.channels);
+                          var movies = List<ChannelMovie>.from(state.channels);
 
                           // Apply search filter
                           if (_searchQuery.isNotEmpty) {
@@ -223,13 +223,13 @@ class _MoviesScreenState extends State<MoviesScreen> {
                           }
 
                           return GridView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.all(gridPadding),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: getGridColumns(context).toInt(),
                               childAspectRatio: 0.65,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
+                              crossAxisSpacing: gridSpacing,
+                              mainAxisSpacing: gridSpacing,
                             ),
                             itemCount: movies.length,
                             itemBuilder: (context, index) {
@@ -281,13 +281,12 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                         if (movie.rating != null &&
                                             movie.rating!.isNotEmpty)
                                           Positioned(
-                                            top: 8,
-                                            right: 8,
+                                            top: isPhone ? 4 : 8,
+                                            right: isPhone ? 4 : 8,
                                             child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: isPhone ? 4 : 8,
+                                                  vertical: isPhone ? 2 : 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.black87,
                                                 borderRadius:
@@ -296,15 +295,17 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(Icons.star,
+                                                  Icon(Icons.star,
                                                       color: Colors.amber,
-                                                      size: 14),
-                                                  const SizedBox(width: 4),
+                                                      size: isPhone ? 10 : 14),
+                                                  SizedBox(
+                                                      width: isPhone ? 2 : 4),
                                                   Text(
                                                     movie.rating!,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         color: Colors.white,
-                                                        fontSize: 12,
+                                                        fontSize:
+                                                            isPhone ? 10 : 12,
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
@@ -314,8 +315,8 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                           ),
                                         // Favorite Heart (Top Left)
                                         Positioned(
-                                          top: 8,
-                                          left: 8,
+                                          top: isPhone ? 4 : 8,
+                                          left: isPhone ? 4 : 8,
                                           child: GestureDetector(
                                             onTap: () {
                                               if (isFav) {
@@ -330,8 +331,9 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                               }
                                             },
                                             child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
+                                              padding: EdgeInsets.all(
+                                                  isPhone ? 4 : 6),
+                                              decoration: const BoxDecoration(
                                                 color: Colors.black54,
                                                 shape: BoxShape.circle,
                                               ),
@@ -342,22 +344,23 @@ class _MoviesScreenState extends State<MoviesScreen> {
                                                 color: isFav
                                                     ? Colors.blue
                                                     : Colors.white70,
-                                                size: 18,
+                                                size: isPhone ? 14 : 18,
                                               ),
                                             ),
                                           ),
                                         ),
                                         // Title at Bottom
                                         Positioned(
-                                          bottom: 8,
-                                          left: 8,
-                                          right: 8,
+                                          bottom: isPhone ? 4 : 8,
+                                          left: isPhone ? 4 : 8,
+                                          right: isPhone ? 4 : 8,
                                           child: Text(
                                             movie.name ?? "",
                                             style: Get.textTheme.bodySmall
                                                 ?.copyWith(
                                               fontWeight: FontWeight.normal,
                                               color: Colors.white,
+                                              fontSize: isPhone ? 10 : null,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,

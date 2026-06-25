@@ -188,8 +188,8 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                           (index) {
                             final time = _startTime.add(Duration(hours: index));
                             final now = DateTime.now();
-                            final isNow = now.hour == time.hour &&
-                                now.day == time.day;
+                            final isNow =
+                                now.hour == time.hour && now.day == time.day;
                             // Show the date above the time the first time
                             // we cross into a new day so users can tell
                             // when a slot belongs to a different day.
@@ -256,127 +256,130 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                   }
 
                   return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // LEFT: Channels List
-                  SizedBox(
-                    width: 250,
-                    child: ListView.builder(
-                      controller: _verticalController1,
-                      itemCount: filteredChannels.length,
-                      physics: const ClampingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final channel = filteredChannels[index];
-                        final isSelected = channel.streamId.toString() ==
-                            widget.initialChannelId;
-                        return Container(
-                          height: _channelHeight,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? kColorPrimary.withOpacity(0.2)
-                                : (index % 2 == 0
-                                    ? Colors.white.withOpacity(0.02)
-                                    : Colors.transparent),
-                            border: const Border(
-                                bottom: BorderSide(color: Colors.white10)),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  color: Colors.black26,
-                                ),
-                                child: channel.streamIcon != null &&
-                                        channel.streamIcon!.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        // Use cached image
-                                        imageUrl: channel.streamIcon!,
-                                        fit: BoxFit.contain,
-                                        errorWidget: (_, __, ___) => const Icon(
-                                            Icons.tv,
-                                            color: Colors.white54,
-                                            size: 20),
-                                      )
-                                    : const Icon(Icons.tv,
-                                        color: Colors.white54, size: 20),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  channel.name ?? "Channel ${index + 1}",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal),
-                                ),
-                              ),
-                              // Play Button
-                              IconButton(
-                                icon: const Icon(Icons.play_circle_outline,
-                                    color: Colors.white70, size: 20),
-                                onPressed: () {
-                                  // Navigate to player
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (_) {
-                                    final format =
-                                        GetStorage().read('stream_format') ??
-                                            'default';
-                                    final base =
-                                        "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}";
-                                    final link = format == 'default' ? base : "$base.$format";
-                                    return MediaKitPlayerScreen(
-                                      link: link,
-                                      title: channel.name ?? "Live Stream",
-                                      isLive: true,
-                                      channel: channel,
-                                    );
-                                  }));
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  // RIGHT: EPG Grid
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _horizontalController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const ClampingScrollPhysics(),
-                      child: SizedBox(
-                        width: _hourWidth *
-                            _endTime.difference(_startTime).inHours,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // LEFT: Channels List
+                      SizedBox(
+                        width: 250,
                         child: ListView.builder(
-                          controller: _verticalController2,
+                          controller: _verticalController1,
                           itemCount: filteredChannels.length,
                           physics: const ClampingScrollPhysics(),
                           itemBuilder: (context, index) {
                             final channel = filteredChannels[index];
-                            return EpgRowItem(
-                              key: ValueKey(channel.streamId),
-                              channel: channel,
-                              startTime: _startTime,
-                              hourWidth: _hourWidth,
+                            final isSelected = channel.streamId.toString() ==
+                                widget.initialChannelId;
+                            return Container(
                               height: _channelHeight,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? kColorPrimary.withOpacity(0.2)
+                                    : (index % 2 == 0
+                                        ? Colors.white.withOpacity(0.02)
+                                        : Colors.transparent),
+                                border: const Border(
+                                    bottom: BorderSide(color: Colors.white10)),
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: Colors.black26,
+                                    ),
+                                    child: channel.streamIcon != null &&
+                                            channel.streamIcon!.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            // Use cached image
+                                            imageUrl: channel.streamIcon!,
+                                            fit: BoxFit.contain,
+                                            errorWidget: (_, __, ___) =>
+                                                const Icon(Icons.tv,
+                                                    color: Colors.white54,
+                                                    size: 20),
+                                          )
+                                        : const Icon(Icons.tv,
+                                            color: Colors.white54, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      channel.name ?? "Channel ${index + 1}",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal),
+                                    ),
+                                  ),
+                                  // Play Button
+                                  IconButton(
+                                    icon: const Icon(Icons.play_circle_outline,
+                                        color: Colors.white70, size: 20),
+                                    onPressed: () {
+                                      // Navigate to player
+                                      Navigator.pushReplacement(context,
+                                          MaterialPageRoute(builder: (_) {
+                                        final format = GetStorage()
+                                                .read('stream_format') ??
+                                            'default';
+                                        final base =
+                                            "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}";
+                                        final link = format == 'default'
+                                            ? base
+                                            : "$base.$format";
+                                        return MediaKitPlayerScreen(
+                                          link: link,
+                                          title: channel.name ?? "Live Stream",
+                                          isLive: true,
+                                          channel: channel,
+                                        );
+                                      }));
+                                    },
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              );
+
+                      // RIGHT: EPG Grid
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: _horizontalController,
+                          scrollDirection: Axis.horizontal,
+                          physics: const ClampingScrollPhysics(),
+                          child: SizedBox(
+                            width: _hourWidth *
+                                _endTime.difference(_startTime).inHours,
+                            child: ListView.builder(
+                              controller: _verticalController2,
+                              itemCount: filteredChannels.length,
+                              physics: const ClampingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                final channel = filteredChannels[index];
+                                return EpgRowItem(
+                                  key: ValueKey(channel.streamId),
+                                  channel: channel,
+                                  startTime: _startTime,
+                                  hourWidth: _hourWidth,
+                                  height: _channelHeight,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -505,7 +508,7 @@ class _EpgRowItemState extends State<EpgRowItem> {
                 bottom: 0,
                 child: GestureDetector(
                   onTap: () {
-                      showDialog(
+                    showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
                         backgroundColor: kColorCard,
@@ -548,10 +551,13 @@ class _EpgRowItemState extends State<EpgRowItem> {
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (_) {
                                 final format =
-                                    GetStorage().read('stream_format') ?? 'default';
+                                    GetStorage().read('stream_format') ??
+                                        'default';
                                 final base =
                                     "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${widget.channel.streamId}";
-                                final link = format == 'default' ? base : "$base.$format";
+                                final link = format == 'default'
+                                    ? base
+                                    : "$base.$format";
                                 return MediaKitPlayerScreen(
                                   link: link,
                                   title: widget.channel.name ?? "Live Stream",

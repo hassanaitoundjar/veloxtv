@@ -86,6 +86,9 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final gaugeSize = isPhone ? 150.0 : 200.0;
+
     return Scaffold(
       backgroundColor: kColorBackground,
       appBar: AppBar(
@@ -99,10 +102,10 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
       ),
       body: Center(
         child: Container(
-          width: 80.w,
+          width: isPhone ? 90.w : 80.w,
           constraints: BoxConstraints(maxHeight: 80.h),
           decoration: kDecorCard,
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isPhone ? 16 : 24),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -110,17 +113,17 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
               children: [
                 // Gauge / Circle
                 SizedBox(
-                  width: 200,
-                  height: 200,
+                  width: gaugeSize,
+                  height: gaugeSize,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       SizedBox(
-                        width: 200,
-                        height: 200,
+                        width: gaugeSize,
+                        height: gaugeSize,
                         child: CircularProgressIndicator(
                           value: _progress,
-                          strokeWidth: 15,
+                          strokeWidth: isPhone ? 10 : 15,
                           backgroundColor: Colors.white10,
                           color: _getSpeedColor(_speedMbps),
                         ),
@@ -131,40 +134,43 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
                           Text(
                             _speedMbps.toStringAsFixed(1),
                             style: GoogleFonts.outfit(
-                              fontSize: 36,
+                              fontSize: isPhone ? 28 : 36,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
-                          const Text(
+                          Text(
                             "Mbps",
-                            style:
-                                TextStyle(color: Colors.white54, fontSize: 14),
+                            style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: isPhone ? 12 : 14),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: isPhone ? 16 : 24),
 
                 Text(
                   _status,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  style: TextStyle(
+                      color: Colors.white70, fontSize: isPhone ? 14 : 16),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: isPhone ? 16 : 24),
 
                 if (!_isTesting)
                   ElevatedButton.icon(
                     onPressed: _startTest,
-                    icon: const Icon(Icons.speed),
+                    icon: Icon(Icons.speed, size: isPhone ? 18 : 24),
                     label: const Text("Start Speed Test"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kColorPrimary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      textStyle: const TextStyle(fontSize: 16),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isPhone ? 16 : 24,
+                          vertical: isPhone ? 10 : 12),
+                      textStyle: TextStyle(fontSize: isPhone ? 14 : 16),
                     ),
                   )
                 else
@@ -176,13 +182,14 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
                         _status = "Cancelled";
                       });
                     },
-                    icon: const Icon(Icons.stop),
+                    icon: Icon(Icons.stop, size: isPhone ? 18 : 24),
                     label: const Text("Stop Test"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kColorError,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      textStyle: const TextStyle(fontSize: 16),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isPhone ? 16 : 24,
+                          vertical: isPhone ? 10 : 12),
+                      textStyle: TextStyle(fontSize: isPhone ? 14 : 16),
                     ),
                   ),
               ],

@@ -62,23 +62,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 SizedBox(height: topMargin),
+                // Header Row: back | icon + title
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Get.back(),
-                    ),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: isPhone ? 8.0 : 16.0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Get.back(),
+                      ),
+                      SizedBox(width: isPhone ? 6 : 12),
+                      Icon(Icons.settings,
+                          size: iconSize * 0.75, color: Colors.white),
+                      SizedBox(width: isPhone ? 6 : 10),
+                      Text(
+                        "Settings",
+                        style: isPhone
+                            ? Get.textTheme.titleMedium
+                            : Get.textTheme.titleLarge,
+                      ),
+                    ],
                   ),
                 ),
-                Icon(Icons.settings, size: iconSize, color: Colors.white),
-                const SizedBox(height: 10),
-                Text("Settings",
-                    style: isPhone
-                        ? Get.textTheme.titleMedium
-                        : Get.textTheme.titleLarge),
-                SizedBox(height: isPhone ? 20 : 40),
+                SizedBox(height: isPhone ? 12 : 30),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _titles.length,
@@ -450,7 +457,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await onSelected(value);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal: isPhone ? 10 : 16, vertical: isPhone ? 7 : 10),
         decoration: BoxDecoration(
           color: isSelected ? kColorPrimary : Colors.white10,
           borderRadius: BorderRadius.circular(8),
@@ -465,9 +473,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
                 color: Colors.white,
-                size: 20),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: Colors.white)),
+                size: isPhone ? 16 : 20),
+            SizedBox(width: isPhone ? 6 : 8),
+            Text(label,
+                style: TextStyle(
+                    color: Colors.white, fontSize: isPhone ? 12 : 14)),
           ],
         ),
       ),
@@ -508,133 +518,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Date & Time", style: titleStyle),
-          const SizedBox(height: 8),
+          SizedBox(height: isPhone ? 6 : 8),
           Text(
             "Configure how dates and times are displayed across the app, "
             "and pick the timezone used for the TV guide.",
             style:
-                Get.textTheme.bodyMedium?.copyWith(color: kColorTextSecondary),
+                (isPhone ? Get.textTheme.bodySmall : Get.textTheme.bodyMedium)
+                    ?.copyWith(color: kColorTextSecondary),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isPhone ? 14 : 20),
 
           // ----- Time format -----
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(padding),
             decoration: kDecorCard,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Time Format",
-                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
-                const SizedBox(height: 6),
+                Text("Time Format",
+                    style: TextStyle(
+                        color: kColorTextSecondary,
+                        fontSize: isPhone ? 13 : 16)),
+                SizedBox(height: isPhone ? 4 : 6),
                 Text(
                   "Preview: ${DateTimeFormatService.formatTime(sample)}",
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(
+                      color: Colors.white70, fontSize: isPhone ? 12 : 14),
                 ),
-                const SizedBox(height: 16),
-                Row(
+                SizedBox(height: isPhone ? 10 : 16),
+                Wrap(
+                  spacing: isPhone ? 8 : 20,
+                  runSpacing: isPhone ? 8 : 12,
                   children: [
                     _buildEnumRadioOption<TimeFormatOption>(
                         "24-hour (21:30)", TimeFormatOption.h24, timeFormat,
                         (v) async {
                       await DateTimeFormatService.setTimeFormat(v);
                       setState(() {});
-                    }),
-                    const SizedBox(width: 20),
+                    }, isPhone: isPhone),
                     _buildEnumRadioOption<TimeFormatOption>(
                         "12-hour (09:30 PM)", TimeFormatOption.h12, timeFormat,
                         (v) async {
                       await DateTimeFormatService.setTimeFormat(v);
                       setState(() {});
-                    }),
+                    }, isPhone: isPhone),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
 
-          // ----- Date format -----
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: kDecorCard,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Date Format",
-                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
-                const SizedBox(height: 6),
-                Text(
-                  "Preview: ${DateTimeFormatService.formatDate(sample)}",
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    _buildEnumRadioOption<DateFormatOption>(
-                        "Jun 6, 2026", DateFormatOption.mmmDY, dateFormat,
-                        (v) async {
-                      await DateTimeFormatService.setDateFormat(v);
-                      setState(() {});
-                    }),
-                    _buildEnumRadioOption<DateFormatOption>(
-                        "06/06/2026", DateFormatOption.ddmmyyyy, dateFormat,
-                        (v) async {
-                      await DateTimeFormatService.setDateFormat(v);
-                      setState(() {});
-                    }),
-                    _buildEnumRadioOption<DateFormatOption>(
-                        "2026-06-06", DateFormatOption.yyyymmdd, dateFormat,
-                        (v) async {
-                      await DateTimeFormatService.setDateFormat(v);
-                      setState(() {});
-                    }),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          SizedBox(height: isPhone ? 12 : 20),
 
           // ----- Timezone -----
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(padding),
             decoration: kDecorCard,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Timezone",
-                    style: TextStyle(color: kColorTextSecondary, fontSize: 16)),
-                const SizedBox(height: 6),
+                Text("Timezone",
+                    style: TextStyle(
+                        color: kColorTextSecondary,
+                        fontSize: isPhone ? 13 : 16)),
+                SizedBox(height: isPhone ? 4 : 6),
                 Text(
                   "Active: ${activeTz.label} (${activeTz.offsetLabel})",
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(
+                      color: Colors.white, fontSize: isPhone ? 12 : 14),
                 ),
                 if (tzMode == TimezoneMode.auto)
                   Text(
                     "Detected from device: "
                     "${DateTimeFormatService.detectDeviceTimezone().label}",
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    style: TextStyle(
+                        color: Colors.white54, fontSize: isPhone ? 11 : 12),
                   ),
-                const SizedBox(height: 16),
-                Row(
+                SizedBox(height: isPhone ? 10 : 16),
+                Wrap(
+                  spacing: isPhone ? 8 : 20,
+                  runSpacing: isPhone ? 8 : 12,
                   children: [
                     _buildEnumRadioOption<TimezoneMode>(
                         "Auto-detect", TimezoneMode.auto, tzMode, (v) async {
                       await DateTimeFormatService.setTimezoneMode(v);
                       setState(() {});
-                    }),
-                    const SizedBox(width: 20),
+                    }, isPhone: isPhone),
                     _buildEnumRadioOption<TimezoneMode>(
                         "Manual", TimezoneMode.manual, tzMode, (v) async {
                       await DateTimeFormatService.setTimezoneMode(v);
                       setState(() {});
-                    }),
+                    }, isPhone: isPhone),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: isPhone ? 10 : 16),
                 Row(
                   children: [
                     Expanded(
@@ -662,13 +639,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: kColorCardLight,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 14),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: isPhone ? 12 : 16,
+                                  vertical: isPhone ? 10 : 14),
                             ),
-                            icon: const Icon(Icons.public,
-                                color: kColorPrimary, size: 18),
-                            label: const Text("Auto-detect by country",
-                                style: TextStyle(color: Colors.white)),
+                            icon: Icon(Icons.public,
+                                color: kColorPrimary, size: isPhone ? 16 : 18),
+                            label: Text("Auto-detect by country",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isPhone ? 12 : 14)),
                             onPressed: detectCountry,
                           ),
                         );
@@ -677,7 +657,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 if (tzMode == TimezoneMode.manual) ...[
-                  const SizedBox(height: 20),
+                  SizedBox(height: isPhone ? 12 : 20),
                   _buildTimezoneDropdown(manualTzId),
                 ],
               ],

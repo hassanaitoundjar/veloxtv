@@ -40,6 +40,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = MediaQuery.of(context).size.shortestSide < 600;
+
     return Scaffold(
       backgroundColor: kColorBackground,
       body: Stack(
@@ -98,10 +100,11 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
               children: [
                 // Left Side - Info & Episodes
                 Expanded(
-                  flex: 5,
+                  flex: isPhone ? 1 : 5,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isPhone ? 2.w : 4.w,
+                        vertical: isPhone ? 2.h : 3.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -126,7 +129,10 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                         // Title
                         Text(
                           _serie.name ?? "Unknown Series",
-                          style: Get.textTheme.displaySmall?.copyWith(
+                          style: (isPhone
+                                  ? Get.textTheme.headlineSmall
+                                  : Get.textTheme.displaySmall)
+                              ?.copyWith(
                             fontWeight: FontWeight.bold,
                             height: 1.1,
                           ),
@@ -137,35 +143,38 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                         const SizedBox(height: 16),
 
                         // Meta Row
-                        _buildMetaRow(),
+                        _buildMetaRow(isPhone),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: isPhone ? 10 : 20),
 
                         // Plot
                         if (_details?.info?.plot != null)
                           Text(
                             _details!.info!.plot!,
-                            style: Get.textTheme.bodyLarge?.copyWith(
+                            style: (isPhone
+                                    ? Get.textTheme.bodyMedium
+                                    : Get.textTheme.bodyLarge)
+                                ?.copyWith(
                               color: Colors.white70,
                               height: 1.5,
                             ),
-                            maxLines: 3,
+                            maxLines: isPhone ? 3 : 3,
                             overflow: TextOverflow.ellipsis,
                           ),
 
                         const SizedBox(height: 24),
 
                         // Action Buttons
-                        _buildActionButtons(),
+                        _buildActionButtons(isPhone),
 
-                        const SizedBox(height: 24),
+                        SizedBox(height: isPhone ? 12 : 24),
 
                         // Seasons & Episodes Area
                         if (!_isLoading &&
                             _details != null &&
                             _details!.seasons != null)
                           Expanded(
-                            child: _buildSeasonsAndEpisodes(),
+                            child: _buildSeasonsAndEpisodes(isPhone),
                           )
                         else
                           const Spacer(),
@@ -176,9 +185,12 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
                 // Right Side - Poster
                 Expanded(
-                  flex: 3,
+                  flex: isPhone ? 1 : 3,
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4.w, top: 3.h, bottom: 3.h),
+                    padding: EdgeInsets.only(
+                        right: isPhone ? 2.w : 4.w,
+                        top: isPhone ? 2.h : 3.h,
+                        bottom: isPhone ? 2.h : 3.h),
                     child: _buildPoster(),
                   ),
                 ),
@@ -202,9 +214,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
     );
   }
 
-  Widget _buildMetaRow() {
+  Widget _buildMetaRow(bool isPhone) {
     return Wrap(
-      spacing: 16,
+      spacing: isPhone ? 8 : 16,
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
@@ -213,7 +225,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
             _serie.rating!.isNotEmpty &&
             _serie.rating != "0")
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+                horizontal: isPhone ? 6 : 10, vertical: isPhone ? 2 : 4),
             decoration: BoxDecoration(
               color: Colors.amber,
               borderRadius: BorderRadius.circular(4),
@@ -221,14 +234,14 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.black, size: 16),
-                const SizedBox(width: 4),
+                Icon(Icons.star, color: Colors.black, size: isPhone ? 14 : 16),
+                SizedBox(width: isPhone ? 2 : 4),
                 Text(
                   _serie.rating!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: isPhone ? 11 : 13,
                   ),
                 ),
               ],
@@ -239,14 +252,18 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
         if (_details?.info?.releaseDate != null)
           Text(
             _details!.info!.releaseDate!.split('-').first,
-            style: Get.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+            style:
+                (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                    ?.copyWith(color: Colors.white70),
           ),
 
         // Genre
         if (_details?.info?.genre != null)
           Text(
             _details!.info!.genre!.split(',').first.trim(),
-            style: Get.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+            style:
+                (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                    ?.copyWith(color: Colors.white70),
           ),
       ],
     );
@@ -255,77 +272,83 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
   Episode? _getFirstEpisode() {
     if (_details?.seasons == null || _details!.seasons!.isEmpty) return null;
     if (_details?.episodes == null) return null;
-    
+
     final firstSeason = _details!.seasons!.first;
     final seasonNum = firstSeason.seasonNumber.toString();
     final episodes = _details!.episodes?[seasonNum];
-    
+
     if (episodes != null && episodes.isNotEmpty) {
       return episodes.first;
     }
     return null;
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(bool isPhone) {
     final firstEpisode = _getFirstEpisode();
 
     return Row(
       children: [
         // Watch Now Button
         if (firstEpisode != null)
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is! AuthSuccess) return const SizedBox();
-              final userAuth = state.user;
+          Expanded(
+            flex: 2,
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is! AuthSuccess) return const SizedBox();
+                final userAuth = state.user;
 
-              return FocusableCard(
-                onTap: () {
-                  final link =
-                      "${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${firstEpisode.id}.${firstEpisode.containerExtension}";
+                return FocusableCard(
+                  onTap: () {
+                    final link =
+                        "${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${firstEpisode.id}.${firstEpisode.containerExtension}";
 
-                  Get.to(() => MediaKitPlayerScreen(
-                            link: link,
-                            title: firstEpisode.title ?? "",
-                          ))!
-                      .then((slider) {
-                    if (slider != null &&
-                        slider is List &&
-                        slider.isNotEmpty) {
-                      var model = WatchingModel(
-                        sliderValue: slider[0],
-                        durationStrm: slider[1] ?? 0.0,
-                        stream: link,
-                        title: firstEpisode.title ?? "",
-                        image: _details!.info!.cover ?? "",
-                        streamId: firstEpisode.id.toString(),
-                      );
-                      context.read<WatchingCubit>().addSerie(model);
-                    }
-                  });
-                },
-                scale: 1.05,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: kColorPrimary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                    Icon(
-                      Icons.play_arrow,
+                    Get.to(() => MediaKitPlayerScreen(
+                              link: link,
+                              title: firstEpisode.title ?? "",
+                            ))!
+                        .then((slider) {
+                      if (slider != null &&
+                          slider is List &&
+                          slider.isNotEmpty) {
+                        var model = WatchingModel(
+                          sliderValue: slider[0],
+                          durationStrm: slider[1] ?? 0.0,
+                          stream: link,
+                          title: firstEpisode.title ?? "",
+                          image: _details!.info!.cover ?? "",
+                          streamId: firstEpisode.id.toString(),
+                        );
+                        context.read<WatchingCubit>().addSerie(model);
+                      }
+                    });
+                  },
+                  scale: 1.05,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: isPhone ? 10 : 14),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      size: 20,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    SizedBox(width: 8),
-                    Text("Watch Now",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold))
-                  ]),
-                ),
-              );
-            },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.play_arrow,
+                          color: Colors.black,
+                          size: isPhone ? 20 : 28,
+                        ),
+                        SizedBox(width: isPhone ? 4 : 8),
+                        Text("Watch Now",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: isPhone ? 14 : 16,
+                                fontWeight: FontWeight.bold))
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         if (firstEpisode != null) const SizedBox(width: 12),
 
@@ -356,10 +379,12 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
               },
               scale: 1.05,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isPhone ? 16 : 24, vertical: isPhone ? 10 : 12),
                 decoration: BoxDecoration(
-                  color: isFav ? Colors.white : Colors.white.withValues(alpha: 0.1),
+                  color: isFav
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.white30),
                 ),
@@ -367,41 +392,24 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   Icon(
                     isFav ? Icons.check : Icons.add,
                     color: isFav ? Colors.black : Colors.white,
-                    size: 20,
+                    size: isPhone ? 16 : 20,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: isPhone ? 4 : 8),
                   Text(isFav ? "My List" : "Add Favorite",
                       style: TextStyle(
                           color: isFav ? Colors.black : Colors.white,
+                          fontSize: isPhone ? 12 : 14,
                           fontWeight: FontWeight.bold))
                 ]),
               ),
             );
           },
         ),
-
-        const SizedBox(width: 12),
-
-        // Share/More Button
-        FocusableCard(
-          onTap: () {},
-          scale: 1.05,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white30),
-            ),
-            child:
-                const Icon(Icons.share_outlined, color: Colors.white, size: 20),
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildSeasonsAndEpisodes() {
+  Widget _buildSeasonsAndEpisodes(bool isPhone) {
     return Container(
       decoration: BoxDecoration(
           color: kColorCardLight.withValues(alpha: 0.5),
@@ -410,17 +418,20 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
         children: [
           // Seasons List (Left Panel of the box)
           Container(
-            width: 180,
+            width: isPhone ? 100 : 180,
             decoration: BoxDecoration(
                 border: Border(
-                    right: BorderSide(color: Colors.white.withValues(alpha: 0.1)))),
+                    right: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.1)))),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(isPhone ? 8 : 16),
                   child: Text("Seasons",
-                      style: Get.textTheme.titleSmall
+                      style: (isPhone
+                              ? Get.textTheme.bodyMedium
+                              : Get.textTheme.titleSmall)
                           ?.copyWith(color: kColorTextSecondary)),
                 ),
                 Expanded(
@@ -434,8 +445,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                       onTap: () => setState(() => _selectedSeasonIndex = index),
                       scale: 1.0,
                       child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isPhone ? 8 : 16,
+                              vertical: isPhone ? 8 : 12),
                           color: isSelected
                               ? Colors.white.withValues(alpha: 0.1)
                               : Colors.transparent,
@@ -449,14 +461,16 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                       color: isSelected
                                           ? Colors.white
                                           : Colors.white60,
+                                      fontSize: isPhone ? 12 : 14,
                                       fontWeight: isSelected
                                           ? FontWeight.bold
                                           : FontWeight.normal),
                                 ),
                               ),
                               if (isSelected)
-                                const Icon(Icons.arrow_right,
-                                    color: kColorPrimary, size: 16)
+                                Icon(Icons.arrow_right,
+                                    color: kColorPrimary,
+                                    size: isPhone ? 14 : 16)
                             ],
                           )),
                     );
@@ -472,10 +486,13 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                      isPhone ? 8 : 16, isPhone ? 8 : 16, isPhone ? 8 : 16, 8),
                   child: Text(
                       "${_details!.seasons![_selectedSeasonIndex].name} Episodes",
-                      style: Get.textTheme.titleSmall
+                      style: (isPhone
+                              ? Get.textTheme.bodyMedium
+                              : Get.textTheme.titleSmall)
                           ?.copyWith(color: kColorTextSecondary)),
                 ),
                 Expanded(
@@ -486,8 +503,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                               .toString()]
                           ?.length ??
                       0,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isPhone ? 8 : 16, vertical: 0),
                   itemBuilder: (context, index) {
                     final seasonNum = _details!
                         .seasons![_selectedSeasonIndex].seasonNumber
@@ -529,26 +546,27 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           },
                           scale: 1.01,
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: isPhone ? 4 : 8),
+                            padding: EdgeInsets.all(isPhone ? 8 : 12),
                             decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
-                                const Icon(Icons.play_circle_outline,
-                                    color: Colors.white70, size: 28),
-                                const SizedBox(width: 12),
+                                Icon(Icons.play_circle_outline,
+                                    color: Colors.white70,
+                                    size: isPhone ? 20 : 28),
+                                SizedBox(width: isPhone ? 8 : 12),
                                 Expanded(
                                     child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       _cleanEpisodeTitle(
-                                          episode.title,
-                                          episode.episodeNum),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                          episode.title, episode.episodeNum),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: isPhone ? 12 : 14),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -556,8 +574,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                         episode.duration! > 0)
                                       Text(
                                         "${(episode.duration! / 60).toStringAsFixed(0)} min",
-                                        style: const TextStyle(
-                                            fontSize: 12,
+                                        style: TextStyle(
+                                            fontSize: isPhone ? 10 : 12,
                                             color: Colors.white54),
                                       )
                                   ],
@@ -593,12 +611,20 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
     if (serieName.isNotEmpty && cleaned.startsWith(serieName)) {
       // Remove the series name prefix and any separator like " - "
-      cleaned = cleaned.substring(serieName.length).replaceFirst(RegExp(r'^\s*[-–]\s*'), '').trim();
+      cleaned = cleaned
+          .substring(serieName.length)
+          .replaceFirst(RegExp(r'^\s*[-–]\s*'), '')
+          .trim();
     }
 
     // If what's left is just an episode code like "S01E03" or empty, show "Ep N"
-    if (cleaned.isEmpty || RegExp(r'^S\d+E\d+$', caseSensitive: false).hasMatch(cleaned)) {
-      return episodeNum != null ? "Ep $episodeNum" : cleaned.isEmpty ? epLabel : cleaned;
+    if (cleaned.isEmpty ||
+        RegExp(r'^S\d+E\d+$', caseSensitive: false).hasMatch(cleaned)) {
+      return episodeNum != null
+          ? "Ep $episodeNum"
+          : cleaned.isEmpty
+              ? epLabel
+              : cleaned;
     }
 
     return cleaned;

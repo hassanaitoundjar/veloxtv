@@ -1,7 +1,5 @@
 part of 'helpers.dart';
 
-// IPTV Smarters Pro Style Color Palette
-
 // Primary Backgrounds
 const Color kColorBackground = Color(0xFF0F172A); // Deep Dark Blue
 const Color kColorBackgroundDark = Color(0xFF0A0F1A); // Darker variant
