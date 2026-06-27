@@ -20,6 +20,7 @@ class Info {
   final String? director;
   final String? genre;
   final String? releaseDate;
+  final String? duration;
 
   Info({
     this.movieImage,
@@ -30,6 +31,7 @@ class Info {
     this.director,
     this.genre,
     this.releaseDate,
+    this.duration,
   });
 
   Info.fromJson(Map<String, dynamic> json)
@@ -40,7 +42,8 @@ class Info {
         rating = json['rating']?.toString(),
         director = json['director']?.toString(),
         genre = json['genre']?.toString(),
-        releaseDate = json['releasedate']?.toString();
+        releaseDate = json['releasedate']?.toString(),
+        duration = json['duration']?.toString();
 }
 
 class MovieData {

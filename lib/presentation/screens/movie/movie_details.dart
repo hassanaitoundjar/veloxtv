@@ -251,6 +251,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ?.copyWith(color: Colors.white70),
           ),
 
+        // Duration
+        if (_detail?.info?.duration != null &&
+            _detail!.info!.duration!.isNotEmpty)
+          Text(
+            _detail!.info!.duration!.contains(':')
+                ? _detail!.info!.duration!
+                : '${_detail!.info!.duration} min',
+            style:
+                (isPhone ? Get.textTheme.bodyMedium : Get.textTheme.bodyLarge)
+                    ?.copyWith(color: Colors.white70),
+          ),
+
         // Genre
         if (_detail?.info?.genre != null)
           Text(
@@ -315,7 +327,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           color: Colors.black, size: isPhone ? 20 : 28),
                       SizedBox(width: isPhone ? 4 : 8),
                       Text(
-                        "Play",
+                        "Watch Now",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
