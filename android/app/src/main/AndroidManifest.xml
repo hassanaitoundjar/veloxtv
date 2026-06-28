@@ -9,7 +9,7 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
 
     <application
-        android:label="Smarters Pro"
+        android:label="Velo Player"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner">

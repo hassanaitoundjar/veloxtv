@@ -4,10 +4,6 @@ const String kAppName = "Velo Player Pro";
 
 // Asset Paths
 const String kIconSplash = "assets/images/logo.png";
-const String kIconLive = "assets/images/live-stream.png";
-const String kIconMovies = "assets/images/film-reel.png";
-const String kIconSeries = "assets/images/clapperboard.png";
-const String kImageIntro = "assets/images/intro.png";
 
 // Screen Size Constants
 const double kSizeTablet = 950;

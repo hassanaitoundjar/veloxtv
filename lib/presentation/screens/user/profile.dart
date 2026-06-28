@@ -8,8 +8,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocus = FocusNode();
   final FocusNode _addFocus = FocusNode();
 
   @override
@@ -20,17 +18,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _searchFocus.dispose();
     _addFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape =
-        MediaQuery.of(context).size.width > MediaQuery.of(context).size.height;
+    final size = MediaQuery.of(context).size;
     final isTvDevice = isTv(context);
+    final isWide = size.width >= 650;
+    
+    // Determine grid columns based on screen width
+    int crossAxisCount = 1;
+    if (size.width >= 1200) {
+      crossAxisCount = 4;
+    } else if (size.width >= 900) {
+      crossAxisCount = 3;
+    } else if (size.width >= 600) {
+      crossAxisCount = 2;
+    }
 
     return Scaffold(
       backgroundColor: kColorBackground,
@@ -41,27 +47,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("User Profiles",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                int count = 0;
-                if (state is AuthProfilesLoaded) {
-                  count = state.profiles.length;
-                }
-                return Text("$count profiles",
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7), fontSize: 12));
-              },
+        title: const Text("LIST USERS",
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold)),
+        centerTitle: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: FocusableCard(
+              focusNode: _addFocus,
+              onTap: () => Get.toNamed(screenIntro),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: kColorPrimary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  children: const [
+                    Icon(Icons.add, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Text("ADD USER", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -88,85 +103,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
             activeUser = state.activeUser;
           }
 
-          final filter = _searchController.text.toLowerCase();
-          final filteredProfiles = profiles.where((p) {
-            final name = p.userInfo?.username ?? p.name ?? "Unknown";
-            return name.toLowerCase().contains(filter);
-          }).toList();
+          if (profiles.isEmpty) {
+            return Center(
+              child: Text(
+                "No profiles found. Please add a user.",
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 18),
+              ),
+            );
+          }
 
           return Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: isTvDevice || isLandscape ? 10.w : 16.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  focusNode: _searchFocus,
-                  onChanged: (v) => setState(() {}),
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: "Search profiles...",
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                    prefixIcon: Icon(Icons.search,
-                        color: Colors.white.withValues(alpha: 0.5)),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: kColorPrimary),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Profiles List
-                Expanded(
-                  child: filteredProfiles.isEmpty
-                      ? Center(
-                          child: Text("No profiles found",
-                              style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5))))
-                      : ListView.separated(
-                          itemCount: filteredProfiles.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final user = filteredProfiles[index];
-                            final isActive = _isActive(user, activeUser);
-                            return _buildProfileCard(
-                                context, user, isActive, index == 0);
-                          },
-                        ),
-                ),
-              ],
+                horizontal: isTvDevice || isWide ? 40.0 : 16.0, vertical: 20.0),
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                mainAxisExtent: 100, // Fixed height for the Row layout
+              ),
+              itemCount: profiles.length,
+              itemBuilder: (context, index) {
+                final user = profiles[index];
+                final isActive = _isActive(user, activeUser);
+                return _buildProfileCard(context, user, isActive, index == 0);
+              },
             ),
           );
         },
-      ),
-      floatingActionButton: SizedBox(
-        height: 50,
-        width: 140,
-        child: FloatingActionButton.extended(
-          focusNode: _addFocus,
-          onPressed: () => Get.toNamed(screenIntro),
-          backgroundColor: kColorPrimary,
-          label: const Text("Add New",
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          icon: const Icon(Icons.add, color: Colors.white),
-        ),
       ),
     );
   }
 
   bool _isActive(UserModel user, UserModel? activeUser) {
     if (activeUser == null) return false;
-    // Simple comparison logic matching LocaleApi
     if (user.connectionType != activeUser.connectionType) return false;
     if (user.connectionType == ConnectionType.xtream) {
       return user.userInfo?.username == activeUser.userInfo?.username &&
@@ -186,66 +156,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return FocusableCard(
       autoFocus: autoFocus,
       onTap: () => context.read<AuthBloc>().add(AuthSwitchProfile(user)),
+      scale: 1.05,
       child: Container(
         decoration: BoxDecoration(
-          color: isActive
-              ? kColorPrimary.withValues(alpha: 0.2)
-              : Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(12),
+          color: kColorCard,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: isActive ? kColorPrimary : Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          leading: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-                  border: Border.all(
-                  color: isActive
-                      ? kColorPrimary
-                      : Colors.white.withValues(alpha: 0.3)),
-              color: isActive ? kColorPrimary : Colors.transparent,
-            ),
-            child: Icon(Icons.person_outline,
-                color:
-                    isActive ? Colors.white : Colors.white.withValues(alpha: 0.7)),
+            color: isActive ? kColorPrimary : Colors.white.withValues(alpha: 0.1),
+            width: isActive ? 2 : 1,
           ),
-          title: Text(name,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-          subtitle: Text(sub,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: kColorPrimary.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
             children: [
-              if (isActive)
-                Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: kColorPrimary,
-                    borderRadius: BorderRadius.circular(6),
+              // Avatar Icon
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: isActive ? kColorPrimary : Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.3),
+                    width: 2,
                   ),
-                  child: const Text("ACTIVE",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold)),
                 ),
-              IconButton(
-                icon: Container(
+                child: Icon(
+                  Icons.person,
+                  size: 32,
+                  color: isActive ? Colors.white : Colors.white70,
+                ),
+              ),
+              const SizedBox(width: 16),
+              
+              // Content (Name, Sub, and Active Tag)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isActive)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: kColorPrimary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          "ACTIVE",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      sub,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              
+              // Delete Icon
+              InkWell(
+                onTap: () => _confirmDelete(context, user),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.red.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete_outline,
-                      color: Colors.red, size: 20),
+                  child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
                 ),
-                onPressed: () => _confirmDelete(context, user),
               ),
             ],
           ),
@@ -273,16 +293,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// Extension to safely get name/url/etc since UserModel structure might vary
 extension UserDisplay on UserModel {
   String? get name {
-    // Use m3uUrl as name fallback if no other name?
-    // Actually M3U login had 'name' param but model has m3uUrl.
-    // Waiting for user.dart verification.
-    // In AuthBloc: repo.loginM3u(event.name, event.m3uUrl) -> returns UserModel.
-    // Existing UserModel doesn't have 'name' field, it has 'userInfo.username'.
-    // So for M3U, we probably stored 'name' in userInfo.username?
-    // Let's check user.dart again or assume userInfo.username is used.
     return userInfo?.username;
   }
 }

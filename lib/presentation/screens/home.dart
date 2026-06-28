@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: kColorPrimary.withOpacity(0.15),
+                      color: kColorPrimary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.lock_outline,
@@ -79,10 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: kColorPrimary.withOpacity(0.12),
+                      color: kColorPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                          color: kColorPrimary.withOpacity(0.4), width: 1),
+                          color: kColorPrimary.withValues(alpha: 0.4), width: 1),
                     ),
                     child: Text(
                       '0  0  0  0',
@@ -406,12 +406,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCount(dynamic state) {
-    if (state is LiveCatySuccess)
+    if (state is LiveCatySuccess) {
       return Text("${state.categories.length} Categories", style: _countStyle);
-    if (state is MovieCatySuccess)
+    }
+    if (state is MovieCatySuccess) {
       return Text("${state.categories.length} Movies", style: _countStyle);
-    if (state is SeriesCatySuccess)
+    }
+    if (state is SeriesCatySuccess) {
       return Text("${state.categories.length} Series", style: _countStyle);
+    }
     return Text("Loading...", style: _countStyle);
   }
 
@@ -433,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
       scale: 1.05,
       child: Container(
         decoration: kDecorCard.copyWith(
-          color: kColorCardLight.withOpacity(0.1),
+          color: kColorCardLight.withValues(alpha: 0.1),
           border: Border.all(color: Colors.white10),
         ),
         child: Column(

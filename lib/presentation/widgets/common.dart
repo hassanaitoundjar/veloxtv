@@ -6,6 +6,7 @@ class FocusableCard extends StatefulWidget {
   final VoidCallback? onFocus;
   final double scale;
   final bool autoFocus;
+  final FocusNode? focusNode;
 
   const FocusableCard({
     super.key,
@@ -14,6 +15,7 @@ class FocusableCard extends StatefulWidget {
     this.onFocus,
     this.scale = 1.05,
     this.autoFocus = false,
+    this.focusNode,
   });
 
   @override
@@ -26,6 +28,7 @@ class _FocusableCardState extends State<FocusableCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      focusNode: widget.focusNode,
       onTap: widget.onTap,
       onFocusChange: (value) {
         setState(() {
@@ -82,7 +85,7 @@ class SkeletonLoader extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: kColorCardLight.withOpacity(0.3),
+        color: kColorCardLight.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(radius),
       ),
     );

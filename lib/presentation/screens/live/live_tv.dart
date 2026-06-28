@@ -135,9 +135,11 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
       _selectedCategory = category;
     });
     // Trigger the ChannelsBloc to load live channels for this category
-    context
-        .read<ChannelsBloc>()
-        .add(GetChannels(category.categoryId!, TypeCategory.live));
+    if (category.categoryId != "favorites") {
+      context
+          .read<ChannelsBloc>()
+          .add(GetChannels(category.categoryId!, TypeCategory.live));
+    }
   }
 
   /// Checks if a name contains keywords that should trigger parental controls
@@ -211,6 +213,50 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
     } else {
       onAllowed();
     }
+  }
+
+  Widget _buildChannelsList(List<ChannelLive> channels, FavoritesState favState) {
+    final favoriteIds = favState is FavoritesSuccess
+        ? favState.live.map((c) => c.streamId).toSet()
+        : <String?>{};
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: channels.length,
+      itemBuilder: (context, index) {
+        final channel = channels[index];
+        final isFav = favoriteIds.contains(channel.streamId);
+        return ListChannelItem(
+          title: channel.name ?? "Channel ${channel.num}",
+          icon: channel.streamIcon,
+          isFocus: _selectedChannel?.streamId == channel.streamId,
+          isFavorite: isFav,
+          onFavoriteToggle: () {
+            if (isFav) {
+              context.read<FavoritesCubit>().removeLive(channel.streamId ?? "");
+            } else {
+              context.read<FavoritesCubit>().addLive(channel);
+            }
+          },
+          onTap: () {
+            _checkChannelAccess(channel, () {
+              if (widget.isPicker) {
+                Get.back(result: channel);
+                return;
+              }
+              setState(() {
+                _selectedChannel = channel;
+                if (channel.streamId != null) {
+                  _epgFuture = IpTvApi.getEPGbyStreamId(channel.streamId!);
+                  _initializePlayer(channel);
+                } else {
+                  _epgFuture = null;
+                }
+              });
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -322,7 +368,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                     color: Colors.white10,
                                     borderRadius: BorderRadius.circular(14),
                                   ),
-                                  child: TextField(
+                                  child: TvTextField(
                                     focusNode: _searchFocusNode,
                                     controller: _searchController,
                                     onChanged: (val) =>
@@ -375,21 +421,31 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                           true)
                                       .toList();
 
-                                  // Auto-select the first category if none is currently selected
-                                  if (_selectedCategory == null &&
-                                      filtered.isNotEmpty) {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      _selectCategory(filtered.first);
-                                    });
-                                  }
+                                  return BlocBuilder<FavoritesCubit, FavoritesState>(
+                                    builder: (context, favState) {
+                                      final int favCount = favState is FavoritesSuccess ? favState.live.length : 0;
+                                      final favoritesCategory = CategoryModel(
+                                        categoryId: "favorites",
+                                        categoryName: "Favorites ($favCount)",
+                                      );
 
-                                  return ListView.builder(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
-                                    itemCount: filtered.length,
-                                    itemBuilder: (context, index) {
-                                      final cat = filtered[index];
+                                      final combinedList = [favoritesCategory, ...filtered];
+
+                                      // Auto-select the first category if none is currently selected
+                                      if (_selectedCategory == null &&
+                                          combinedList.isNotEmpty) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          _selectCategory(combinedList.first);
+                                        });
+                                      }
+
+                                      return ListView.builder(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        itemCount: combinedList.length,
+                                        itemBuilder: (context, index) {
+                                          final cat = combinedList[index];
                                       final isSelected =
                                           _selectedCategory?.categoryId ==
                                               cat.categoryId;
@@ -447,14 +503,16 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                         ),
                                       );
                                     },
-                                  );
-                                } else if (state is LiveCatyFailed) {
-                                  return Center(child: Text(state.message));
-                                }
-                                return const SizedBox();
-                              },
-                            ),
-                          ),
+                                  ); // Closes ListView.builder
+                                },
+                              ); // Closes BlocBuilder<FavoritesCubit>
+                            } else if (state is LiveCatyFailed) {
+                              return Center(child: Text(state.message));
+                            }
+                            return const SizedBox();
+                          },
+                        ), // Closes BlocBuilder<LiveCatyBloc>
+                      ), // Closes Expanded
                         ],
                       ),
                     ),
@@ -487,102 +545,53 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                             ),
                           ),
 
-                          // Channel List Content
                           Expanded(
-                            child: BlocBuilder<ChannelsBloc, ChannelsState>(
-                              builder: (context, state) {
-                                if (_selectedCategory == null) {
-                                  return const Center(
-                                      child: Text("Select a category"));
-                                }
-
-                                if (state is ChannelsLoading) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (state is ChannelsSuccess &&
-                                    state.type == TypeCategory.live) {
-                                  final channels =
-                                      List<ChannelLive>.from(state.channels);
-
-                                  if (channels.isEmpty) {
-                                    return const Center(
-                                        child: Text("No channels"));
-                                  }
-
-                                  // Favorites management using FavoritesCubit
-                                  return BlocBuilder<FavoritesCubit,
-                                      FavoritesState>(
+                            child: _selectedCategory?.categoryId == "favorites"
+                                ? BlocBuilder<FavoritesCubit, FavoritesState>(
                                     builder: (context, favState) {
-                                      // Create a set of favorite stream IDs for efficient lookup
-                                      final favoriteIds =
-                                          favState is FavoritesSuccess
-                                              ? favState.live
-                                                  .map((c) => c.streamId)
-                                                  .toSet()
-                                              : <String?>{};
-                                      return ListView.builder(
-                                        padding: const EdgeInsets.all(8),
-                                        itemCount: channels.length,
-                                        itemBuilder: (context, index) {
-                                          final channel = channels[index];
-                                          final isFav = favoriteIds
-                                              .contains(channel.streamId);
-                                          return ListChannelItem(
-                                            title: channel.name ??
-                                                "Channel ${channel.num}",
-                                            icon: channel.streamIcon,
-                                            // epg: "No Program Info",
-                                            isFocus:
-                                                _selectedChannel?.streamId ==
-                                                    channel.streamId,
-                                            isFavorite: isFav,
-                                            // Handle favorite toggling
-                                            onFavoriteToggle: () {
-                                              if (isFav) {
-                                                context
-                                                    .read<FavoritesCubit>()
-                                                    .removeLive(
-                                                        channel.streamId ?? "");
-                                              } else {
-                                                context
-                                                    .read<FavoritesCubit>()
-                                                    .addLive(channel);
-                                              }
-                                            },
-                                            // Handle channel selection
-                                            onTap: () {
-                                              _checkChannelAccess(channel, () {
-                                                // If in picker mode, return the channel result and close
-                                                if (widget.isPicker) {
-                                                  Get.back(result: channel);
-                                                  return;
-                                                }
-                                                // Update state and load EPG for the selected channel
-                                                setState(() {
-                                                  _selectedChannel = channel;
-                                                  if (channel.streamId !=
-                                                      null) {
-                                                    _epgFuture = IpTvApi
-                                                        .getEPGbyStreamId(
-                                                            channel.streamId!);
-                                                    _initializePlayer(channel);
-                                                  } else {
-                                                    _epgFuture = null;
-                                                  }
-                                                });
-                                              });
-                                            },
-                                          );
-                                        },
-                                      );
+                                      if (favState is FavoritesLoading) {
+                                        return const Center(child: CircularProgressIndicator());
+                                      } else if (favState is FavoritesSuccess) {
+                                        final channels = List<ChannelLive>.from(favState.live);
+                                        if (channels.isEmpty) {
+                                          return const Center(child: Text("No favorite channels"));
+                                        }
+                                        return _buildChannelsList(channels, favState);
+                                      }
+                                      return const SizedBox();
                                     },
-                                  );
-                                } else if (state is ChannelsFailed) {
-                                  return Center(child: Text(state.message));
-                                }
-                                return const SizedBox();
-                              },
-                            ),
+                                  )
+                                : BlocBuilder<ChannelsBloc, ChannelsState>(
+                                    builder: (context, state) {
+                                      if (_selectedCategory == null) {
+                                        return const Center(
+                                            child: Text("Select a category"));
+                                      }
+
+                                      if (state is ChannelsLoading) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (state is ChannelsSuccess &&
+                                          state.type == TypeCategory.live) {
+                                        final channels =
+                                            List<ChannelLive>.from(state.channels);
+
+                                        if (channels.isEmpty) {
+                                          return const Center(
+                                              child: Text("No channels"));
+                                        }
+
+                                        return BlocBuilder<FavoritesCubit, FavoritesState>(
+                                          builder: (context, favState) {
+                                            return _buildChannelsList(channels, favState);
+                                          },
+                                        );
+                                      } else if (state is ChannelsFailed) {
+                                        return Center(child: Text(state.message));
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  ),
                           ),
                         ],
                       ),
@@ -986,7 +995,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                       color: (isCurrent ||
                                                               isNow)
                                                           ? kColorPrimary
-                                                              .withOpacity(0.1)
+                                                              .withValues(alpha: 0.1)
                                                           : null,
                                                       border: const Border(
                                                           bottom: BorderSide(
@@ -1072,9 +1081,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                         ),
                                                         // ARCHIVE ACTIONS (Catch-up / Replay)
                                                         if (hasArchive &&
-                                                            (isPast || isNow) &&
-                                                            startDt != null &&
-                                                            endDt != null)
+                                                            (isPast || isNow))
                                                           IconButton(
                                                             icon: Icon(
                                                               isNow
@@ -1091,9 +1098,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                 () async {
                                                               // Calculate program duration in minutes for the API request
                                                               final durationMin =
-                                                                  endDt!
+                                                                  endDt
                                                                       .difference(
-                                                                          startDt!)
+                                                                          startDt)
                                                                       .inMinutes;
 
                                                               final user =
@@ -1118,7 +1125,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                       _selectedChannel!
                                                                           .streamId!,
                                                                   startTimestamp:
-                                                                      "${startDt!.millisecondsSinceEpoch ~/ 1000}", // Unix seconds
+                                                                      "${startDt.millisecondsSinceEpoch ~/ 1000}", // Unix seconds
                                                                   duration:
                                                                       durationMin
                                                                           .toString(),
@@ -1136,7 +1143,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                 Get.to(() =>
                                                                     MediaKitPlayerScreen(
                                                                       title:
-                                                                          "${title} (Catch-up)",
+                                                                          "$title (Catch-up)",
                                                                       link:
                                                                           catchUpUrl,
                                                                       isLive:

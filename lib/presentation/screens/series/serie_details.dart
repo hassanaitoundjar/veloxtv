@@ -318,6 +318,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           image: _details!.info!.cover ?? "",
                           streamId: firstEpisode.id.toString(),
                         );
+                        if (!context.mounted) return;
                         context.read<WatchingCubit>().addSerie(model);
                       }
                     });
@@ -520,7 +521,6 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
                         return FocusableCard(
                           onTap: () {
-                            if (episode == null) return;
                             final link =
                                 "${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${episode.id}.${episode.containerExtension}";
 
@@ -540,6 +540,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                   image: _details!.info!.cover ?? "",
                                   streamId: episode.id.toString(),
                                 );
+                                if (!context.mounted) return;
                                 context.read<WatchingCubit>().addSerie(model);
                               }
                             });

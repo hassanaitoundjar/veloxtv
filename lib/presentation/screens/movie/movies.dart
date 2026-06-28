@@ -133,6 +133,156 @@ class _MoviesScreenState extends State<MoviesScreen> {
     }
   }
 
+  Widget _buildMoviesGrid(List<ChannelMovie> movies, FavoritesState favState, double gridPadding, double gridSpacing, bool isPhone) {
+    return GridView.builder(
+      padding: EdgeInsets.all(gridPadding),
+      gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: getGridColumns(context).toInt(),
+        childAspectRatio: 0.65,
+        crossAxisSpacing: gridSpacing,
+        mainAxisSpacing: gridSpacing,
+      ),
+      itemCount: movies.length,
+      itemBuilder: (context, index) {
+        final movie = movies[index];
+        final isFav = favState is FavoritesSuccess &&
+            favState.movies.any(
+                (m) => m.streamId == movie.streamId);
+        return FocusableCard(
+          onTap: () {
+            _checkMovieAccess(movie.name, () {
+              Get.toNamed(screenMovieDetails,
+                  arguments: movie);
+            });
+          },
+          scale: 1.05,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Poster Image
+              Container(
+                decoration: kDecorCard.copyWith(
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(
+                        movie.streamIcon ?? ""),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              // Gradient Overlay
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                    stops: const [0.5, 1.0],
+                  ),
+                ),
+              ),
+              // Rating Badge (Top Right)
+              if (movie.rating != null &&
+                  movie.rating!.isNotEmpty)
+                Positioned(
+                  top: isPhone ? 4 : 8,
+                  right: isPhone ? 4 : 8,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isPhone ? 4 : 8,
+                        vertical: isPhone ? 2 : 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black87,
+                      borderRadius:
+                          BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.star,
+                            color: Colors.amber,
+                            size: isPhone ? 10 : 14),
+                        SizedBox(
+                            width: isPhone ? 2 : 4),
+                        Text(
+                          movie.rating!,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize:
+                                  isPhone ? 10 : 12,
+                              fontWeight:
+                                  FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              // Favorite Heart (Top Left)
+              Positioned(
+                top: isPhone ? 4 : 8,
+                left: isPhone ? 4 : 8,
+                child: GestureDetector(
+                  onTap: () {
+                    if (isFav) {
+                      context
+                          .read<FavoritesCubit>()
+                          .removeMovie(
+                              movie.streamId ?? "");
+                    } else {
+                      context
+                          .read<FavoritesCubit>()
+                          .addMovie(movie);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(
+                        isPhone ? 4 : 6),
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isFav
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: isFav
+                          ? Colors.blue
+                          : Colors.white70,
+                      size: isPhone ? 14 : 18,
+                    ),
+                  ),
+                ),
+              ),
+              // Title at Bottom
+              Positioned(
+                bottom: isPhone ? 4 : 8,
+                left: isPhone ? 4 : 8,
+                right: isPhone ? 4 : 8,
+                child: Text(
+                  movie.name ?? "",
+                  style: Get.textTheme.bodySmall
+                      ?.copyWith(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                    fontSize: isPhone ? 10 : null,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isPhone = MediaQuery.of(context).size.shortestSide < 600;
@@ -176,20 +326,32 @@ class _MoviesScreenState extends State<MoviesScreen> {
                         // Auto-select first category if not yet initialized
                         _initWithFirstCategory(state.categories);
 
-                        return SideCategoryMenu(
-                          categories: state.categories,
-                          selectedId: int.tryParse(
-                                  _selectedCategory?.categoryId ?? "") ??
-                              0,
-                          onSelect: (cat) {
-                            _checkParentalControl(cat, () {
-                              setState(() {
-                                _selectedCategory = cat;
-                              });
-                              context.read<ChannelsBloc>().add(GetChannels(
-                                  cat.categoryId!, TypeCategory.movies));
-                            });
-                          },
+                        return BlocBuilder<FavoritesCubit, FavoritesState>(
+                          builder: (context, favState) {
+                            final favCount = favState is FavoritesSuccess ? favState.movies.length : 0;
+                            final favoritesCategory = CategoryModel(
+                              categoryId: "favorites",
+                              categoryName: "Favorites ($favCount)",
+                            );
+                            
+                            final combinedList = [favoritesCategory, ...state.categories];
+
+                            return SideCategoryMenu(
+                              categories: combinedList,
+                              selectedId: _selectedCategory?.categoryId ?? "0",
+                              onSelect: (cat) {
+                                _checkParentalControl(cat, () {
+                                  setState(() {
+                                    _selectedCategory = cat;
+                                  });
+                                  if (cat.categoryId != "favorites") {
+                                    context.read<ChannelsBloc>().add(GetChannels(
+                                        cat.categoryId!, TypeCategory.movies));
+                                  }
+                                });
+                              },
+                            );
+                          }
                         );
                       }
                       return SizedBox(width: isPhone ? 35.w : 25.w);
@@ -198,188 +360,64 @@ class _MoviesScreenState extends State<MoviesScreen> {
 
                   // Right - Movie Poster Grid
                   Expanded(
-                    child: BlocBuilder<ChannelsBloc, ChannelsState>(
-                      builder: (context, state) {
-                        if (state is ChannelsLoading) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        } else if (state is ChannelsSuccess &&
-                            state.type == TypeCategory.movies) {
-                          var movies = List<ChannelMovie>.from(state.channels);
+                    child: _selectedCategory?.categoryId == "favorites" 
+                      ? BlocBuilder<FavoritesCubit, FavoritesState>(
+                          builder: (context, favState) {
+                            if (favState is FavoritesLoading) {
+                              return const Center(child: CircularProgressIndicator());
+                            } else if (favState is FavoritesSuccess) {
+                              var movies = List<ChannelMovie>.from(favState.movies);
+                              if (_searchQuery.isNotEmpty) {
+                                movies = movies
+                                    .where((m) => (m.name
+                                            ?.toLowerCase()
+                                            .contains(_searchQuery) ??
+                                        false))
+                                    .toList();
+                              }
+                              if (movies.isEmpty) {
+                                return const Center(child: Text("No favorite movies"));
+                              }
+                              return _buildMoviesGrid(movies, favState, gridPadding, gridSpacing, isPhone);
+                            }
+                            return const SizedBox();
+                          },
+                        )
+                      : BlocBuilder<ChannelsBloc, ChannelsState>(
+                          builder: (context, state) {
+                            if (state is ChannelsLoading) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (state is ChannelsSuccess &&
+                                state.type == TypeCategory.movies) {
+                              var movies = List<ChannelMovie>.from(state.channels);
 
-                          // Apply search filter
-                          if (_searchQuery.isNotEmpty) {
-                            movies = movies
-                                .where((m) => (m.name
-                                        ?.toLowerCase()
-                                        .contains(_searchQuery) ??
-                                    false))
-                                .toList();
-                          }
+                              // Apply search filter
+                              if (_searchQuery.isNotEmpty) {
+                                movies = movies
+                                    .where((m) => (m.name
+                                            ?.toLowerCase()
+                                            .contains(_searchQuery) ??
+                                        false))
+                                    .toList();
+                              }
 
-                          if (movies.isEmpty) {
-                            return const Center(
-                                child: Text("No movies found."));
-                          }
+                              if (movies.isEmpty) {
+                                return const Center(
+                                    child: Text("No movies found."));
+                              }
 
-                          return GridView.builder(
-                            padding: EdgeInsets.all(gridPadding),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: getGridColumns(context).toInt(),
-                              childAspectRatio: 0.65,
-                              crossAxisSpacing: gridSpacing,
-                              mainAxisSpacing: gridSpacing,
-                            ),
-                            itemCount: movies.length,
-                            itemBuilder: (context, index) {
-                              final movie = movies[index];
-                              return BlocBuilder<FavoritesCubit,
-                                  FavoritesState>(
+                              return BlocBuilder<FavoritesCubit, FavoritesState>(
                                 builder: (context, favState) {
-                                  final isFav = favState is FavoritesSuccess &&
-                                      favState.movies.any(
-                                          (m) => m.streamId == movie.streamId);
-                                  return FocusableCard(
-                                    onTap: () {
-                                      _checkMovieAccess(movie.name, () {
-                                        Get.toNamed(screenMovieDetails,
-                                            arguments: movie);
-                                      });
-                                    },
-                                    scale: 1.05,
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        // Poster Image
-                                        Container(
-                                          decoration: kDecorCard.copyWith(
-                                            image: DecorationImage(
-                                              image: CachedNetworkImageProvider(
-                                                  movie.streamIcon ?? ""),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        // Gradient Overlay
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Colors.transparent,
-                                                Colors.black.withOpacity(0.8),
-                                              ],
-                                              stops: const [0.5, 1.0],
-                                            ),
-                                          ),
-                                        ),
-                                        // Rating Badge (Top Right)
-                                        if (movie.rating != null &&
-                                            movie.rating!.isNotEmpty)
-                                          Positioned(
-                                            top: isPhone ? 4 : 8,
-                                            right: isPhone ? 4 : 8,
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: isPhone ? 4 : 8,
-                                                  vertical: isPhone ? 2 : 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black87,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.star,
-                                                      color: Colors.amber,
-                                                      size: isPhone ? 10 : 14),
-                                                  SizedBox(
-                                                      width: isPhone ? 2 : 4),
-                                                  Text(
-                                                    movie.rating!,
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize:
-                                                            isPhone ? 10 : 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        // Favorite Heart (Top Left)
-                                        Positioned(
-                                          top: isPhone ? 4 : 8,
-                                          left: isPhone ? 4 : 8,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (isFav) {
-                                                context
-                                                    .read<FavoritesCubit>()
-                                                    .removeMovie(
-                                                        movie.streamId ?? "");
-                                              } else {
-                                                context
-                                                    .read<FavoritesCubit>()
-                                                    .addMovie(movie);
-                                              }
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.all(
-                                                  isPhone ? 4 : 6),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.black54,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(
-                                                isFav
-                                                    ? Icons.favorite
-                                                    : Icons.favorite_border,
-                                                color: isFav
-                                                    ? Colors.blue
-                                                    : Colors.white70,
-                                                size: isPhone ? 14 : 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        // Title at Bottom
-                                        Positioned(
-                                          bottom: isPhone ? 4 : 8,
-                                          left: isPhone ? 4 : 8,
-                                          right: isPhone ? 4 : 8,
-                                          child: Text(
-                                            movie.name ?? "",
-                                            style: Get.textTheme.bodySmall
-                                                ?.copyWith(
-                                              fontWeight: FontWeight.normal,
-                                              color: Colors.white,
-                                              fontSize: isPhone ? 10 : null,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  return _buildMoviesGrid(movies, favState, gridPadding, gridSpacing, isPhone);
                                 },
                               );
-                            },
-                          );
-                        } else if (state is ChannelsFailed) {
-                          return Center(child: Text(state.message));
-                        }
-                        return const SizedBox();
-                      },
-                    ),
+                            } else if (state is ChannelsFailed) {
+                              return Center(child: Text(state.message));
+                            }
+                            return const SizedBox();
+                          },
+                        ),
                   ),
                 ],
               ),

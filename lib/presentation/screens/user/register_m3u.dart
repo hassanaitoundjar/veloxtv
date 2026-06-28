@@ -118,7 +118,7 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.15),
+                    color: Colors.orange.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.playlist_play,
@@ -183,7 +183,7 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.15),
+                    color: Colors.orange.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.playlist_play,
@@ -251,7 +251,7 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
     String? Function(String?)? validator,
     bool autofocus = false,
   }) {
-    return TextFormField(
+    return TvTextField(
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
@@ -287,7 +287,7 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
         } else if (state is AuthFailed) {
           Get.snackbar("Error", state.message,
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red.withOpacity(0.8),
+              backgroundColor: Colors.red.withValues(alpha: 0.8),
               colorText: Colors.white);
         }
       },

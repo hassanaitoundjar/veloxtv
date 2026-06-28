@@ -138,7 +138,7 @@ class _SearchScreenState extends State<SearchScreen>
               child: FocusableCard(
                 onTap: () {},
                 scale: 1.02,
-                child: TextField(
+                child: TvTextField(
                   focusNode: _searchFocusNode,
                   controller: _controller,
                   autofocus: true,
@@ -213,7 +213,7 @@ class _SearchScreenState extends State<SearchScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? kColorPrimary : Colors.white.withOpacity(0.1),
+          color: isSelected ? kColorPrimary : Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

@@ -129,15 +129,15 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: TextField(
+              child: TvTextField(
                 controller: _searchController,
                 onChanged: (value) => setState(() => _searchQuery = value),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Search channels or programs...",
-                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                   prefixIcon:
-                      Icon(Icons.search, color: Colors.white.withOpacity(0.5)),
+                      Icon(Icons.search, color: Colors.white.withValues(alpha: 0.5)),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, color: Colors.white54),
@@ -148,7 +148,7 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                         )
                       : null,
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.05),
+                  fillColor: Colors.white.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -197,8 +197,8 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                             return Container(
                               width: _hourWidth,
                               alignment: Alignment.centerLeft,
-                              decoration: BoxDecoration(
-                                border: const Border(
+                              decoration: const BoxDecoration(
+                                border: Border(
                                     left: BorderSide(color: Colors.white12)),
                                 color: kColorCard,
                               ),
@@ -250,7 +250,7 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                         _searchQuery.isEmpty
                             ? "No channels available"
                             : "No channels or programs match your search",
-                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                       ),
                     );
                   }
@@ -273,9 +273,9 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                               height: _channelHeight,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? kColorPrimary.withOpacity(0.2)
+                                    ? kColorPrimary.withValues(alpha: 0.2)
                                     : (index % 2 == 0
-                                        ? Colors.white.withOpacity(0.02)
+                                        ? Colors.white.withValues(alpha: 0.02)
                                         : Colors.transparent),
                                 border: const Border(
                                     bottom: BorderSide(color: Colors.white10)),
@@ -434,7 +434,7 @@ class _EpgRowItemState extends State<EpgRowItem> {
               state.loadingStatus[widget.channel.streamId.toString()] ?? false;
 
           if (isLoading) {
-            return Center(
+            return const Center(
                 child: SizedBox(
                     width: 15,
                     height: 15,
@@ -448,7 +448,7 @@ class _EpgRowItemState extends State<EpgRowItem> {
               padding: const EdgeInsets.only(left: 20),
               child: Text("No Program Information",
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       fontStyle: FontStyle.italic,
                       fontSize: 12)),
             );
@@ -579,8 +579,8 @@ class _EpgRowItemState extends State<EpgRowItem> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isCurrent
-                          ? kColorPrimary.withOpacity(0.6)
-                          : Colors.white.withOpacity(0.1),
+                          ? kColorPrimary.withValues(alpha: 0.6)
+                          : Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                           color: isCurrent ? kColorPrimary : Colors.white12),

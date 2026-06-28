@@ -46,8 +46,9 @@ class _ParentalControlWidgetState extends State<ParentalControlWidget> {
   }
 
   void _delete() {
-    if (_pin.isNotEmpty)
+    if (_pin.isNotEmpty) {
       setState(() => _pin = _pin.substring(0, _pin.length - 1));
+    }
   }
 
   void _submit() {
@@ -257,7 +258,7 @@ class _KeypadButtonState extends State<_KeypadButton> {
           boxShadow: _isFocused
               ? [
                   BoxShadow(
-                    color: kColorPrimary.withOpacity(0.5),
+                    color: kColorPrimary.withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   )

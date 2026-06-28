@@ -83,11 +83,11 @@ class AppTheme {
         hintStyle: GoogleFonts.inter(color: kColorHint),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: kColorBorder.withOpacity(0.5)),
+          borderSide: BorderSide(color: kColorBorder.withValues(alpha: 0.5)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: kColorBorder.withOpacity(0.5)),
+          borderSide: BorderSide(color: kColorBorder.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

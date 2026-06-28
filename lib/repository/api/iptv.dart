@@ -48,7 +48,7 @@ class IpTvApi {
       final user = await LocaleApi.getUser();
 
       if (user == null) {
-        return [];
+        throw Exception("User not found");
       }
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
@@ -74,10 +74,10 @@ class IpTvApi {
         return list;
       }
 
-      return [];
+      throw Exception("Failed to load live channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Channel $catyId: $e");
-      return [];
+      throw Exception("Failed to load live channels: $e");
     }
   }
 
@@ -87,7 +87,7 @@ class IpTvApi {
       final user = await LocaleApi.getUser();
 
       if (user == null) {
-        return [];
+        throw Exception("User not found");
       }
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
@@ -113,10 +113,10 @@ class IpTvApi {
         return list;
       }
 
-      return [];
+      throw Exception("Failed to load movie channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Movie Channel $catyId: $e");
-      return [];
+      throw Exception("Failed to load movie channels: $e");
     }
   }
 
@@ -126,7 +126,7 @@ class IpTvApi {
       final user = await LocaleApi.getUser();
 
       if (user == null) {
-        return [];
+        throw Exception("User not found");
       }
 
       var url = "${user.serverInfo!.serverUrl}/player_api.php";
@@ -152,10 +152,10 @@ class IpTvApi {
         return list;
       }
 
-      return [];
+      throw Exception("Failed to load series channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Series Channel $catyId: $e");
-      return [];
+      throw Exception("Failed to load series channels: $e");
     }
   }
 
@@ -250,17 +250,7 @@ class IpTvApi {
       );
 
       if (response.statusCode == 200) {
-        final dynamic decoded = jsonDecode(response.data ?? "{}");
-
-        if (decoded is Map<String, dynamic>) {
-          if (decoded['epg_listings'] != null) {
-            final List<dynamic> json = decoded['epg_listings'];
-            final list = json.map((e) => EpgModel.fromJson(e)).toList();
-            return list;
-          }
-        } else if (decoded is List) {
-          return [];
-        }
+        return await compute(_parseEpgListings, response.data);
       }
 
       return [];
@@ -269,6 +259,19 @@ class IpTvApi {
       return [];
     }
   }
+
+  static List<EpgModel> _parseEpgListings(String? data) {
+    final dynamic decoded = jsonDecode(data ?? "{}");
+
+    if (decoded is Map<String, dynamic>) {
+      if (decoded['epg_listings'] != null) {
+        final List<dynamic> json = decoded['epg_listings'];
+        return json.map((e) => EpgModel.fromJson(e)).toList();
+      }
+    }
+    return [];
+  }
+
 
   /// Construct Catch-up URL
   static String constructCatchUpUrl({

@@ -1,4 +1,4 @@
-package com.antigravity.player.player_premium
+package com.veloplayer.premium
 
 import io.flutter.embedding.android.FlutterActivity
 

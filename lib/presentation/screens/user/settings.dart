@@ -313,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: SwitchListTile(
                       title: const Text("Enable Parental Control",
                           style: TextStyle(color: Colors.white)),
-                      activeColor: kColorPrimary,
+                      activeThumbColor: kColorPrimary,
                       value: enabled,
                       onChanged: toggleParentalControl,
                     ),
@@ -726,7 +726,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(
             vertical: isPhone ? 14 : 20, horizontal: isPhone ? 16 : 24),
-        color: isSelected ? kColorPrimary.withOpacity(0.1) : null,
+        color: isSelected ? kColorPrimary.withValues(alpha: 0.1) : null,
         child: Row(
           children: [
             Icon(icon,

@@ -61,7 +61,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   }
 
   // Aspect Ratio Modes: 0=Fit(Original), 1=Fill(Stretch), 2=Zoom(Cover), 3=16:9, 4=4:3
-  int _aspectRatioMode = 0;
+  int _aspectRatioMode = 1; // Default to Fill (Full Screen)
   final List<String> _arNames = ["Original", "Fill", "Zoom", "16:9", "4:3"];
   void _toggleAspectRatio() {
     setState(() {
@@ -99,13 +99,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
     MediaKit.ensureInitialized();
     WakelockPlus.enable();
     _startHideTimer();
-    if (!widget.isLive) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     if (widget.player != null && widget.videoController != null) {
       _player = widget.player!;
       _videoController = widget.videoController!;
@@ -121,7 +119,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         Media(
           widget.link,
           extras: {
-            'hwdec': 'no',
+            'hwdec': 'auto',
           },
         ),
         play: true,
@@ -144,10 +142,8 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   void dispose() {
     _hideTimer?.cancel();
     WakelockPlus.disable();
-    if (!widget.isLive) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     if (!_isExternalController) {
       _player.dispose();
     }
@@ -235,7 +231,10 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         );
       },
     );
-    _startHideTimer();
+    if (mounted) {
+      _startHideTimer();
+      _playPauseFocusNode.requestFocus();
+    }
   }
 
   // 🔊 AUDIO TRACK PICKER
@@ -301,7 +300,10 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         );
       },
     );
-    _startHideTimer();
+    if (mounted) {
+      _startHideTimer();
+      _playPauseFocusNode.requestFocus();
+    }
   }
 
   String _formatDuration(Duration d) {
@@ -587,13 +589,13 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                       children: [
                                         Expanded(
                                           child: SliderTheme(
-                                            data: SliderThemeData(
+                                            data: const SliderThemeData(
                                               thumbShape:
-                                                  const RoundSliderThumbShape(
+                                                  RoundSliderThumbShape(
                                                       enabledThumbRadius: 6),
                                               trackHeight: 2,
                                               overlayShape:
-                                                  const RoundSliderOverlayShape(
+                                                  RoundSliderOverlayShape(
                                                       overlayRadius: 12),
                                               activeTrackColor: kColorPrimary,
                                               inactiveTrackColor:
@@ -831,7 +833,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
         Media(
           link,
           extras: {
-            'hwdec': 'no',
+            'hwdec': 'auto',
           },
         ),
         play: true,
@@ -845,7 +847,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           child: Column(
             children: [
               // Header
@@ -902,7 +904,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                           final iconSize = isPhone ? 32.0 : 40.0;
                           return Material(
                             color: isPlaying
-                                ? kColorPrimary.withOpacity(0.15)
+                                ? kColorPrimary.withValues(alpha: 0.15)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                             child: InkWell(
@@ -1034,7 +1036,7 @@ class _PlayerControlButtonState extends State<_PlayerControlButton> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: _isFocused
-                ? kColorPrimary.withOpacity(0.5)
+                ? kColorPrimary.withValues(alpha: 0.5)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: _isFocused

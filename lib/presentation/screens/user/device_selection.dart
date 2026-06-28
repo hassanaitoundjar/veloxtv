@@ -127,7 +127,7 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
                               gradient: LinearGradient(
                                 colors: [
                                   kColorPrimary,
-                                  kColorPrimary.withOpacity(0.8),
+                                  kColorPrimary.withValues(alpha: 0.8),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -135,7 +135,7 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: kColorPrimary.withOpacity(0.4),
+                                  color: kColorPrimary.withValues(alpha: 0.4),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -187,8 +187,8 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isSelected 
-              ? kColorPrimary.withOpacity(0.15) 
-              : kColorCardLight.withOpacity(0.4),
+              ? kColorPrimary.withValues(alpha: 0.15) 
+              : kColorCardLight.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? kColorPrimary : Colors.white10,
@@ -197,7 +197,7 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: kColorPrimary.withOpacity(0.2),
+                    color: kColorPrimary.withValues(alpha: 0.2),
                     blurRadius: 15,
                     spreadRadius: 1,
                   )
@@ -209,7 +209,7 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? kColorPrimary : Colors.white.withOpacity(0.05),
+                color: isSelected ? kColorPrimary : Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(

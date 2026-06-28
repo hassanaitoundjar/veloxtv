@@ -292,7 +292,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
     FocusNode? nextFocus,
     bool isPassword = false,
   }) {
-    return TextFormField(
+    return TvTextField(
       controller: controller,
       focusNode: focus,
       obscureText: isPassword,

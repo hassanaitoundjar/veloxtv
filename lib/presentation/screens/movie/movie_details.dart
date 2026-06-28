@@ -66,7 +66,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    kColorBackground.withOpacity(0.8),
+                    kColorBackground.withValues(alpha: 0.8),
                     kColorBackground,
                   ],
                   stops: const [0.0, 0.4, 0.7],
@@ -83,7 +83,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    kColorBackground.withOpacity(0.9),
+                    kColorBackground.withValues(alpha: 0.9),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.5],
@@ -114,7 +114,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Colors.white24),
                             ),
@@ -299,17 +299,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             isLive: false,
                           ))!
                       .then((slider) {
-                    if (slider != null && slider is List && slider.isNotEmpty) {
-                      var model = WatchingModel(
-                        sliderValue: slider[0],
-                        durationStrm: slider[1] ?? 0.0,
-                        stream: link,
-                        title: _movie.name ?? "",
-                        image: _movie.streamIcon ?? "",
-                        streamId: _movie.streamId.toString(),
-                      );
-                      context.read<WatchingCubit>().addMovie(model);
-                    }
+                      if (slider != null && slider is List && slider.isNotEmpty) {
+                        var model = WatchingModel(
+                          sliderValue: slider[0],
+                          durationStrm: slider[1] ?? 0.0,
+                          stream: link,
+                          title: _movie.name ?? "",
+                          image: _movie.streamIcon ?? "",
+                          streamId: _movie.streamId.toString(),
+                        );
+                        if (!context.mounted) return;
+                        context.read<WatchingCubit>().addMovie(model);
+                      }
                   });
                 },
                 autoFocus: true,
@@ -459,7 +460,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 30,
               spreadRadius: 5,
               offset: const Offset(-10, 10),

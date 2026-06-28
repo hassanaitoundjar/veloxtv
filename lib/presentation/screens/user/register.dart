@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: kColorPrimary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.api, color: kColorPrimary, size: 40),
+                  child: const Icon(Icons.api, color: kColorPrimary, size: 40),
                 ),
               ),
               const SizedBox(height: 24),
@@ -290,7 +290,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: kColorPrimary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.api, color: kColorPrimary, size: 50),
+                  child: const Icon(Icons.api, color: kColorPrimary, size: 50),
                 ),
                 const SizedBox(height: 24),
                 Text(kAppName,
@@ -359,7 +359,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool obscure = false,
     VoidCallback? onToggleObscure,
   }) {
-    return TextFormField(
+    return TvTextField(
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,

@@ -41,14 +41,14 @@ BoxDecoration kDecorBackground = const BoxDecoration(
 BoxDecoration kDecorCard = BoxDecoration(
   color: kColorCard,
   borderRadius: BorderRadius.circular(16),
-  border: Border.all(color: kColorBorder.withOpacity(0.3)),
+  border: Border.all(color: kColorBorder.withValues(alpha: 0.3)),
 );
 
 BoxDecoration kDecorFocusGlow = BoxDecoration(
   borderRadius: BorderRadius.circular(16),
   boxShadow: [
     BoxShadow(
-      color: kColorFocus.withOpacity(0.4),
+      color: kColorFocus.withValues(alpha: 0.4),
       blurRadius: 12,
       spreadRadius: 2,
     ),

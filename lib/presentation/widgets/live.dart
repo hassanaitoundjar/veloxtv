@@ -150,7 +150,7 @@ class _AppBarLiveState extends State<AppBarLive> {
                         color: kColorCardLight,
                         borderRadius: BorderRadius.circular(isPhone ? 16 : 20),
                       ),
-                      child: TextField(
+                      child: TvTextField(
                         focusNode: _internalFocusNode,
                         style: TextStyle(
                             color: Colors.white, fontSize: isPhone ? 12 : 14),
@@ -194,7 +194,7 @@ class _AppBarLiveState extends State<AppBarLive> {
 
 class SideCategoryMenu extends StatefulWidget {
   final List<CategoryModel> categories;
-  final int selectedId;
+  final String selectedId;
   final Function(CategoryModel) onSelect;
 
   const SideCategoryMenu({
@@ -276,7 +276,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                 color: kColorCardLight,
                 borderRadius: BorderRadius.circular(isPhone ? 16 : 8),
               ),
-              child: TextField(
+              child: TvTextField(
                 focusNode: _searchFocusNode,
                 style:
                     TextStyle(color: Colors.white, fontSize: isPhone ? 11 : 14),
@@ -303,7 +303,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
               itemBuilder: (context, index) {
                 final cat = filteredCats[index];
                 final isSelected =
-                    cat.categoryId == widget.selectedId.toString();
+                    cat.categoryId == widget.selectedId;
 
                 return FocusableCard(
                   onTap: () => widget.onSelect(cat),
@@ -473,7 +473,7 @@ class ListChannelItem extends StatelessWidget {
                   kColorPrimary.blue, 0.2)
               : kColorCardLight,
           border: isFocus
-              ? Border(left: BorderSide(color: kColorPrimary, width: 4))
+              ? const Border(left: BorderSide(color: kColorPrimary, width: 4))
               : null,
         ),
         child: Row(
