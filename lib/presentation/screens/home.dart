@@ -82,7 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: kColorPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                          color: kColorPrimary.withValues(alpha: 0.4), width: 1),
+                          color: kColorPrimary.withValues(alpha: 0.4),
+                          width: 1),
                     ),
                     child: Text(
                       '0  0  0  0',
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         width: 100.w,
         height: 100.h,
-        decoration: kDecorBackground,
+        decoration: const BoxDecoration(color: kColorBackgroundDark),
         child: Column(
           children: [
             // App Bar
@@ -449,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             Text(title,
                 style: Get.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+                    ?.copyWith(fontWeight: FontWeight.normal)),
             if (blocBuilder != null) ...[
               const SizedBox(height: 8),
               blocBuilder,

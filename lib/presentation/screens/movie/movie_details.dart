@@ -150,10 +150,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         if (_detail?.info?.plot != null)
                           Text(
                             _detail!.info!.plot!,
-                            style: (isPhone
-                                    ? Get.textTheme.bodyMedium
-                                    : Get.textTheme.bodyLarge)
-                                ?.copyWith(
+                            style: TextStyle(
+                              fontSize: isPhone ? 12 : 14,
                               color: Colors.white70,
                               height: 1.5,
                             ),
@@ -286,7 +284,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               if (state is! AuthSuccess) return const SizedBox();
               final userAuth = state.user;
 
-              return FocusableCard(
+              return PlayButton(
+                label: "Watch Now",
+                isPhone: isPhone,
+                isExpanded: true,
+                autoFocus: true,
                 onTap: () {
                   if (_detail == null || _detail!.movieData == null) return;
 
@@ -299,45 +301,20 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             isLive: false,
                           ))!
                       .then((slider) {
-                      if (slider != null && slider is List && slider.isNotEmpty) {
-                        var model = WatchingModel(
-                          sliderValue: slider[0],
-                          durationStrm: slider[1] ?? 0.0,
-                          stream: link,
-                          title: _movie.name ?? "",
-                          image: _movie.streamIcon ?? "",
-                          streamId: _movie.streamId.toString(),
-                        );
-                        if (!context.mounted) return;
-                        context.read<WatchingCubit>().addMovie(model);
-                      }
+                    if (slider != null && slider is List && slider.isNotEmpty) {
+                      var model = WatchingModel(
+                        sliderValue: slider[0],
+                        durationStrm: slider[1] ?? 0.0,
+                        stream: link,
+                        title: _movie.name ?? "",
+                        image: _movie.streamIcon ?? "",
+                        streamId: _movie.streamId.toString(),
+                      );
+                      if (!context.mounted) return;
+                      context.read<WatchingCubit>().addMovie(model);
+                    }
                   });
                 },
-                autoFocus: true,
-                scale: 1.02,
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: isPhone ? 10 : 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.play_arrow,
-                          color: Colors.black, size: isPhone ? 20 : 28),
-                      SizedBox(width: isPhone ? 4 : 8),
-                      Text(
-                        "Watch Now",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: isPhone ? 14 : 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
           ),
@@ -346,57 +323,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         const SizedBox(width: 12),
 
         // Favorite Button
-        BlocBuilder<FavoritesCubit, FavoritesState>(
-          builder: (context, favState) {
-            final isFav = favState is FavoritesSuccess &&
-                favState.movies.any((m) => m.streamId == _movie.streamId);
-            return FocusableCard(
-              onTap: () {
-                if (isFav) {
-                  context
-                      .read<FavoritesCubit>()
-                      .removeMovie(_movie.streamId ?? "");
-                  Get.snackbar("Removed", "Removed from My List",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.grey.shade900,
-                      colorText: Colors.white,
-                      duration: const Duration(seconds: 1));
-                } else {
-                  context.read<FavoritesCubit>().addMovie(_movie);
-                  Get.snackbar("Added", "Added to My List",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.grey.shade900,
-                      colorText: Colors.white,
-                      duration: const Duration(seconds: 1));
-                }
-              },
-              scale: 1.05,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: isPhone ? 16 : 24, vertical: isPhone ? 10 : 12),
-                decoration: BoxDecoration(
-                  color: isFav
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white30),
-                ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(
-                    isFav ? Icons.check : Icons.add,
-                    color: isFav ? Colors.black : Colors.white,
-                    size: isPhone ? 16 : 20,
-                  ),
-                  SizedBox(width: isPhone ? 4 : 8),
-                  Text(isFav ? "My List" : "Add Favorite",
-                      style: TextStyle(
-                          color: isFav ? Colors.black : Colors.white,
-                          fontSize: isPhone ? 12 : 14,
-                          fontWeight: FontWeight.bold))
-                ]),
-              ),
-            );
-          },
+        FavoriteButton(
+          type: FavoriteItemType.movie,
+          item: _movie,
+          isPhone: isPhone,
         ),
 
         const SizedBox(width: 12),

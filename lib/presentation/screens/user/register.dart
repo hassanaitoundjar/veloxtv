@@ -200,14 +200,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ?.copyWith(fontWeight: FontWeight.bold)),
             if (!isTvLayout) ...[
               Center(
-                child: Container(
+                child: Image.asset(
+                  kIconSplash,
                   width: 80,
                   height: 80,
-                  decoration: BoxDecoration(
-                    color: kColorPrimary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.api, color: kColorPrimary, size: 40),
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 24),
@@ -283,14 +280,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
+                Image.asset(
+                  kIconSplash,
                   width: 100,
                   height: 100,
-                  decoration: BoxDecoration(
-                    color: kColorPrimary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.api, color: kColorPrimary, size: 50),
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 24),
                 Text(kAppName,

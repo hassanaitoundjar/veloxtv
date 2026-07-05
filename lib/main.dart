@@ -96,6 +96,7 @@ class MyApp extends StatelessWidget {
               GetPage(
                   name: screenFavorites, page: () => const FavoriteScreen()),
               GetPage(name: screenProfiles, page: () => const ProfileScreen()),
+              GetPage(name: screenAccountProfile, page: () => const AccountProfileScreen()),
               GetPage(name: screenSearch, page: () => const SearchScreen()),
             ],
           );

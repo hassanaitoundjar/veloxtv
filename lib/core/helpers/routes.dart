@@ -12,6 +12,7 @@ const String screenSettings = "/settings";
 const String screenFavorites = "/favorites";
 const String screenSearch = "/search";
 const String screenProfiles = "/profiles";
+const String screenAccountProfile = "/account-profile";
 
 // Content Routes
 const String screenLiveTv = "/live-tv";

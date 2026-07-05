@@ -143,7 +143,10 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
     _hideTimer?.cancel();
     WakelockPlus.disable();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     if (!_isExternalController) {
       _player.dispose();
     }

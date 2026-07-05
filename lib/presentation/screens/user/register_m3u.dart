@@ -114,15 +114,11 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
                       ?.copyWith(fontWeight: FontWeight.bold)),
             if (!isTvLayout) ...[
               Center(
-                child: Container(
+                child: Image.asset(
+                  kIconSplash,
                   width: 80,
                   height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.playlist_play,
-                      color: Colors.orange, size: 40),
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 24),
@@ -179,15 +175,11 @@ class _RegisterM3uScreenState extends State<RegisterM3uScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
+                Image.asset(
+                  kIconSplash,
                   width: 100,
                   height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.playlist_play,
-                      color: Colors.orange, size: 50),
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 24),
                 Text(kAppName,

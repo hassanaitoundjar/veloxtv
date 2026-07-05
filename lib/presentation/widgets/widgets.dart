@@ -14,8 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logic/blocs/categories/live_caty_bloc.dart';
 import '../../logic/blocs/categories/movie_caty_bloc.dart';
 import '../../logic/blocs/categories/series_caty_bloc.dart';
+import '../../logic/cubits/favorites/favorites_cubit.dart';
+import '../../repository/models/channel_movie.dart';
+import '../../repository/models/channel_serie.dart';
 
 part 'common.dart';
 part 'welcome.dart';
 part 'live.dart';
 part 'tv_text_field.dart';
+part 'favorite_button.dart';
+part 'play_button.dart';

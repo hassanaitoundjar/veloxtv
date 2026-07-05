@@ -1,21 +1,131 @@
 part of '../screens.dart';
 
-// Screen size tiers, auto-detected from available width.
-enum _ScreenTier { phone, tablet, large }
+/// Responsive size tokens for IntroScreen across all device classes.
+class _IntroSizes {
+  final double logoSize;
+  final double titleFont;
+  final double proFont;
+  final double cardMaxWidth;
+  final double cardPadding;
+  final double horizontalMargin;
+  final double buttonHeight;
+  final double buttonFontSize;
+  final double buttonIconSize;
+  final double buttonGap;
+  final double bottomButtonWidth;
+  final bool isWide;
+
+  const _IntroSizes({
+    required this.logoSize,
+    required this.titleFont,
+    required this.proFont,
+    required this.cardMaxWidth,
+    required this.cardPadding,
+    required this.horizontalMargin,
+    required this.buttonHeight,
+    required this.buttonFontSize,
+    required this.buttonIconSize,
+    required this.buttonGap,
+    required this.bottomButtonWidth,
+    required this.isWide,
+  });
+
+  factory _IntroSizes.of(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTvDevice = isTv(context);
+
+    // --- Small phone (< 360) ---
+    if (width < 360) {
+      return const _IntroSizes(
+        logoSize: 28.0,
+        titleFont: 14.0,
+        proFont: 9.0,
+        cardMaxWidth: 340.0,
+        cardPadding: 16.0,
+        horizontalMargin: 12.0,
+        buttonHeight: 50.0,
+        buttonFontSize: 11.0,
+        buttonIconSize: 20.0,
+        buttonGap: 10.0,
+        bottomButtonWidth: double.infinity,
+        isWide: false,
+      );
+    }
+    // --- Standard phone (360 - 599) ---
+    if (width < 600) {
+      return const _IntroSizes(
+        logoSize: 36.0,
+        titleFont: 16.0,
+        proFont: 10.0,
+        cardMaxWidth: 500.0,
+        cardPadding: 20.0,
+        horizontalMargin: 16.0,
+        buttonHeight: 56.0,
+        buttonFontSize: 13.0,
+        buttonIconSize: 22.0,
+        buttonGap: 12.0,
+        bottomButtonWidth: double.infinity,
+        isWide: false,
+      );
+    }
+    // --- Tablet portrait (600 - 899) ---
+    if (width < 900) {
+      return const _IntroSizes(
+        logoSize: 48.0,
+        titleFont: 22.0,
+        proFont: 13.0,
+        cardMaxWidth: 700.0,
+        cardPadding: 28.0,
+        horizontalMargin: 40.0,
+        buttonHeight: 64.0,
+        buttonFontSize: 13.0,
+        buttonIconSize: 24.0,
+        buttonGap: 16.0,
+        bottomButtonWidth: 300.0,
+        isWide: true,
+      );
+    }
+    // --- Tablet landscape / small desktop (900 - 1279) ---
+    if (width < 1280) {
+      return const _IntroSizes(
+        logoSize: 56.0,
+        titleFont: 26.0,
+        proFont: 14.0,
+        cardMaxWidth: 860.0,
+        cardPadding: 32.0,
+        horizontalMargin: 60.0,
+        buttonHeight: 64.0,
+        buttonFontSize: 14.0,
+        buttonIconSize: 24.0,
+        buttonGap: 16.0,
+        bottomButtonWidth: 300.0,
+        isWide: true,
+      );
+    }
+    // --- TV / large desktop (>= 1280) ---
+    return _IntroSizes(
+      logoSize: isTvDevice ? 72.0 : 64.0,
+      titleFont: isTvDevice ? 34.0 : 30.0,
+      proFont: isTvDevice ? 18.0 : 16.0,
+      cardMaxWidth: isTvDevice ? 1300.0 : 1200.0,
+      cardPadding: isTvDevice ? 56.0 : 48.0,
+      horizontalMargin: isTvDevice ? 100.0 : 80.0,
+      buttonHeight: isTvDevice ? 80.0 : 72.0,
+      buttonFontSize: isTvDevice ? 19.0 : 17.0,
+      buttonIconSize: isTvDevice ? 32.0 : 28.0,
+      buttonGap: isTvDevice ? 32.0 : 24.0,
+      bottomButtonWidth: isTvDevice ? 400.0 : 360.0,
+      isWide: true,
+    );
+  }
+}
 
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
 
-  _ScreenTier _tierFor(double width) {
-    if (width < 650) return _ScreenTier.phone;
-    if (width < 1100) return _ScreenTier.tablet;
-    return _ScreenTier.large;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isWide = size.width >= 650;
+    final s = _IntroSizes.of(context);
 
     return Scaffold(
       body: Container(
@@ -24,100 +134,89 @@ class IntroScreen extends StatelessWidget {
         // Original dark color scheme
         decoration: kDecorBackground,
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final tier = _tierFor(constraints.maxWidth);
-              final isLarge = tier == _ScreenTier.large;
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Top-left Logo ──
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: s.horizontalMargin,
+                  vertical: 16,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      kIconSplash,
+                      width: s.logoSize,
+                      height: s.logoSize,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 10),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: kAppName.toUpperCase(),
+                            style: GoogleFonts.outfit(
+                              fontSize: s.titleFont,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "  PRO",
+                            style: GoogleFonts.outfit(
+                              fontSize: s.proFont,
+                              fontWeight: FontWeight.w500,
+                              color: kColorPrimary,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-              // Scale factor only kicks in for large/TV screens so phone and
-              // tablet behavior stays exactly as before.
-              final logoSize = isLarge ? 64.0 : (isWide ? 48.0 : 36.0);
-              final titleFont = isLarge ? 30.0 : (isWide ? 22.0 : 16.0);
-              final proFont = isLarge ? 16.0 : (isWide ? 13.0 : 10.0);
-              final cardMaxWidth = isLarge ? 1200.0 : 860.0;
-              final cardPadding = isLarge ? 48.0 : (isWide ? 32.0 : 20.0);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Top-left Logo ──
-                  Padding(
+              // ── Center White Card ──
+              Expanded(
+                child: Center(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isLarge ? 56 : (isWide ? 40 : 20),
+                      horizontal: s.horizontalMargin,
                       vertical: 16,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          kIconSplash,
-                          width: logoSize,
-                          height: logoSize,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(width: 10),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: kAppName.toUpperCase(),
-                                style: GoogleFonts.outfit(
-                                  fontSize: titleFont,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              TextSpan(
-                                text: "  PRO",
-                                style: GoogleFonts.outfit(
-                                  fontSize: proFont,
-                                  fontWeight: FontWeight.w500,
-                                  color: kColorPrimary,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ],
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: s.cardMaxWidth),
+                      child: Container(
+                        padding: EdgeInsets.all(s.cardPadding),
+                        decoration: BoxDecoration(
+                          color: kColorCard,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: kColorBorder.withValues(alpha: 0.3),
+                            width: 1,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // ── Center White Card ──
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isLarge ? 80 : (isWide ? 60 : 16),
-                          vertical: 16,
-                        ),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: cardMaxWidth),
-                          child: Container(
-                            padding: EdgeInsets.all(cardPadding),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.35),
-                                  blurRadius: 40,
-                                  offset: const Offset(0, 12),
-                                ),
-                              ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 40,
+                              offset: const Offset(0, 12),
                             ),
-                            child: isWide
-                                ? _buildWideLayout(context, tier)
-                                : _buildNarrowLayout(context),
-                          ),
+                          ],
                         ),
+                        child: s.isWide
+                            ? _buildWideLayout(s)
+                            : _buildNarrowLayout(s),
                       ),
                     ),
                   ),
-                ],
-              );
-            },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -125,12 +224,7 @@ class IntroScreen extends StatelessWidget {
   }
 
   // ── Wide: 2-column grid + centered bottom button ──
-  Widget _buildWideLayout(BuildContext context, _ScreenTier tier) {
-    final isLarge = tier == _ScreenTier.large;
-    final buttonHeight = isLarge ? 72.0 : 56.0;
-    final fontSize = isLarge ? 17.0 : 13.0;
-    final iconSize = isLarge ? 28.0 : 22.0;
-
+  Widget _buildWideLayout(_IntroSizes s) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
       child: Column(
@@ -143,17 +237,17 @@ class IntroScreen extends StatelessWidget {
                   order: const NumericFocusOrder(1),
                   child: _SmOption(
                     icon: Icons.playlist_play_rounded,
-                    label: "LOGIN WITH M3U FILE OR URL",
+                    label: "LOAD YOUR PLAYLIST OR FILE/URL",
                     highlighted: true,
                     onTap: () => Get.toNamed(screenRegisterM3u),
                     autoFocus: true,
-                    height: buttonHeight,
-                    fontSize: fontSize,
-                    iconSize: iconSize,
+                    height: s.buttonHeight,
+                    fontSize: s.buttonFontSize,
+                    iconSize: s.buttonIconSize,
                   ),
                 ),
               ),
-              SizedBox(width: isLarge ? 24 : 16),
+              SizedBox(width: s.buttonGap),
               Expanded(
                 child: FocusTraversalOrder(
                   order: const NumericFocusOrder(2),
@@ -162,28 +256,28 @@ class IntroScreen extends StatelessWidget {
                     label: "LOGIN WITH XTREAM CODES API",
                     onTap: () => Get.toNamed(screenRegister),
                     autoFocus: false,
-                    height: buttonHeight,
-                    fontSize: fontSize,
-                    iconSize: iconSize,
+                    height: s.buttonHeight,
+                    fontSize: s.buttonFontSize,
+                    iconSize: s.buttonIconSize,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: isLarge ? 24 : 16),
+          SizedBox(height: s.buttonGap),
           // Centered "List Users" button
           Center(
             child: SizedBox(
-              width: isLarge ? 360 : 300,
+              width: s.bottomButtonWidth,
               child: FocusTraversalOrder(
                 order: const NumericFocusOrder(3),
                 child: _SmOption(
                   icon: Icons.people_alt_rounded,
                   label: "LIST USERS",
                   onTap: () => Get.toNamed(screenProfiles),
-                  height: buttonHeight,
-                  fontSize: fontSize,
-                  iconSize: iconSize,
+                  height: s.buttonHeight,
+                  fontSize: s.buttonFontSize,
+                  iconSize: s.buttonIconSize,
                 ),
               ),
             ),
@@ -194,7 +288,7 @@ class IntroScreen extends StatelessWidget {
   }
 
   // ── Narrow: stacked list ──
-  Widget _buildNarrowLayout(BuildContext context) {
+  Widget _buildNarrowLayout(_IntroSizes s) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
       child: Column(
@@ -208,9 +302,12 @@ class IntroScreen extends StatelessWidget {
               highlighted: true,
               onTap: () => Get.toNamed(screenRegisterM3u),
               autoFocus: true,
+              height: s.buttonHeight,
+              fontSize: s.buttonFontSize,
+              iconSize: s.buttonIconSize,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: s.buttonGap),
           FocusTraversalOrder(
             order: const NumericFocusOrder(2),
             child: _SmOption(
@@ -218,15 +315,21 @@ class IntroScreen extends StatelessWidget {
               label: "LOGIN WITH XTREAM CODES API",
               onTap: () => Get.toNamed(screenRegister),
               autoFocus: false,
+              height: s.buttonHeight,
+              fontSize: s.buttonFontSize,
+              iconSize: s.buttonIconSize,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: s.buttonGap),
           FocusTraversalOrder(
             order: const NumericFocusOrder(3),
             child: _SmOption(
               icon: Icons.people_alt_rounded,
               label: "LIST USERS",
               onTap: () => Get.toNamed(screenProfiles),
+              height: s.buttonHeight,
+              fontSize: s.buttonFontSize,
+              iconSize: s.buttonIconSize,
             ),
           ),
         ],
@@ -296,10 +399,10 @@ class _SmOptionState extends State<_SmOption> {
                     end: Alignment.centerRight,
                   )
                 : null,
-            color: isBlue ? null : Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            color: isBlue ? null : kColorCardLight.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isBlue ? kColorPrimary : const Color(0xFFCBD5E1),
+              color: isBlue ? kColorPrimary : kColorBorder,
               width: isBlue ? 2 : 1.5,
             ),
             boxShadow: isBlue
@@ -310,13 +413,7 @@ class _SmOptionState extends State<_SmOption> {
                       offset: const Offset(0, 4),
                     ),
                   ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                : [],
           ),
           child: Row(
             children: [
@@ -335,7 +432,7 @@ class _SmOptionState extends State<_SmOption> {
                     style: GoogleFonts.outfit(
                       fontSize: widget.fontSize,
                       fontWeight: FontWeight.w700,
-                      color: isBlue ? Colors.white : const Color(0xFF1E293B),
+                      color: Colors.white,
                       letterSpacing: 0.6,
                     ),
                   ),
@@ -344,7 +441,7 @@ class _SmOptionState extends State<_SmOption> {
               const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right_rounded,
-                color: isBlue ? Colors.white70 : const Color(0xFF94A3B8),
+                color: isBlue ? Colors.white70 : kColorTextSecondary,
                 size: widget.iconSize,
               ),
             ],

@@ -46,6 +46,7 @@ part 'user/splash.dart';
 part 'user/device_selection.dart';
 part 'user/intro.dart';
 part 'user/profile.dart';
+part 'user/account_profile.dart';
 part 'user/register.dart';
 part 'user/register_m3u.dart';
 part 'user/register_tv.dart';

@@ -225,54 +225,11 @@ class _SeriesScreenState extends State<SeriesScreen> {
               Positioned(
                 top: isPhone ? 4 : 8,
                 left: isPhone ? 4 : 8,
-                child: GestureDetector(
-                  onTap: () {
-                    if (isFav) {
-                      context
-                          .read<FavoritesCubit>()
-                          .removeSeries(
-                              serie.seriesId ?? "");
-                      Get.snackbar("Favorites",
-                          "Removed from favorites",
-                          snackPosition:
-                              SnackPosition.BOTTOM,
-                          backgroundColor:
-                              Colors.grey,
-                          colorText: Colors.white,
-                          duration: const Duration(
-                              seconds: 1));
-                    } else {
-                      context
-                          .read<FavoritesCubit>()
-                          .addSeries(serie);
-                      Get.snackbar("Favorites",
-                          "Added to favorites",
-                          snackPosition:
-                              SnackPosition.BOTTOM,
-                          backgroundColor:
-                              kColorSuccess,
-                          colorText: Colors.white,
-                          duration: const Duration(
-                              seconds: 1));
-                    }
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(
-                        isPhone ? 4 : 4),
-                    decoration: const BoxDecoration(
-                      color: Colors.black45,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isFav
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: isFav
-                          ? Colors.blue
-                          : Colors.white70,
-                      size: isPhone ? 14 : 18,
-                    ),
-                  ),
+                child: FavoriteHeartIcon(
+                  type: FavoriteItemType.series,
+                  item: serie,
+                  isFav: isFav,
+                  isPhone: isPhone,
                 ),
               ),
 
@@ -311,7 +268,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
       body: Container(
         width: 100.w,
         height: 100.h,
-        decoration: kDecorBackground,
+        color: kColorBackgroundDark,
         child: Column(
           children: [
             // Global Header

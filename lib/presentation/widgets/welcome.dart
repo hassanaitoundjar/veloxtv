@@ -81,7 +81,7 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
             iconSize: 22,
           ),
           IconButton(
-            onPressed: () => Get.toNamed(screenSettings),
+            onPressed: () => Get.toNamed(screenAccountProfile),
             icon: const Icon(Icons.person_outline, color: Colors.white70),
             tooltip: "Account",
             iconSize: 22,
