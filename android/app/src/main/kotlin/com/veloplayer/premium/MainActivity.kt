@@ -1,5 +1,5 @@
 package com.veloplayer.premium
 
-import io.flutter.embedding.android.FlutterActivity
+import cl.puntito.simple_pip_mode.PipCallbackHelperActivityWrapper
 
-class MainActivity : FlutterActivity()
+class MainActivity : PipCallbackHelperActivityWrapper()

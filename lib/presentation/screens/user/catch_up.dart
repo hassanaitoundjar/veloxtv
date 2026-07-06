@@ -21,7 +21,7 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
 
   Future<void> _fetchEpg() async {
     if (widget.channel.streamId == null) return;
-    final list = await IpTvApi.getEPGbyStreamId(widget.channel.streamId!);
+    final list = await IpTvApi.getFullEPGbyStreamId(widget.channel.streamId!);
     if (mounted) {
       setState(() {
         _epgList = list;
@@ -88,7 +88,7 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
                         margin: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         child: ListTile(
-                          title: Text(epg.title ?? "No Title",
+                          title: Text(decodeEpgText(epg.title),
                               style: const TextStyle(color: Colors.white)),
                           subtitle: Text(timeDisplay,
                               style: const TextStyle(color: Colors.white70)),
@@ -122,9 +122,10 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
                                           "${startDt.millisecondsSinceEpoch ~/ 1000}",
                                       duration: durationMin.toString(),
                                     );
+                                    debugPrint("Catch-Up URL: $catchUpUrl");
 
                                     Get.to(() => MediaKitPlayerScreen(
-                                          title: "${epg.title} (Catch-up)",
+                                          title: "${decodeEpgText(epg.title)} (Catch-up)",
                                           link: catchUpUrl,
                                           isLive: false,
                                         ));

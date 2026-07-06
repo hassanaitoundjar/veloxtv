@@ -6,10 +6,16 @@
 
 #include "generated_plugin_registrant.h"
 
+#include <auto_start_flutter/auto_start_flutter_plugin.h>
+#include <bonsoir_windows/bonsoir_windows_plugin_c_api.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
 #include <media_kit_video/media_kit_video_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
+  AutoStartFlutterPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("AutoStartFlutterPlugin"));
+  BonsoirWindowsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("BonsoirWindowsPluginCApi"));
   MediaKitLibsWindowsVideoPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MediaKitLibsWindowsVideoPluginCApi"));
   MediaKitVideoPluginCApiRegisterWithRegistrar(

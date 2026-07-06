@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  auto_start_flutter
   media_kit_libs_linux
   media_kit_video
 )

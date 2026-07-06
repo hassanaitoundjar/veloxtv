@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: "Catch Up",
                   icon: FontAwesomeIcons.clockRotateLeft,
                   isIconData: true,
-                  onTap: () => Get.toNamed(screenLiveTv),
+                  onTap: () => Get.to(() => const CatchUpChannelsScreen()),
                 ),
               ),
               const SizedBox(width: 16),
@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: "Catch Up",
                       icon: FontAwesomeIcons.clockRotateLeft,
                       isIconData: true,
-                      onTap: () => Get.toNamed(screenLiveTv),
+                      onTap: () => Get.to(() => const CatchUpChannelsScreen()),
                       height: 100)),
               const SizedBox(width: 12),
               Expanded(

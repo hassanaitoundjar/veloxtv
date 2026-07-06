@@ -272,21 +272,71 @@ class IpTvApi {
     return [];
   }
 
+  /// Full EPG (including past programs) — used for Catch-Up archives.
+  /// Uses `get_simple_data_table` which returns all available EPG entries.
+  static Future<List<EpgModel>> getFullEPGbyStreamId(String streamId) async {
+    try {
+      final user = await LocaleApi.getUser();
+
+      if (user == null) {
+        return [];
+      }
+
+      var url = "${user.serverInfo!.serverUrl}/player_api.php";
+
+      Response<String> response = await _dio.get(
+        url,
+        queryParameters: {
+          "password": user.userInfo!.password,
+          "username": user.userInfo!.username,
+          "action": "get_simple_data_table",
+          "stream_id": streamId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return await compute(_parseEpgListings, response.data);
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint("Error Full EPG $streamId: $e");
+      return [];
+    }
+  }
+
 
   /// Construct Catch-up URL
+  ///
+  /// Xtream Codes path-based timeshift format:
+  /// /timeshift/user/pass/duration/start/stream_id.ts (or .m3u8)
   static String constructCatchUpUrl({
     required String baseUrl,
     required String username,
     required String password,
     required String streamId,
-    required String startTimestamp, // Unix Timestamp
+    required String startTimestamp, // Unix Timestamp (seconds)
     required String duration, // Minutes
   }) {
-    // Format: http://url:port/timeshift/user/pass/duration/timestamp/stream_id.ts
-    // Ensure baseUrl doesn't end with /
     final cleanBase = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
         : baseUrl;
-    return "$cleanBase/timeshift/$username/$password/$duration/$startTimestamp/$streamId.ts";
+
+    // Use stream_format from GetStorage if available, fallback to .ts for timeshift 
+    // .m3u8 timeshift streams take a long time to buffer on many Xtream servers
+    // because the server has to generate the HLS playlist on the fly.
+    final format = GetStorage().read('stream_format') == 'm3u8' ? 'm3u8' : 'ts';
+
+    // Convert Unix timestamp to YYYY-MM-DD:HH-MM format
+    final ts = int.tryParse(startTimestamp);
+    if (ts != null) {
+      final dt = DateTime.fromMillisecondsSinceEpoch(ts * 1000);
+      final formatted =
+          '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}:${dt.hour.toString().padLeft(2, '0')}-${dt.minute.toString().padLeft(2, '0')}';
+      return "$cleanBase/timeshift/$username/$password/$duration/$formatted/$streamId.$format";
+    }
+
+    // Fallback
+    return "$cleanBase/timeshift/$username/$password/$duration/$startTimestamp/$streamId.$format";
   }
 }

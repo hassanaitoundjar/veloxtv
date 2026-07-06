@@ -41,6 +41,9 @@ import '../../repository/models/user.dart';
 import '../../logic/blocs/epg/epg_bloc.dart'; // Added
 import '../widgets/widgets.dart';
 import '../widgets/parental_control_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_pip_mode/simple_pip.dart';
+import 'package:simple_pip_mode/actions/pip_action.dart';
 
 part 'user/splash.dart';
 part 'user/device_selection.dart';
@@ -53,6 +56,7 @@ part 'user/register_tv.dart';
 part 'user/settings.dart';
 part 'user/favorites.dart';
 part 'user/catch_up.dart';
+part 'user/catch_up_channels.dart';
 part 'user/search.dart';
 part 'user/speed_test.dart'; // Added
 part 'home.dart';

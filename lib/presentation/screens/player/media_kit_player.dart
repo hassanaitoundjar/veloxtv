@@ -23,7 +23,7 @@ class MediaKitPlayerScreen extends StatefulWidget {
   State<MediaKitPlayerScreen> createState() => _MediaKitPlayerScreenState();
 }
 
-class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
+class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> with WidgetsBindingObserver {
   late final Player _player;
   late final VideoController _videoController;
   bool _isExternalController = false;
@@ -33,6 +33,10 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   // Live Side Panel State
   bool _showChannelList = false;
   late String _currentTitle;
+
+  // PiP State
+  bool _isInPipMode = false;
+  late final SimplePip _simplePip;
 
   double _playbackSpeed = 1.0;
   Timer? _hideTimer;
@@ -95,6 +99,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _currentTitle = widget.title;
     MediaKit.ensureInitialized();
     WakelockPlus.enable();
@@ -104,6 +109,40 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+
+    // Initialize PiP
+    _simplePip = SimplePip(
+      onPipEntered: () {
+        if (mounted) setState(() => _isInPipMode = true);
+      },
+      onPipExited: () {
+        if (mounted) {
+          setState(() => _isInPipMode = false);
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+        }
+      },
+      onPipAction: (action) {
+        switch (action) {
+          case PipAction.play:
+            _player.play();
+          case PipAction.pause:
+            _player.pause();
+          case PipAction.forward:
+            _player.seek(_player.state.position + const Duration(seconds: 10));
+          case PipAction.rewind:
+            _player.seek(_player.state.position - const Duration(seconds: 10));
+          default:
+            break;
+        }
+      },
+    );
+    // Enable auto-enter PiP when user presses Home button (API 31+)
+    _simplePip.setAutoPipMode(
+      aspectRatio: (16, 9),
+      autoEnter: true,
+      seamlessResize: true,
+    );
+
     if (widget.player != null && widget.videoController != null) {
       _player = widget.player!;
       _videoController = widget.videoController!;
@@ -140,8 +179,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _hideTimer?.cancel();
     WakelockPlus.disable();
+    // Disable auto PiP when leaving player
+    _simplePip.setAutoPipMode(autoEnter: false);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -470,7 +512,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                   },
                 ),
                 // 🌑 GRADIENT OVERLAYS
-                if (_showControls) ...[
+                if (_showControls && !_isInPipMode) ...[
                   Positioned(
                     top: 0,
                     left: 0,
@@ -503,7 +545,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                   ),
                 ],
                 // 🎮 CONTROLS LAYER
-                if (_showControls)
+                if (_showControls && !_isInPipMode)
                   SafeArea(
                     child: Column(
                       children: [
@@ -745,6 +787,20 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                                         onPressed: _toggleAspectRatio,
                                         onFocusChange: (_) => _onInteraction(),
                                       ),
+                                      _PlayerControlButton(
+                                        icon: Icons.picture_in_picture_alt_rounded,
+                                        onPressed: () async {
+                                          final isAvailable = await SimplePip.isPipAvailable;
+                                          if (isAvailable) {
+                                            _simplePip.enterPipMode(
+                                              aspectRatio: (16, 9),
+                                              autoEnter: true,
+                                              seamlessResize: true,
+                                            );
+                                          }
+                                        },
+                                        onFocusChange: (_) => _onInteraction(),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -756,7 +812,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                     ),
                   ),
                 // 📌 CHANNEL NAME — persistent top-left badge (phone only)
-                if (context.isPhone && widget.isLive)
+                if (context.isPhone && widget.isLive && !_isInPipMode)
                   Positioned(
                     top: 8,
                     left: 8,
@@ -799,7 +855,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> {
                     ),
                   ),
                 // 📺 LIVE CHANNELS SIDE PANEL
-                if (widget.isLive && _showChannelList)
+                if (widget.isLive && _showChannelList && !_isInPipMode)
                   Positioned(
                     top: 0,
                     bottom: 0,
