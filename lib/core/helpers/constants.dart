@@ -1,6 +1,8 @@
 part of 'helpers.dart';
 
-const String kAppName = "Velo Player Pro";
+const String kAppName = "Vanto Player";
+const Color kPrimaryColor = Color(0xFF0F172A);
+const Color kAccentColor = Color(0xFF3B82F6);
 
 // Asset Paths
 const String kIconSplash = "assets/images/logo.png";

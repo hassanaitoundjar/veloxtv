@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:velo_player_pro/main.dart';
+import 'package:vanto_player/main.dart';
 
 void main() {
   testWidgets('App renders smoke test', (WidgetTester tester) async {

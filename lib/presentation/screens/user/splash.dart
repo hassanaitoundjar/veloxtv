@@ -24,6 +24,13 @@ class _SplashScreenState extends State<SplashScreen> {
           DeviceOrientation.landscapeRight,
         ]);
       }
+      // Check if disclaimer is accepted
+      final disclaimerAccepted = GetStorage().read('disclaimer_accepted') ?? false;
+      if (!disclaimerAccepted) {
+        Get.offNamed(screenDisclaimer);
+        return;
+      }
+
       // Check if device type is selected
       final deviceType = GetStorage().read(kPrefDeviceType);
 

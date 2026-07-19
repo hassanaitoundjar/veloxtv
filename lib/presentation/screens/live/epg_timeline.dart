@@ -325,23 +325,32 @@ class _EpgTimelineScreenState extends State<EpgTimelineScreen> {
                                         color: Colors.white70, size: 20),
                                     onPressed: () {
                                       // Navigate to player
-                                      Navigator.pushReplacement(context,
-                                          MaterialPageRoute(builder: (_) {
-                                        final format = GetStorage()
-                                                .read('stream_format') ??
-                                            'default';
-                                        final base =
-                                            "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}";
-                                        final link = format == 'default'
-                                            ? base
-                                            : "$base.$format";
-                                        return MediaKitPlayerScreen(
-                                          link: link,
-                                          title: channel.name ?? "Live Stream",
-                                          isLive: true,
-                                          channel: channel,
-                                        );
-                                      }));
+                                      final format = GetStorage().read('stream_format') ?? 'default';
+                                      final base = "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${channel.streamId}";
+                                      final link = format == 'default' ? base : "$base.$format";
+                                      final title = channel.name ?? "Live Stream";
+                                      
+                                      ExternalPlayerService.play(
+                                        context: context,
+                                        url: link,
+                                        title: title,
+                                        onPlay: () {
+                                          context
+                                              .read<RecentChannelsCubit>()
+                                              .addLive(channel);
+                                        },
+                                        openBuiltIn: () {
+                                          Navigator.pushReplacement(context,
+                                              MaterialPageRoute(builder: (_) {
+                                            return MediaKitPlayerScreen(
+                                              link: link,
+                                              title: title,
+                                              isLive: true,
+                                              channel: channel,
+                                            );
+                                          }));
+                                        },
+                                      );
                                     },
                                   ),
                                 ],
@@ -548,23 +557,32 @@ class _EpgRowItemState extends State<EpgRowItem> {
                                 backgroundColor: kColorPrimary),
                             onPressed: () {
                               Navigator.pop(context); // Close dialog
-                              Navigator.pushReplacement(context,
-                                  MaterialPageRoute(builder: (_) {
-                                final format =
-                                    GetStorage().read('stream_format') ??
-                                        'default';
-                                final base =
-                                    "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${widget.channel.streamId}";
-                                final link = format == 'default'
-                                    ? base
-                                    : "$base.$format";
-                                return MediaKitPlayerScreen(
-                                  link: link,
-                                  title: widget.channel.name ?? "Live Stream",
-                                  isLive: true,
-                                  channel: widget.channel,
-                                );
-                              }));
+                              final format = GetStorage().read('stream_format') ?? 'default';
+                              final base = "${GetStorage().read('server_url') ?? ''}/live/${GetStorage().read('username')}/${GetStorage().read('password')}/${widget.channel.streamId}";
+                              final link = format == 'default' ? base : "$base.$format";
+                              final title = widget.channel.name ?? "Live Stream";
+                              
+                              ExternalPlayerService.play(
+                                context: context,
+                                url: link,
+                                title: title,
+                                onPlay: () {
+                                  context
+                                      .read<RecentChannelsCubit>()
+                                      .addLive(widget.channel);
+                                },
+                                openBuiltIn: () {
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(builder: (_) {
+                                    return MediaKitPlayerScreen(
+                                      link: link,
+                                      title: title,
+                                      isLive: true,
+                                      channel: widget.channel,
+                                    );
+                                  }));
+                                },
+                              );
                             },
                             child: const Text("Watch Channel",
                                 style: TextStyle(color: Colors.white)),

@@ -165,15 +165,6 @@ class IntroScreen extends StatelessWidget {
                               letterSpacing: 1.2,
                             ),
                           ),
-                          TextSpan(
-                            text: "  PRO",
-                            style: GoogleFonts.outfit(
-                              fontSize: s.proFont,
-                              fontWeight: FontWeight.w500,
-                              color: kColorPrimary,
-                              letterSpacing: 2,
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -378,7 +369,7 @@ class _SmOptionState extends State<_SmOption> {
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&
             (event.logicalKey == LogicalKeyboardKey.select ||
-             event.logicalKey == LogicalKeyboardKey.enter)) {
+                event.logicalKey == LogicalKeyboardKey.enter)) {
           widget.onTap();
           return KeyEventResult.handled;
         }

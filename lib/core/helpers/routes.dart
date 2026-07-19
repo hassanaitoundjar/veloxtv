@@ -2,6 +2,7 @@ part of 'helpers.dart';
 
 // Route Names
 const String screenSplash = "/";
+const String screenDisclaimer = "/disclaimer";
 const String screenDeviceSelection = "/device-selection";
 const String screenHome = "/home";
 const String screenIntro = "/intro";

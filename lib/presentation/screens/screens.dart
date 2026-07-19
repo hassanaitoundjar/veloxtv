@@ -19,14 +19,17 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:dio/dio.dart'; // Added for Speed Test
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import '../../core/helpers/helpers.dart';
+import '../../core/services/update_service.dart';
 import '../../logic/blocs/auth/auth_bloc.dart';
 import '../../logic/blocs/categories/channels_bloc.dart';
 import '../../logic/blocs/categories/live_caty_bloc.dart';
 import '../../logic/blocs/categories/movie_caty_bloc.dart';
 import '../../logic/blocs/categories/series_caty_bloc.dart';
 import '../../logic/cubits/favorites/favorites_cubit.dart';
+import '../../logic/cubits/recent_channels/recent_channels_cubit.dart';
 import '../../logic/cubits/watch/watching_cubit.dart';
 import '../../repository/api/api.dart';
 import '../../repository/models/category.dart';
@@ -46,6 +49,7 @@ import 'package:simple_pip_mode/simple_pip.dart';
 import 'package:simple_pip_mode/actions/pip_action.dart';
 
 part 'user/splash.dart';
+part 'user/disclaimer.dart';
 part 'user/device_selection.dart';
 part 'user/intro.dart';
 part 'user/profile.dart';

@@ -124,11 +124,19 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
                                     );
                                     debugPrint("Catch-Up URL: $catchUpUrl");
 
-                                    Get.to(() => MediaKitPlayerScreen(
-                                          title: "${decodeEpgText(epg.title)} (Catch-up)",
-                                          link: catchUpUrl,
-                                          isLive: false,
-                                        ));
+                                    final title = "${decodeEpgText(epg.title)} (Catch-up)";
+                                    ExternalPlayerService.play(
+                                      context: context,
+                                      url: catchUpUrl,
+                                      title: title,
+                                      openBuiltIn: () {
+                                        Get.to(() => MediaKitPlayerScreen(
+                                              title: title,
+                                              link: catchUpUrl,
+                                              isLive: false,
+                                            ));
+                                      },
+                                    );
                                   }
                                 } catch (e) {
                                   debugPrint("Error parsing dates: $e");

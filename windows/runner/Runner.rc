@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.antigravity.player" "\0"
-            VALUE "FileDescription", "player_premium" "\0"
+            VALUE "CompanyName", "com.vantoplayer.player" "\0"
+            VALUE "FileDescription", "Vanto Player" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "player_premium" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.antigravity.player. All rights reserved." "\0"
-            VALUE "OriginalFilename", "player_premium.exe" "\0"
-            VALUE "ProductName", "player_premium" "\0"
+            VALUE "InternalName", "vanto_player" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.vantoplayer.player. All rights reserved." "\0"
+            VALUE "OriginalFilename", "vanto_player.exe" "\0"
+            VALUE "ProductName", "Vanto Player" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

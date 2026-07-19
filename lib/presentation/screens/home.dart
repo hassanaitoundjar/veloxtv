@@ -16,6 +16,12 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<MovieCatyBloc>().add(GetMovieCategories());
     context.read<SeriesCatyBloc>().add(GetSeriesCategories());
     context.read<FavoritesCubit>().initialData();
+    context.read<RecentChannelsCubit>().initialData();
+
+    // Check for updates
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateService.checkForUpdates(context);
+    });
 
     // Show first-login parental PIN notice once per user account
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -460,4 +466,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 }

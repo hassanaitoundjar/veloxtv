@@ -23,7 +23,8 @@ class MediaKitPlayerScreen extends StatefulWidget {
   State<MediaKitPlayerScreen> createState() => _MediaKitPlayerScreenState();
 }
 
-class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> with WidgetsBindingObserver {
+class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
+    with WidgetsBindingObserver {
   late final Player _player;
   late final VideoController _videoController;
   bool _isExternalController = false;
@@ -635,9 +636,8 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> with Widget
                                         Expanded(
                                           child: SliderTheme(
                                             data: const SliderThemeData(
-                                              thumbShape:
-                                                  RoundSliderThumbShape(
-                                                      enabledThumbRadius: 6),
+                                              thumbShape: RoundSliderThumbShape(
+                                                  enabledThumbRadius: 6),
                                               trackHeight: 2,
                                               overlayShape:
                                                   RoundSliderOverlayShape(
@@ -788,9 +788,11 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen> with Widget
                                         onFocusChange: (_) => _onInteraction(),
                                       ),
                                       _PlayerControlButton(
-                                        icon: Icons.picture_in_picture_alt_rounded,
+                                        icon: Icons
+                                            .picture_in_picture_alt_rounded,
                                         onPressed: () async {
-                                          final isAvailable = await SimplePip.isPipAvailable;
+                                          final isAvailable =
+                                              await SimplePip.isPipAvailable;
                                           if (isAvailable) {
                                             _simplePip.enterPipMode(
                                               aspectRatio: (16, 9),

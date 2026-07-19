@@ -1,0 +1,42 @@
+Analyzing veloxtv...                                            
+
+   info • Use 'const' with the constructor to improve performance • lib/core/helpers/external_player.dart:92:15 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/core/helpers/external_player.dart:94:24 • prefer_const_constructors
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/auth/auth_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/channels_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/live_caty_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/movie_caty_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/series_caty_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/epg/epg_bloc.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/cubits/favorites/favorites_cubit.dart:1:8 • depend_on_referenced_packages
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/cubits/recent_channels/recent_channels_cubit.dart:1:8 • depend_on_referenced_packages
+warning • Unused import: 'package:flutter/cupertino.dart' • lib/logic/cubits/recent_channels/recent_channels_cubit.dart:2:8 • unused_import
+  error • The name 'RecentChannelsLoaded' isn't defined, so it can't be used in an 'is' expression • lib/presentation/screens/home.dart:471:22 • type_test_with_undefined_name
+  error • Undefined name 'favState' • lib/presentation/screens/live/live_tv.dart:432:47 • undefined_identifier
+  error • Undefined name 'favState' • lib/presentation/screens/live/live_tv.dart:433:53 • undefined_identifier
+   info • Unnecessary instance of 'Container' • lib/presentation/screens/live/live_tv.dart:670:28 • avoid_unnecessary_containers
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/live/live_tv.dart:698:41 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/live/live_tv.dart:1221:67 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:106:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:107:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:112:7 • avoid_print
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/series/serie_details.dart:444:9 • prefer_const_constructors
+   info • Instances of 'Color' should be created using an 8-digit hexadecimal integer (such as '0xFFFFFFFF') • lib/presentation/screens/series/serie_details.dart:651:36 • use_full_hex_values_for_flutter_colors
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/series/serie_details.dart:670:30 • prefer_const_constructors
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/catch_up.dart:129:39 • use_build_context_synchronously
+warning • The value of the local variable 'isTallEnough' isn't used • lib/presentation/screens/user/device_selection.dart:36:21 • unused_local_variable
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/favorites.dart:177:37 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/profile.dart:69:24 • prefer_const_constructors
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/search.dart:423:7 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/settings.dart:337:15 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/settings.dart:338:23 • prefer_const_constructors
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/presentation/screens/user/settings.dart:776:23 • deprecated_member_use
+   info • 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:316:56 • deprecated_member_use
+   info • 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:316:75 • deprecated_member_use
+   info • 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:317:43 • deprecated_member_use
+   info • 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:472:46 • deprecated_member_use
+   info • 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:472:65 • deprecated_member_use
+   info • 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:473:33 • deprecated_member_use
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' • lib/repository/api/api.dart:6:8 • unnecessary_import
+   info • The 'if' statement could be replaced by a null-aware assignment • lib/repository/locale/recents.dart:43:5 • prefer_conditional_assignment
+

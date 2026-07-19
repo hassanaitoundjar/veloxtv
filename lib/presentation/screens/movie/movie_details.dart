@@ -295,25 +295,33 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   final link =
                       "${userAuth.serverInfo!.serverUrl}/movie/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${_detail!.movieData!.streamId}.${_detail!.movieData!.containerExtension}";
                   debugPrint("Link: $link");
-                  Get.to(() => MediaKitPlayerScreen(
-                            link: link,
-                            title: _detail!.movieData!.name ?? "",
-                            isLive: false,
-                          ))!
-                      .then((slider) {
-                    if (slider != null && slider is List && slider.isNotEmpty) {
-                      var model = WatchingModel(
-                        sliderValue: slider[0],
-                        durationStrm: slider[1] ?? 0.0,
-                        stream: link,
-                        title: _movie.name ?? "",
-                        image: _movie.streamIcon ?? "",
-                        streamId: _movie.streamId.toString(),
-                      );
-                      if (!context.mounted) return;
-                      context.read<WatchingCubit>().addMovie(model);
-                    }
-                  });
+                  final title = _detail!.movieData!.name ?? "";
+                  ExternalPlayerService.play(
+                    context: context,
+                    url: link,
+                    title: title,
+                    openBuiltIn: () {
+                      Get.to(() => MediaKitPlayerScreen(
+                                link: link,
+                                title: title,
+                                isLive: false,
+                              ))!
+                          .then((slider) {
+                        if (slider != null && slider is List && slider.isNotEmpty) {
+                          var model = WatchingModel(
+                            sliderValue: slider[0],
+                            durationStrm: slider[1] ?? 0.0,
+                            stream: link,
+                            title: _movie.name ?? "",
+                            image: _movie.streamIcon ?? "",
+                            streamId: _movie.streamId.toString(),
+                          );
+                          if (!context.mounted) return;
+                          context.read<WatchingCubit>().addMovie(model);
+                        }
+                      });
+                    },
+                  );
                 },
               );
             },

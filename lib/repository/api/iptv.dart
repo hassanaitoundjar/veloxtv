@@ -74,7 +74,8 @@ class IpTvApi {
         return list;
       }
 
-      throw Exception("Failed to load live channels. Status code: ${response.statusCode}");
+      throw Exception(
+          "Failed to load live channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Channel $catyId: $e");
       throw Exception("Failed to load live channels: $e");
@@ -113,7 +114,8 @@ class IpTvApi {
         return list;
       }
 
-      throw Exception("Failed to load movie channels. Status code: ${response.statusCode}");
+      throw Exception(
+          "Failed to load movie channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Movie Channel $catyId: $e");
       throw Exception("Failed to load movie channels: $e");
@@ -152,7 +154,8 @@ class IpTvApi {
         return list;
       }
 
-      throw Exception("Failed to load series channels. Status code: ${response.statusCode}");
+      throw Exception(
+          "Failed to load series channels. Status code: ${response.statusCode}");
     } catch (e) {
       debugPrint("Error Series Channel $catyId: $e");
       throw Exception("Failed to load series channels: $e");
@@ -305,7 +308,6 @@ class IpTvApi {
     }
   }
 
-
   /// Construct Catch-up URL
   ///
   /// Xtream Codes path-based timeshift format:
@@ -322,7 +324,7 @@ class IpTvApi {
         ? baseUrl.substring(0, baseUrl.length - 1)
         : baseUrl;
 
-    // Use stream_format from GetStorage if available, fallback to .ts for timeshift 
+    // Use stream_format from GetStorage if available, fallback to .ts for timeshift
     // .m3u8 timeshift streams take a long time to buffer on many Xtream servers
     // because the server has to generate the HLS playlist on the fly.
     final format = GetStorage().read('stream_format') == 'm3u8' ? 'm3u8' : 'ts';
@@ -338,5 +340,6 @@ class IpTvApi {
 
     // Fallback
     return "$cleanBase/timeshift/$username/$password/$duration/$startTimestamp/$streamId.$format";
+    // return "$cleanBase/timeshift/$username/$password/$duration/$startTimestamp/$streamId.ts";
   }
 }

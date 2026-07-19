@@ -99,6 +99,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
         _selectCategory(firstSafe);
       }
     }
+
+    // Load recent channels
+    context.read<RecentChannelsCubit>().initialData();
   }
 
   @override
@@ -135,7 +138,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
       _selectedCategory = category;
     });
     // Trigger the ChannelsBloc to load live channels for this category
-    if (category.categoryId != "favorites") {
+    if (category.categoryId != "favorites" && category.categoryId != "recents") {
       context
           .read<ChannelsBloc>()
           .add(GetChannels(category.categoryId!, TypeCategory.live));
@@ -215,7 +218,8 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
     }
   }
 
-  Widget _buildChannelsList(List<ChannelLive> channels, FavoritesState favState) {
+  Widget _buildChannelsList(
+      List<ChannelLive> channels, FavoritesState favState) {
     final favoriteIds = favState is FavoritesSuccess
         ? favState.live.map((c) => c.streamId).toSet()
         : <String?>{};
@@ -421,15 +425,37 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                           true)
                                       .toList();
 
-                                  return BlocBuilder<FavoritesCubit, FavoritesState>(
-                                    builder: (context, favState) {
-                                      final int favCount = favState is FavoritesSuccess ? favState.live.length : 0;
-                                      final favoritesCategory = CategoryModel(
-                                        categoryId: "favorites",
-                                        categoryName: "Favorites ($favCount)",
-                                      );
+                                      return BlocBuilder<FavoritesCubit, FavoritesState>(
+                                        builder: (context, favState) {
+                                          return BlocBuilder<RecentChannelsCubit,
+                                              RecentChannelsState>(
+                                            builder: (context, recentState) {
+                                              final int favCount =
+                                                  favState is FavoritesSuccess
+                                                      ? favState.live.length
+                                                      : 0;
+                                              final favoritesCategory =
+                                                  CategoryModel(
+                                                categoryId: "favorites",
+                                            categoryName:
+                                                "Favorites ($favCount)",
+                                          );
 
-                                      final combinedList = [favoritesCategory, ...filtered];
+                                          final int recentCount =
+                                              recentState is RecentChannelsSuccess
+                                                  ? recentState.live.length
+                                                  : 0;
+                                          final recentsCategory = CategoryModel(
+                                            categoryId: "recents",
+                                            categoryName:
+                                                "Recent Channels ($recentCount)",
+                                          );
+
+                                          final combinedList = [
+                                            recentsCategory,
+                                            favoritesCategory,
+                                            ...filtered
+                                          ];
 
                                       // Auto-select the first category if none is currently selected
                                       if (_selectedCategory == null &&
@@ -446,73 +472,79 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                         itemCount: combinedList.length,
                                         itemBuilder: (context, index) {
                                           final cat = combinedList[index];
-                                      final isSelected =
-                                          _selectedCategory?.categoryId ==
-                                              cat.categoryId;
+                                          final isSelected =
+                                              _selectedCategory?.categoryId ==
+                                                  cat.categoryId;
 
-                                      return FocusableCard(
-                                        onTap: () {
-                                          // Check parental controls before switching categories
-                                          _checkParentalControl(cat, () {
-                                            _selectCategory(cat);
-                                          });
-                                        },
-                                        scale: 1.02,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: isPhone ? 6 : 12,
-                                              horizontal: isPhone ? 8 : 16),
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                                ? kColorPrimary
-                                                : Colors.transparent,
-                                            border: isSelected
-                                                ? null
-                                                : const Border(
-                                                    bottom: BorderSide(
-                                                        color: Colors.white10)),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  cat.categoryName ?? "Unknown",
-                                                  style: TextStyle(
-                                                    fontSize: isPhone
-                                                        ? 10
-                                                        : (screenSize.width <
-                                                                1200
-                                                            ? 16
-                                                            : 18),
-                                                    color: isSelected
-                                                        ? Colors.white
-                                                        : kColorTextSecondary,
-                                                    fontWeight: isSelected
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
+                                          return FocusableCard(
+                                            onTap: () {
+                                              // Check parental controls before switching categories
+                                              _checkParentalControl(cat, () {
+                                                _selectCategory(cat);
+                                              });
+                                            },
+                                            scale: 1.02,
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: isPhone ? 6 : 12,
+                                                  horizontal: isPhone ? 8 : 16),
+                                              decoration: BoxDecoration(
+                                                color: isSelected
+                                                    ? kColorPrimary
+                                                    : Colors.transparent,
+                                                border: isSelected
+                                                    ? null
+                                                    : const Border(
+                                                        bottom: BorderSide(
+                                                            color: Colors
+                                                                .white10)),
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ); // Closes ListView.builder
-                                },
-                              ); // Closes BlocBuilder<FavoritesCubit>
-                            } else if (state is LiveCatyFailed) {
-                              return Center(child: Text(state.message));
-                            }
-                            return const SizedBox();
-                          },
-                        ), // Closes BlocBuilder<LiveCatyBloc>
-                      ), // Closes Expanded
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      cat.categoryName ??
+                                                          "Unknown",
+                                                      style: TextStyle(
+                                                        fontSize: isPhone
+                                                            ? 10
+                                                            : (screenSize
+                                                                        .width <
+                                                                    1200
+                                                                ? 16
+                                                                : 18),
+                                                        color: isSelected
+                                                            ? Colors.white
+                                                            : kColorTextSecondary,
+                                                        fontWeight: isSelected
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            );
+                                          },
+                                        ); // Closes ListView.builder
+                                      },
+                                    ); // Closes BlocBuilder<RecentChannelsCubit>
+                                  },
+                                ); // Closes BlocBuilder<FavoritesCubit>
+                                } else if (state is LiveCatyFailed) {
+                                  return Center(child: Text(state.message));
+                                }
+                                return const SizedBox();
+                              },
+                            ), // Closes BlocBuilder<LiveCatyBloc>
+                          ), // Closes Expanded
                         ],
                       ),
                     ),
@@ -546,22 +578,54 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                           ),
 
                           Expanded(
-                            child: _selectedCategory?.categoryId == "favorites"
-                                ? BlocBuilder<FavoritesCubit, FavoritesState>(
+                            child: Builder(
+                              builder: (context) {
+                                if (_selectedCategory?.categoryId == "favorites") {
+                                  return BlocBuilder<FavoritesCubit, FavoritesState>(
                                     builder: (context, favState) {
                                       if (favState is FavoritesLoading) {
-                                        return const Center(child: CircularProgressIndicator());
+                                        return const Center(
+                                            child: CircularProgressIndicator());
                                       } else if (favState is FavoritesSuccess) {
-                                        final channels = List<ChannelLive>.from(favState.live);
+                                        final channels = List<ChannelLive>.from(
+                                            favState.live);
                                         if (channels.isEmpty) {
-                                          return const Center(child: Text("No favorite channels"));
+                                          return const Center(
+                                              child:
+                                                  Text("No favorite channels"));
                                         }
-                                        return _buildChannelsList(channels, favState);
+                                        return _buildChannelsList(
+                                            channels, favState);
                                       }
                                       return const SizedBox();
                                     },
-                                  )
-                                : BlocBuilder<ChannelsBloc, ChannelsState>(
+                                  );
+                                } else if (_selectedCategory?.categoryId == "recents") {
+                                  return BlocBuilder<RecentChannelsCubit, RecentChannelsState>(
+                                    builder: (context, recentState) {
+                                      if (recentState is RecentChannelsLoading) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (recentState is RecentChannelsSuccess) {
+                                        final channels = List<ChannelLive>.from(
+                                            recentState.live);
+                                        if (channels.isEmpty) {
+                                          return const Center(
+                                              child:
+                                                  Text("No recent channels"));
+                                        }
+                                        return BlocBuilder<FavoritesCubit, FavoritesState>(
+                                          builder: (context, favState) {
+                                            return _buildChannelsList(
+                                              channels, favState);
+                                          }
+                                        );
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  );
+                                } else {
+                                  return BlocBuilder<ChannelsBloc, ChannelsState>(
                                     builder: (context, state) {
                                       if (_selectedCategory == null) {
                                         return const Center(
@@ -573,25 +637,31 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                             child: CircularProgressIndicator());
                                       } else if (state is ChannelsSuccess &&
                                           state.type == TypeCategory.live) {
-                                        final channels =
-                                            List<ChannelLive>.from(state.channels);
+                                        final channels = List<ChannelLive>.from(
+                                            state.channels);
 
                                         if (channels.isEmpty) {
                                           return const Center(
                                               child: Text("No channels"));
                                         }
 
-                                        return BlocBuilder<FavoritesCubit, FavoritesState>(
+                                        return BlocBuilder<FavoritesCubit,
+                                            FavoritesState>(
                                           builder: (context, favState) {
-                                            return _buildChannelsList(channels, favState);
+                                            return _buildChannelsList(
+                                                channels, favState);
                                           },
                                         );
                                       } else if (state is ChannelsFailed) {
-                                        return Center(child: Text(state.message));
+                                        return Center(
+                                            child: Text(state.message));
                                       }
                                       return const SizedBox();
                                     },
-                                  ),
+                                  );
+                                }
+                              }
+                            )
                           ),
                         ],
                       ),
@@ -627,16 +697,26 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                           ? base
                                           : "$base.$format";
 
-                                      // Navigate to the dedicated player screen
-                                      Get.to(() => MediaKitPlayerScreen(
-                                            title: _selectedChannel!.name ??
-                                                "Live TV",
-                                            link: link,
-                                            isLive: true,
-                                            player: _previewPlayer,
-                                            videoController:
-                                                _previewVideoController,
-                                          ));
+                                      final title = _selectedChannel!.name ?? "Live TV";
+                                      ExternalPlayerService.play(
+                                        context: context,
+                                        url: link,
+                                        title: title,
+                                        onPlay: () {
+                                          context
+                                              .read<RecentChannelsCubit>()
+                                              .addLive(_selectedChannel!);
+                                        },
+                                        openBuiltIn: () {
+                                          Get.to(() => MediaKitPlayerScreen(
+                                                title: title,
+                                                link: link,
+                                                isLive: true,
+                                                player: _previewPlayer,
+                                                videoController: _previewVideoController,
+                                              ));
+                                        },
+                                      );
                                     }
                                   });
                                 }
@@ -995,7 +1075,8 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                       color: (isCurrent ||
                                                               isNow)
                                                           ? kColorPrimary
-                                                              .withValues(alpha: 0.1)
+                                                              .withValues(
+                                                                  alpha: 0.1)
                                                           : null,
                                                       border: const Border(
                                                           bottom: BorderSide(
@@ -1139,20 +1220,21 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                   play: true,
                                                                 );
 
-                                                                // Navigate to the player screen in non-live mode (to allow seeking)
-                                                                Get.to(() =>
-                                                                    MediaKitPlayerScreen(
-                                                                      title:
-                                                                          "$title (Catch-up)",
-                                                                      link:
-                                                                          catchUpUrl,
-                                                                      isLive:
-                                                                          false,
-                                                                      player:
-                                                                          _previewPlayer,
-                                                                      videoController:
-                                                                          _previewVideoController,
-                                                                    ));
+                                                                final fullTitle = "$title (Catch-up)";
+                                                                ExternalPlayerService.play(
+                                                                  context: context,
+                                                                  url: catchUpUrl,
+                                                                  title: fullTitle,
+                                                                  openBuiltIn: () {
+                                                                    Get.to(() => MediaKitPlayerScreen(
+                                                                          title: fullTitle,
+                                                                          link: catchUpUrl,
+                                                                          isLive: false,
+                                                                          player: _previewPlayer,
+                                                                          videoController: _previewVideoController,
+                                                                        ));
+                                                                  },
+                                                                );
                                                               }
                                                             },
                                                           ),

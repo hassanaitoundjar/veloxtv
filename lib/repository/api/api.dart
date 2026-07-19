@@ -21,7 +21,9 @@ part 'auth.dart';
 part 'm3u_parser.dart';
 part '../locale/locale.dart';
 part '../locale/favorites.dart';
+part '../locale/recents.dart';
 
 final _dio = Dio();
 final locale = GetStorage();
 final favoritesLocale = GetStorage("favorites");
+final recentLocale = GetStorage("recents");

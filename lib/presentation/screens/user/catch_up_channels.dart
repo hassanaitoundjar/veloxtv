@@ -30,9 +30,9 @@ class _CatchUpChannelsScreenState extends State<CatchUpChannelsScreen> {
   Future<void> _fetchChannels() async {
     try {
       final all = await IpTvApi().getLiveChannels(null);
-      // Keep only channels that support catch-up
+      // Keep only channels that support catch-up and have a valid archive duration
       final archiveChannels =
-          all.where((c) => c.tvArchive == 1).toList()
+          all.where((c) => c.tvArchive == 1 && (c.tvArchiveDuration ?? 0) > 0).toList()
             ..sort((a, b) => (a.num ?? 0).compareTo(b.num ?? 0));
       if (mounted) {
         setState(() {

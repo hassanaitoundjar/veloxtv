@@ -12,6 +12,7 @@ import 'logic/blocs/categories/live_caty_bloc.dart';
 import 'logic/blocs/categories/movie_caty_bloc.dart';
 import 'logic/blocs/categories/series_caty_bloc.dart';
 import 'logic/cubits/favorites/favorites_cubit.dart';
+import 'logic/cubits/recent_channels/recent_channels_cubit.dart';
 import 'logic/cubits/watch/watching_cubit.dart';
 import 'presentation/screens/screens.dart';
 import 'repository/api/api.dart';
@@ -25,6 +26,7 @@ void main() async {
   await GetStorage.init("favorites");
   await GetStorage.init("watching");
   await GetStorage.init("settings");
+  await GetStorage.init("recents");
 
   // Lock orientation to landscape for the best TV/Tablet experience
   SystemChrome.setPreferredOrientations([
@@ -61,6 +63,7 @@ class MyApp extends StatelessWidget {
         // UI and Preference management
         BlocProvider(create: (context) => FavoritesCubit()),
         BlocProvider(create: (context) => WatchingCubit()),
+        BlocProvider(create: (context) => RecentChannelsCubit()),
       ],
       child: ResponsiveSizer(
         builder: (context, orientation, screenType) {
@@ -72,6 +75,8 @@ class MyApp extends StatelessWidget {
             getPages: [
               // Application Routing
               GetPage(name: screenSplash, page: () => const SplashScreen()),
+              GetPage(
+                  name: screenDisclaimer, page: () => const DisclaimerScreen()),
               GetPage(
                   name: screenDeviceSelection,
                   page: () => const DeviceSelectionScreen()),

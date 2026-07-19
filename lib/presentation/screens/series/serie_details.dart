@@ -497,24 +497,32 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   final userAuth = (state).user;
                   final link =
                       '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${firstEpisode.id}.${firstEpisode.containerExtension}';
-                  Get.to(() => MediaKitPlayerScreen(
-                            link: link,
-                            title: firstEpisode.title ?? '',
-                          ))!
-                      .then((slider) {
-                    if (slider != null && slider is List && slider.isNotEmpty) {
-                      final model = WatchingModel(
-                        sliderValue: slider[0],
-                        durationStrm: slider[1] ?? 0.0,
-                        stream: link,
-                        title: firstEpisode.title ?? '',
-                        image: _details?.info?.cover ?? '',
-                        streamId: firstEpisode.id.toString(),
-                      );
-                      if (!context.mounted) return;
-                      context.read<WatchingCubit>().addSerie(model);
-                    }
-                  });
+                  final title = firstEpisode.title ?? '';
+                  ExternalPlayerService.play(
+                    context: context,
+                    url: link,
+                    title: title,
+                    openBuiltIn: () {
+                      Get.to(() => MediaKitPlayerScreen(
+                                link: link,
+                                title: title,
+                              ))!
+                          .then((slider) {
+                        if (slider != null && slider is List && slider.isNotEmpty) {
+                          final model = WatchingModel(
+                            sliderValue: slider[0],
+                            durationStrm: slider[1] ?? 0.0,
+                            stream: link,
+                            title: title,
+                            image: _details?.info?.cover ?? '',
+                            streamId: firstEpisode.id.toString(),
+                          );
+                          if (!context.mounted) return;
+                          context.read<WatchingCubit>().addSerie(model);
+                        }
+                      });
+                    },
+                  );
                 },
               ),
 
@@ -689,24 +697,32 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
             final userAuth = state.user;
             final link =
                 '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${episode.id}.${episode.containerExtension}';
-            Get.to(() => MediaKitPlayerScreen(
-                      link: link,
-                      title: episode.title ?? '',
-                    ))!
-                .then((slider) {
-              if (slider != null && slider is List && slider.isNotEmpty) {
-                final model = WatchingModel(
-                  sliderValue: slider[0],
-                  durationStrm: slider[1] ?? 0.0,
-                  stream: link,
-                  title: episode.title ?? '',
-                  image: _details?.info?.cover ?? '',
-                  streamId: episode.id.toString(),
-                );
-                if (!context.mounted) return;
-                context.read<WatchingCubit>().addSerie(model);
-              }
-            });
+            final title = episode.title ?? '';
+            ExternalPlayerService.play(
+              context: context,
+              url: link,
+              title: title,
+              openBuiltIn: () {
+                Get.to(() => MediaKitPlayerScreen(
+                          link: link,
+                          title: title,
+                        ))!
+                    .then((slider) {
+                  if (slider != null && slider is List && slider.isNotEmpty) {
+                    final model = WatchingModel(
+                      sliderValue: slider[0],
+                      durationStrm: slider[1] ?? 0.0,
+                      stream: link,
+                      title: title,
+                      image: _details?.info?.cover ?? '',
+                      streamId: episode.id.toString(),
+                    );
+                    if (!context.mounted) return;
+                    context.read<WatchingCubit>().addSerie(model);
+                  }
+                });
+              },
+            );
           },
           child: Padding(
             padding: EdgeInsets.symmetric(

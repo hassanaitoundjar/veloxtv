@@ -172,12 +172,20 @@ class FavoriteScreen extends StatelessWidget {
                                   final link = format == 'default'
                                       ? base
                                       : "$base.$format";
-                                  Get.to(() => MediaKitPlayerScreen(
-                                        link: link,
-                                        title: item.name ?? "",
-                                        isLive: true,
-                                        channel: item,
-                                      ));
+                                  final title = item.name ?? "";
+                                  ExternalPlayerService.play(
+                                    context: context,
+                                    url: link,
+                                    title: title,
+                                    openBuiltIn: () {
+                                      Get.to(() => MediaKitPlayerScreen(
+                                            link: link,
+                                            title: title,
+                                            isLive: true,
+                                            channel: item,
+                                          ));
+                                    },
+                                  );
                                 }
                               },
                             ),

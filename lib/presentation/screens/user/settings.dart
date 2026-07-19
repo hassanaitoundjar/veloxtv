@@ -785,6 +785,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              SizedBox(height: isPhone ? 16 : 24),
+              Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+              SizedBox(height: isPhone ? 16 : 24),
+              // ── External Player ──
+              Text("Video Player",
+                  style: TextStyle(
+                      color: kColorTextSecondary,
+                      fontSize: isPhone ? 14 : 16,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(
+                  "Choose how to play streams – use the built-in player or send to an external app like VLC or MX Player.",
+                  style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: isPhone ? 11 : 12)),
+              SizedBox(height: isPhone ? 12 : 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                children: [
+                  _buildPlayerModeOption("Built-in", "builtin",
+                      Icons.play_circle_filled, isPhone: isPhone),
+                  _buildPlayerModeOption("External App", "external",
+                      Icons.open_in_new_rounded, isPhone: isPhone),
+                  _buildPlayerModeOption("Always Ask", "ask",
+                      Icons.help_outline_rounded, isPhone: isPhone),
+                ],
+              ),
             ],
           ),
         ),
@@ -822,6 +850,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : Icons.radio_button_unchecked_rounded,
                 color: Colors.white,
                 size: isPhone ? 16 : 18),
+            const SizedBox(width: 8),
+            Text(label,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isPhone ? 12.5 : 14,
+                    fontWeight:
+                        isSelected ? FontWeight.w700 : FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerModeOption(String label, String value, IconData icon,
+      {bool isPhone = false}) {
+    final groupValue = ExternalPlayerService.playerMode;
+    final isSelected = value == groupValue;
+    return FocusableCard(
+      onTap: () {
+        ExternalPlayerService.setPlayerMode(value);
+        setState(() {});
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: EdgeInsets.symmetric(
+            horizontal: isPhone ? 14 : 16, vertical: isPhone ? 9 : 11),
+        decoration: BoxDecoration(
+          color:
+              isSelected ? kColorPrimary : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: isSelected
+                  ? kColorPrimary
+                  : Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: isPhone ? 16 : 18),
             const SizedBox(width: 8),
             Text(label,
                 style: TextStyle(
@@ -886,6 +953,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // ABOUT
   // ============================================================
   Widget _buildAboutSettings(bool isPhone) {
+    Future<void> launchLink(String urlString) async {
+      final Uri url = Uri.parse(urlString);
+      if (!await launchUrl(url)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not launch $urlString')));
+        }
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -902,6 +979,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildInfoRow("Developer", "Dev Team",
                   icon: Icons.code_rounded, isPhone: isPhone, isLast: true),
             ],
+          ),
+        ),
+        SizedBox(height: isPhone ? 16 : 22),
+        _sectionHeader("Legal & Support", Icons.gavel_rounded, isPhone,
+            caption: "Terms, Privacy, and Contact"),
+        _card(
+          padding: isPhone ? 8 : 12,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.description_rounded, color: kColorPrimary, size: isPhone ? 20 : 24),
+                title: Text("Terms of Service", style: TextStyle(color: Colors.white, fontSize: isPhone ? 14 : 16)),
+                trailing: Icon(Icons.open_in_new_rounded, color: Colors.white54, size: isPhone ? 16 : 20),
+                onTap: () => launchLink('https://vantoplayer.com/terms'),
+              ),
+              Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+              ListTile(
+                leading: Icon(Icons.privacy_tip_rounded, color: kColorPrimary, size: isPhone ? 20 : 24),
+                title: Text("Privacy Policy", style: TextStyle(color: Colors.white, fontSize: isPhone ? 14 : 16)),
+                trailing: Icon(Icons.open_in_new_rounded, color: Colors.white54, size: isPhone ? 16 : 20),
+                onTap: () => launchLink('https://vantoplayer.com/privacy'),
+              ),
+              Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+              ListTile(
+                leading: Icon(Icons.contact_support_rounded, color: kColorPrimary, size: isPhone ? 20 : 24),
+                title: Text("Contact Us", style: TextStyle(color: Colors.white, fontSize: isPhone ? 14 : 16)),
+                trailing: Icon(Icons.open_in_new_rounded, color: Colors.white54, size: isPhone ? 16 : 20),
+                onTap: () => launchLink('mailto:support@vantoplayer.com'),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: isPhone ? 16 : 22),
+        FocusableCard(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Checking for updates...")),
+            );
+            UpdateService.checkForUpdates(context, showNoUpdateMessage: true);
+          },
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kColorPrimary.withValues(alpha: 0.2),
+                foregroundColor: kColorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isPhone ? 16 : 24,
+                  vertical: isPhone ? 14 : 18
+                ),
+              ),
+              icon: Icon(Icons.system_update_rounded, size: isPhone ? 20 : 24),
+              label: Text("Check for Updates", 
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: isPhone ? 14 : 16)),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Checking for updates...")),
+                );
+                UpdateService.checkForUpdates(context, showNoUpdateMessage: true);
+              },
+            ),
           ),
         ),
       ],

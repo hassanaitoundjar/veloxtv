@@ -1,4 +1,4 @@
-package com.veloplayer.premium
+package com.vantoplayer.player
 
 import android.content.BroadcastReceiver
 import android.content.Context

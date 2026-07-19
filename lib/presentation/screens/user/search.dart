@@ -419,11 +419,18 @@ class _SearchScreenState extends State<SearchScreen>
         "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/$streamId";
     final url = format == 'default' ? base : "$base.$format";
 
-    Get.to(() => MediaKitPlayerScreen(
-          title: name,
-          link: url,
-          isLive: true,
-          channel: channel, // Pass channel so side panel loads its category
-        ));
+    ExternalPlayerService.play(
+      context: context,
+      url: url,
+      title: name,
+      openBuiltIn: () {
+        Get.to(() => MediaKitPlayerScreen(
+              title: name,
+              link: url,
+              isLive: true,
+              channel: channel,
+            ));
+      },
+    );
   }
 }
