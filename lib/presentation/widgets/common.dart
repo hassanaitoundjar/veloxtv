@@ -1,22 +1,26 @@
 part of 'widgets.dart';
 
 class FocusableCard extends StatefulWidget {
-  final Widget child;
+  final Widget? child;
+  final Widget Function(BuildContext context, bool isFocused)? builder;
   final VoidCallback onTap;
   final VoidCallback? onFocus;
   final double scale;
   final bool autoFocus;
   final FocusNode? focusNode;
+  final bool showFocusBorder;
 
   const FocusableCard({
     super.key,
-    required this.child,
+    this.child,
+    this.builder,
     required this.onTap,
     this.onFocus,
     this.scale = 1.05,
     this.autoFocus = false,
     this.focusNode,
-  });
+    this.showFocusBorder = true,
+  }) : assert(child != null || builder != null);
 
   @override
   State<FocusableCard> createState() => _FocusableCardState();
@@ -48,8 +52,8 @@ class _FocusableCardState extends State<FocusableCard> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         child: Container(
-          clipBehavior: _isFocused ? Clip.antiAlias : Clip.none,
-          decoration: _isFocused
+          clipBehavior: (_isFocused && widget.showFocusBorder) ? Clip.antiAlias : Clip.none,
+          decoration: (_isFocused && widget.showFocusBorder)
               ? BoxDecoration(
                   border: Border.all(color: Colors.white, width: 1.5),
                   borderRadius: BorderRadius.circular(10),
@@ -59,7 +63,9 @@ class _FocusableCardState extends State<FocusableCard> {
             borderRadius: _isFocused
                 ? BorderRadius.circular(8.5)
                 : BorderRadius.zero,
-            child: widget.child,
+            child: widget.builder != null 
+                ? widget.builder!(context, _isFocused)
+                : widget.child!,
           ),
         ),
       ),

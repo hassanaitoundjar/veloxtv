@@ -21,3 +21,5 @@ const String screenMovies = "/movies";
 const String screenMovieDetails = "/movie-details";
 const String screenSeries = "/series";
 const String screenSeriesDetails = "/series-details";
+const String screenCatchUp = "/catchup";
+const String screenMultiView = "/multiview";

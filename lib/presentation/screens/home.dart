@@ -1,5 +1,174 @@
 part of 'screens.dart';
 
+/// Responsive size tokens for HomeScreen across all device classes.
+class _HomeSizes {
+  final double cardWidth;
+  final double cardHeightLiveTv;
+  final double cardHeightOther;
+  final double cardGap;
+  final double titleFont;
+  final double countFont;
+  final double greetingFont;
+  final double iconBoxSize;
+  final double iconSize;
+  final double bottomBtnHorizontalPadding;
+  final double bottomBtnVerticalPadding;
+  final double bottomBtnFont;
+  final double bottomBtnIconSize;
+  final double bottomRowGap;
+  final double portraitCardHeight;
+  final double weatherIconSize;
+  final double weatherTempFont;
+  final double weatherTimeFont;
+  final double weatherDateFont;
+
+  const _HomeSizes({
+    required this.cardWidth,
+    required this.cardHeightLiveTv,
+    required this.cardHeightOther,
+    required this.cardGap,
+    required this.titleFont,
+    required this.countFont,
+    required this.greetingFont,
+    required this.iconBoxSize,
+    required this.iconSize,
+    required this.bottomBtnHorizontalPadding,
+    required this.bottomBtnVerticalPadding,
+    required this.bottomBtnFont,
+    required this.bottomBtnIconSize,
+    required this.bottomRowGap,
+    required this.portraitCardHeight,
+    required this.weatherIconSize,
+    required this.weatherTempFont,
+    required this.weatherTimeFont,
+    required this.weatherDateFont,
+  });
+
+  factory _HomeSizes.of(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTvDevice = isTv(context);
+
+    // --- Small phone (< 360) ---
+    if (width < 360) {
+      return _HomeSizes(
+        cardWidth: width * 0.9,
+        cardHeightLiveTv: 200.0,
+        cardHeightOther: 160.0,
+        cardGap: 12.0,
+        titleFont: 18.0,
+        countFont: 12.0,
+        greetingFont: 10.0, // user tested value
+        iconBoxSize: 48.0,
+        iconSize: 24.0,
+        bottomBtnHorizontalPadding: 16.0,
+        bottomBtnVerticalPadding: 8.0,
+        bottomBtnFont: 12.0,
+        bottomBtnIconSize: 14.0,
+        bottomRowGap: 6.0,
+        portraitCardHeight: 260.0,
+        weatherIconSize: 14.0,
+        weatherTempFont: 14.0,
+        weatherTimeFont: 36.0,
+        weatherDateFont: 14.0,
+      );
+    }
+    // --- Standard phone (360 - 599) ---
+    if (width < 600) {
+      return _HomeSizes(
+        cardWidth: width * 0.9,
+        cardHeightLiveTv: 240.0,
+        cardHeightOther: 200.0,
+        cardGap: 16.0,
+        titleFont: 20.0,
+        countFont: 13.0,
+        greetingFont: 10.0, // user tested value
+        iconBoxSize: 56.0,
+        iconSize: 28.0,
+        bottomBtnHorizontalPadding: 20.0,
+        bottomBtnVerticalPadding: 10.0,
+        bottomBtnFont: 14.0,
+        bottomBtnIconSize: 16.0,
+        bottomRowGap: 8.0,
+        portraitCardHeight: 280.0,
+        weatherIconSize: 16.0,
+        weatherTempFont: 16.0,
+        weatherTimeFont: 42.0,
+        weatherDateFont: 16.0,
+      );
+    }
+    // --- Tablet portrait (600 - 899) ---
+    if (width < 900) {
+      return _HomeSizes(
+        cardWidth: width * 0.2,
+        cardHeightLiveTv: 240.0,
+        cardHeightOther: 215.0,
+        cardGap: 20.0,
+        titleFont: 15.0,
+        countFont: 10.0,
+        greetingFont: 16.0, // user tested value
+        iconBoxSize: 45.0,
+        iconSize: 20.0,
+        bottomBtnHorizontalPadding: 24.0,
+        bottomBtnVerticalPadding: 12.0,
+        bottomBtnFont: 9.0, // user tested value
+        bottomBtnIconSize: 16.0,
+        bottomRowGap: 10.0,
+        portraitCardHeight: 280.0,
+        weatherIconSize: 18.0,
+        weatherTempFont: 16.0,
+        weatherTimeFont: 36.0,
+        weatherDateFont: 16.0,
+      );
+    }
+    // --- Tablet landscape / small desktop (900 - 1279) ---
+    if (width < 1280) {
+      return _HomeSizes(
+        cardWidth: width * 0.28,
+        cardHeightLiveTv: 380.0,
+        cardHeightOther: 300.0,
+        cardGap: 24.0,
+        titleFont: 26.0,
+        countFont: 14.0,
+        greetingFont: 28.0,
+        iconBoxSize: 72.0,
+        iconSize: 36.0,
+        bottomBtnHorizontalPadding: 24.0,
+        bottomBtnVerticalPadding: 12.0,
+        bottomBtnFont: 18.0,
+        bottomBtnIconSize: 18.0,
+        bottomRowGap: 16.0,
+        portraitCardHeight: 280.0,
+        weatherIconSize: 20.0,
+        weatherTempFont: 20.0,
+        weatherTimeFont: 54.0,
+        weatherDateFont: 20.0,
+      );
+    }
+    // --- TV / large desktop (>= 1280) ---
+    return _HomeSizes(
+      cardWidth: width * 0.23,
+      cardHeightLiveTv: isTvDevice ? 460.0 : 420.0,
+      cardHeightOther: isTvDevice ? 380.0 : 360.0,
+      cardGap: 24.0, // Consistent with old spacing
+      titleFont: 26.0,
+      countFont: 14.0,
+      greetingFont: 28.0,
+      iconBoxSize: 80.0,
+      iconSize: 40.0,
+      bottomBtnHorizontalPadding: 24.0,
+      bottomBtnVerticalPadding: 12.0,
+      bottomBtnFont: 18.0,
+      bottomBtnIconSize: 18.0,
+      bottomRowGap: 24.0,
+      portraitCardHeight: 300.0,
+      weatherIconSize: 22.0,
+      weatherTempFont: 22.0,
+      weatherTimeFont: 60.0,
+      weatherDateFont: 24.0,
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -151,12 +320,16 @@ class _HomeScreenState extends State<HomeScreen> {
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 String expDate = "Unlimited";
-                if (state is AuthSuccess &&
-                    state.user.userInfo?.expDate != null) {
-                  // Format date logic here if needed
-                  expDate = state.user.userInfo!.expDate!;
+                String username = "User";
+                if (state is AuthSuccess) {
+                  if (state.user.userInfo?.expDate != null) {
+                    expDate = state.user.userInfo!.expDate!;
+                  }
+                  if (state.user.userInfo?.username != null) {
+                    username = state.user.userInfo!.username!;
+                  }
                 }
-                return AppBarWelcome(expiration: expDate);
+                return AppBarWelcome(expiration: expDate, username: username);
               },
             ),
 
@@ -166,56 +339,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: getTvSafeMargins(context),
                 child: isPortrait
                     ? _buildPortraitLayout()
-                    : _buildLandscapeLayout(),
+                    : _buildLandscapeLayout(context),
               ),
-            ),
-
-            // Bottom Status Bar: Username & Expiration
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                String username = "";
-                String expDate = "Unlimited";
-                if (state is AuthSuccess) {
-                  username = state.user.userInfo?.username ?? "User";
-                  expDate = state.user.userInfo?.expDate ?? "Unlimited";
-                }
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
-                  decoration: BoxDecoration(
-                    color: kColorCardLight.withValues(alpha: 0.15),
-                    border: const Border(
-                      top: BorderSide(color: Colors.white10, width: 0.5),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Bottom Left: Expiration Date
-                      Row(
-                        children: [
-                          Text(
-                            "Expiration date: ${formatExpiration(expDate)}",
-                            style: Get.textTheme.bodySmall
-                                ?.copyWith(color: Colors.white54),
-                          ),
-                        ],
-                      ),
-
-                      // Bottom Right: Username
-                      Row(
-                        children: [
-                          Text(
-                            "Username: $username",
-                            style: Get.textTheme.bodySmall?.copyWith(
-                                color: Colors.white54,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
             ),
           ],
         ),
@@ -223,89 +348,113 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildLandscapeLayout() {
-    return Column(
+  Widget _buildLandscapeLayout(BuildContext context) {
+    final sizes = _HomeSizes.of(context);
+    String greetingName = "User";
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      greetingName = authState.user.playlistName ??
+          authState.user.userInfo?.username ??
+          "User";
+    }
+
+    return Stack(
       children: [
-        // ROW 1: LIVE, MOVIES, SERIES
-        Expanded(
+        Padding(
+          padding: EdgeInsets.only(
+              bottom: sizes.bottomRowGap * 2.5), // A much more subtle gap
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: sizes.cardWidth,
+                  child: _buildGridItem(
+                    title: "Live TV's",
+                    icon: FontAwesomeIcons.tv,
+                    isIconData: true,
+                    height: sizes.cardHeightLiveTv,
+                    onTap: () => Get.toNamed(screenLiveTv),
+                    blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
+                      builder: (context, state) => _buildCount(state, context),
+                    ),
+                    autoFocus: false,
+                  ),
+                ),
+                SizedBox(width: sizes.cardGap),
+                SizedBox(
+                  width: sizes.cardWidth,
+                  child: _buildGridItem(
+                    title: "Movies",
+                    icon: FontAwesomeIcons.film,
+                    isIconData: true,
+                    height: sizes.cardHeightOther,
+                    onTap: () => Get.toNamed(screenMovies),
+                    blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                      builder: (context, state) => _buildCount(state, context),
+                    ),
+                  ),
+                ),
+                SizedBox(width: sizes.cardGap),
+                SizedBox(
+                  width: sizes.cardWidth,
+                  child: _buildGridItem(
+                    title: "Series",
+                    icon: FontAwesomeIcons.layerGroup,
+                    isIconData: true,
+                    height: sizes.cardHeightOther,
+                    onTap: () => Get.toNamed(screenSeries),
+                    blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
+                      builder: (context, state) => _buildCount(state, context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ), // Closes Center
+        ), // Closes Padding
+        Positioned(
+          bottom: 0,
+          right: 16,
+          child: const TimeWeatherWidget(),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Live TV",
-                  icon: FontAwesomeIcons.tv,
-                  isIconData: true,
-                  onTap: () => Get.toNamed(screenLiveTv),
-                  blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
-                    builder: (context, state) => _buildCount(state),
-                  ),
-                  autoFocus: true,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Movies",
-                  icon: FontAwesomeIcons.film,
-                  isIconData: true,
-                  onTap: () => Get.toNamed(screenMovies),
-                  blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
-                    builder: (context, state) => _buildCount(state),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Series",
-                  icon: FontAwesomeIcons.layerGroup,
-                  isIconData: true,
-                  onTap: () => Get.toNamed(screenSeries),
-                  blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
-                    builder: (context, state) => _buildCount(state),
-                  ),
-                ),
-              ),
+              _buildBottomButton("Favorites", FontAwesomeIcons.heart,
+                  () => Get.toNamed(screenFavorites)),
+              SizedBox(width: sizes.bottomRowGap),
+              _buildBottomButton("Catch Up", FontAwesomeIcons.clockRotateLeft,
+                  () => Get.to(() => const CatchUpChannelsScreen())),
+              SizedBox(width: sizes.bottomRowGap),
+              _buildBottomButton("Multi-View", FontAwesomeIcons.tableCellsLarge,
+                  () => Get.to(() => const MultiViewScreen())),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        // ROW 2: CATCH UP, EPG, FAVORITES
-        Expanded(
-          child: Row(
+        Positioned(
+          bottom: 0,
+          left: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Catch Up",
-                  icon: FontAwesomeIcons.clockRotateLeft,
-                  isIconData: true,
-                  onTap: () => Get.to(() => const CatchUpChannelsScreen()),
-                ),
+              Text(
+                "Welcome back,",
+                style: GoogleFonts.outfit(
+                    color: Colors.white54, fontSize: sizes.greetingFont * 0.65),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Multi-View",
-                  icon: FontAwesomeIcons.tableCellsLarge,
-                  isIconData: true,
-                  onTap: () {
-                    Get.to(() => const MultiViewScreen());
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 1,
-                child: _buildGridItem(
-                  title: "Favorites",
-                  icon: FontAwesomeIcons.heart,
-                  isIconData: true,
-                  onTap: () => Get.toNamed(screenFavorites),
+              Text(
+                greetingName,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: sizes.greetingFont,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -315,82 +464,99 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPortraitLayout() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Live TV
-          _buildPortraitGridItem(
-            title: "Live TV",
-            icon: FontAwesomeIcons.tv,
-            isIconData: true,
-            onTap: () => Get.toNamed(screenLiveTv),
-            blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
-                builder: (context, state) => _buildCount(state)),
+  Widget _buildBottomButton(String title, IconData icon, VoidCallback onTap) {
+    return Builder(builder: (context) {
+      final sizes = _HomeSizes.of(context);
+      return FocusableCard(
+        onTap: onTap,
+        scale: 1.05, // Slight scale effect for buttons
+        showFocusBorder: false,
+        builder: (context, isFocused) => Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: sizes.bottomBtnHorizontalPadding,
+              vertical: sizes.bottomBtnVerticalPadding),
+          decoration: BoxDecoration(
+            color:
+                isFocused ? Colors.white : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: isFocused ? Colors.white : Colors.white24,
+              width: 1.5,
+            ),
           ),
-          const SizedBox(height: 12),
-
-          // Movies
-          _buildPortraitGridItem(
-            title: "Movies",
-            icon: FontAwesomeIcons.film,
-            isIconData: true,
-            onTap: () => Get.toNamed(screenMovies),
-            blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
-                builder: (context, state) => _buildCount(state)),
-          ),
-          const SizedBox(height: 12),
-
-          // Series
-          _buildPortraitGridItem(
-            title: "Series",
-            icon: FontAwesomeIcons.layerGroup,
-            isIconData: true,
-            onTap: () => Get.toNamed(screenSeries),
-            blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
-                builder: (context, state) => _buildCount(state)),
-          ),
-          const SizedBox(height: 12),
-
-          // Row for Catch Up & EPG
-          Row(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                  child: _buildPortraitGridItem(
-                      title: "Catch Up",
-                      icon: FontAwesomeIcons.clockRotateLeft,
-                      isIconData: true,
-                      onTap: () => Get.to(() => const CatchUpChannelsScreen()),
-                      height: 100)),
-              const SizedBox(width: 12),
-              Expanded(
-                  child: _buildPortraitGridItem(
-                      title: "Multi-View",
-                      icon: FontAwesomeIcons.tableCellsLarge,
-                      isIconData: true,
-                      onTap: () => Get.to(() => const MultiViewScreen()),
-                      height: 100)),
+              Icon(icon,
+                  size: sizes.bottomBtnIconSize,
+                  color: isFocused ? Colors.black : Colors.white),
+              SizedBox(width: sizes.bottomBtnIconSize * 0.5),
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  color: isFocused ? Colors.black : Colors.white,
+                  fontSize: sizes.bottomBtnFont,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+        ),
+      );
+    });
+  }
 
-          // Favorites
-          _buildPortraitGridItem(
-              title: "Favorites",
-              icon: FontAwesomeIcons.heart,
+  Widget _buildPortraitLayout() {
+    return Builder(builder: (context) {
+      final sizes = _HomeSizes.of(context);
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Live TV
+            _buildPortraitGridItem(
+              title: "Live TV's",
+              icon: FontAwesomeIcons.tv,
               isIconData: true,
-              onTap: () => Get.toNamed(screenFavorites),
-              height: 80),
+              onTap: () => Get.toNamed(screenLiveTv),
+              height: sizes.portraitCardHeight,
+              blocBuilder: BlocBuilder<LiveCatyBloc, LiveCatyState>(
+                  builder: (context, state) => _buildCount(state, context)),
+            ),
+            SizedBox(height: sizes.cardGap),
 
-          const SizedBox(height: 24),
-          const Divider(color: Colors.white24),
-          const SizedBox(height: 24),
+            // Movies
+            _buildPortraitGridItem(
+              title: "Movies",
+              icon: FontAwesomeIcons.film,
+              isIconData: true,
+              onTap: () => Get.toNamed(screenMovies),
+              height: sizes.portraitCardHeight,
+              blocBuilder: BlocBuilder<MovieCatyBloc, MovieCatyState>(
+                  builder: (context, state) => _buildCount(state, context)),
+            ),
+            SizedBox(height: sizes.cardGap),
 
-          const SizedBox(height: 50), // Bottom padding
-        ],
-      ),
-    );
+            // Series
+            _buildPortraitGridItem(
+              title: "Series",
+              icon: FontAwesomeIcons.layerGroup,
+              isIconData: true,
+              onTap: () => Get.toNamed(screenSeries),
+              height: sizes.portraitCardHeight,
+              blocBuilder: BlocBuilder<SeriesCatyBloc, SeriesCatyState>(
+                  builder: (context, state) => _buildCount(state, context)),
+            ),
+
+            SizedBox(height: sizes.cardGap * 2),
+            const Divider(color: Colors.white24),
+            SizedBox(height: sizes.cardGap * 2),
+
+            const SizedBox(height: 50), // Bottom padding
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildPortraitGridItem({
@@ -408,25 +574,29 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: icon,
           onTap: onTap,
           isIconData: isIconData,
+          height: height,
           blocBuilder: blocBuilder),
     );
   }
 
-  Widget _buildCount(dynamic state) {
+  Widget _buildCount(dynamic state, BuildContext context) {
+    final sizes = _HomeSizes.of(context);
+    final style = GoogleFonts.outfit(
+        color: Colors.white54,
+        fontSize: sizes.countFont,
+        fontWeight: FontWeight.w500);
+
     if (state is LiveCatySuccess) {
-      return Text("${state.categories.length} Categories", style: _countStyle);
+      return Text("${state.categories.length} Categories", style: style);
     }
     if (state is MovieCatySuccess) {
-      return Text("${state.categories.length} Movies", style: _countStyle);
+      return Text("${state.categories.length} Movies", style: style);
     }
     if (state is SeriesCatySuccess) {
-      return Text("${state.categories.length} Series", style: _countStyle);
+      return Text("${state.categories.length} Series", style: style);
     }
-    return Text("Loading...", style: _countStyle);
+    return Text("Loading...", style: style);
   }
-
-  TextStyle get _countStyle =>
-      Get.textTheme.bodyMedium!.copyWith(color: kColorTextSecondary);
 
   Widget _buildGridItem({
     required String title,
@@ -435,36 +605,292 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget? blocBuilder,
     bool isIconData = false,
     bool autoFocus = false,
+    double? height,
   }) {
-    // Removed Expanded wrapper
-    return FocusableCard(
-      onTap: onTap,
-      autoFocus: autoFocus,
-      scale: 1.05,
-      child: Container(
-        decoration: kDecorCard.copyWith(
-          color: kColorCardLight.withValues(alpha: 0.1),
-          border: Border.all(color: Colors.white10),
+    return Builder(builder: (context) {
+      final sizes = _HomeSizes.of(context);
+      return FocusableCard(
+        onTap: onTap,
+        autoFocus: autoFocus,
+        scale: 1.0,
+        showFocusBorder: false,
+        builder: (context, isFocused) => Container(
+          margin: MediaQuery.of(context).size.width < 900
+              ? const EdgeInsets.only(bottom: 20)
+              : EdgeInsets.zero,
+          height: height ?? 200,
+          decoration: BoxDecoration(
+            gradient: isFocused
+                ? const LinearGradient(
+                    colors: [
+                      Color(0xFF265eb4),
+                      Color(0xFF1b222c),
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  )
+                : const LinearGradient(
+                    colors: [
+                      Color(0xFF202631),
+                      Color(0xFF101318),
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isFocused ? Colors.white : Colors.transparent,
+              width: isFocused ? 2.0 : 0.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: sizes.iconBoxSize,
+                      height: sizes.iconBoxSize,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      alignment: Alignment.center,
+                      child: isIconData
+                          ? Icon(icon as IconData,
+                              size: sizes.iconSize, color: Colors.white)
+                          : Image.asset(icon as String,
+                              width: sizes.iconSize * 1.2,
+                              height: sizes.iconSize * 1.2),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        fontSize: sizes.titleFont,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    if (blocBuilder != null) ...[
+                      const SizedBox(height: 4),
+                      blocBuilder,
+                    ],
+                    const SizedBox(
+                        height: 24), // Push it slightly up from the bottom row
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  if (MediaQuery.of(context).size.width >= 900)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "NEVER RELOADED",
+                            style: GoogleFonts.outfit(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (MediaQuery.of(context).size.width >= 900) ...[
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.refresh,
+                          color: Colors.white54, size: 16),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isIconData)
-              Icon(icon as IconData, size: 40, color: Colors.white)
-            else
-              Image.asset(icon as String, width: 60, height: 60),
-            const SizedBox(height: 16),
-            Text(title,
-                style: Get.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.normal)),
-            if (blocBuilder != null) ...[
-              const SizedBox(height: 8),
-              blocBuilder,
-            ]
-          ],
-        ),
-      ),
-    );
+      );
+    });
+  }
+}
+
+class TimeWeatherWidget extends StatefulWidget {
+  const TimeWeatherWidget({super.key});
+
+  @override
+  State<TimeWeatherWidget> createState() => _TimeWeatherWidgetState();
+}
+
+class _TimeWeatherWidgetState extends State<TimeWeatherWidget> {
+  String _temperature = "--°";
+  IconData _weatherIcon = Icons.cloud_outlined;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWeather();
   }
 
+  Future<void> _fetchWeather() async {
+    try {
+      final dio = Dio();
+
+      // 1. Get Location
+      final geoResponse = await dio.get('https://get.geojs.io/v1/ip/geo.json');
+      final lat = geoResponse.data['latitude'];
+      final lon = geoResponse.data['longitude'];
+
+      if (lat != null && lon != null) {
+        // 2. Get Weather
+        final weatherResponse = await dio.get(
+            'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true');
+
+        if (weatherResponse.statusCode == 200) {
+          final current = weatherResponse.data['current_weather'];
+          final temp = current['temperature'];
+          final weatherCode = current['weathercode'] as int?;
+
+          if (mounted) {
+            setState(() {
+              _temperature = "${temp.round()}°";
+
+              // Simple weather code mapping to icons
+              if (weatherCode != null) {
+                if (weatherCode <= 1) {
+                  _weatherIcon = Icons.wb_sunny_outlined; // Clear
+                } else if (weatherCode <= 3) {
+                  _weatherIcon = Icons.cloud_outlined; // Cloudy
+                } else if (weatherCode >= 51 && weatherCode <= 67) {
+                  _weatherIcon = Icons.water_drop_outlined; // Rain
+                } else if (weatherCode >= 71 && weatherCode <= 82) {
+                  _weatherIcon = Icons.ac_unit; // Snow
+                } else if (weatherCode >= 95) {
+                  _weatherIcon = Icons.thunderstorm_outlined; // Storm
+                }
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching weather: $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sizes = _HomeSizes.of(context);
+    return StreamBuilder(
+      stream: Stream.periodic(const Duration(seconds: 1)),
+      builder: (context, snapshot) {
+        final now = DateTime.now();
+        final hour = now.hour.toString().padLeft(2, '0');
+        final minute = now.minute.toString().padLeft(2, '0');
+
+        const weekdays = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday'
+        ];
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
+        ];
+
+        final weekday = weekdays[now.weekday - 1];
+        final month = months[now.month - 1];
+        final day = now.day;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(_weatherIcon,
+                    color: Colors.white, size: sizes.weatherIconSize),
+                const SizedBox(width: 8),
+                Text(
+                  _temperature,
+                  style: GoogleFonts.outfit(
+                    color: Colors.orangeAccent.shade100,
+                    fontSize: sizes.weatherTempFont,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "$hour:$minute",
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontSize: sizes.weatherTimeFont,
+                fontWeight: FontWeight.w300,
+                letterSpacing: -2,
+                height: 1.1,
+              ),
+            ),
+            Text(
+              "$weekday, $month $day",
+              style: GoogleFonts.outfit(
+                color: Colors.white54,
+                fontSize: sizes.weatherDateFont,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        );
+      },
+    );
+  }
 }

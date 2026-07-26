@@ -1,9 +1,11 @@
-Analyzing veloxtv...                                            
+Analyzing app-vanto-player...                                   
 
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/helpers/colors.dart:44:42 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/helpers/colors.dart:51:26 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/helpers/themes.dart:86:54 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/helpers/themes.dart:90:54 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/core/helpers/external_player.dart:92:15 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/core/helpers/external_player.dart:94:24 • prefer_const_constructors
+warning • Unused import: 'dart:io' • lib/core/services/update_service.dart:2:8 • unused_import
+warning • Unused import: '../../presentation/widgets/widgets.dart' • lib/core/services/update_service.dart:10:8 • unused_import
+   info • Statements in a while should be enclosed in a block • lib/core/services/update_service.dart:77:37 • curly_braces_in_flow_control_structures
+   info • Statements in a while should be enclosed in a block • lib/core/services/update_service.dart:78:36 • curly_braces_in_flow_control_structures
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/auth/auth_bloc.dart:1:8 • depend_on_referenced_packages
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/channels_bloc.dart:1:8 • depend_on_referenced_packages
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/live_caty_bloc.dart:1:8 • depend_on_referenced_packages
@@ -11,82 +13,36 @@ Analyzing veloxtv...
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/categories/series_caty_bloc.dart:1:8 • depend_on_referenced_packages
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/blocs/epg/epg_bloc.dart:1:8 • depend_on_referenced_packages
    info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/cubits/favorites/favorites_cubit.dart:1:8 • depend_on_referenced_packages
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/home.dart:54:44 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/home.dart:82:44 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/home.dart:85:48 • deprecated_member_use
-   info • Statements in an if should be enclosed in a block • lib/presentation/screens/home.dart:410:7 • curly_braces_in_flow_control_structures
-   info • Statements in an if should be enclosed in a block • lib/presentation/screens/home.dart:412:7 • curly_braces_in_flow_control_structures
-   info • Statements in an if should be enclosed in a block • lib/presentation/screens/home.dart:414:7 • curly_braces_in_flow_control_structures
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/home.dart:436:34 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:138:60 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:140:62 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:151:43 • deprecated_member_use
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/live/epg_timeline.dart:200:43 • prefer_const_constructors
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:253:62 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:276:53 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:278:56 • deprecated_member_use
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/live/epg_timeline.dart:437:20 • prefer_const_constructors
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/live/epg_timeline.dart:438:24 • prefer_const_constructors
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/live/epg_timeline.dart:441:28 • prefer_const_constructors
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:451:43 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:582:43 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/epg_timeline.dart:583:42 • deprecated_member_use
-   info • Unnecessary instance of 'Container' • lib/presentation/screens/live/live_tv.dart:595:28 • avoid_unnecessary_containers
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/live/live_tv.dart:989:64 • deprecated_member_use
-warning • The operand can't be 'null', so the condition is always 'true' • lib/presentation/screens/live/live_tv.dart:1076:69 • unnecessary_null_comparison
-warning • The operand can't be 'null', so the condition is always 'true' • lib/presentation/screens/live/live_tv.dart:1077:67 • unnecessary_null_comparison
-warning • The '!' will have no effect because the receiver can't be null • lib/presentation/screens/live/live_tv.dart:1094:72 • unnecessary_non_null_assertion
-warning • The '!' will have no effect because the receiver can't be null • lib/presentation/screens/live/live_tv.dart:1096:82 • unnecessary_non_null_assertion
-warning • The '!' will have no effect because the receiver can't be null • lib/presentation/screens/live/live_tv.dart:1121:81 • unnecessary_non_null_assertion
-   info • Unnecessary braces in a string interpolation • lib/presentation/screens/live/live_tv.dart:1139:76 • unnecessary_brace_in_string_interps
+   info • The imported package 'bloc' isn't a dependency of the importing package • lib/logic/cubits/recent_channels/recent_channels_cubit.dart:1:8 • depend_on_referenced_packages
+warning • Unused import: 'package:flutter/cupertino.dart' • lib/logic/cubits/recent_channels/recent_channels_cubit.dart:2:8 • unused_import
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/home.dart:241:9 • prefer_const_constructors
+   info • Unnecessary instance of 'Container' • lib/presentation/screens/live/live_tv.dart:674:28 • avoid_unnecessary_containers
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/live/live_tv.dart:702:41 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/live/live_tv.dart:1225:67 • use_build_context_synchronously
    info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:106:5 • avoid_print
    info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:107:5 • avoid_print
    info • Don't invoke 'print' in production code • lib/presentation/screens/live/multi_view.dart:112:7 • avoid_print
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/movie/movie_details.dart:69:38 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/movie/movie_details.dart:86:38 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/movie/movie_details.dart:117:51 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/movie/movie_details.dart:463:35 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/movie/movies.dart:274:62 • deprecated_member_use
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/player/media_kit_player.dart:590:51 • prefer_const_constructors
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/player/media_kit_player.dart:848:31 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/player/media_kit_player.dart:905:49 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/player/media_kit_player.dart:1037:33 • deprecated_member_use
-warning • The operand can't be 'null', so the condition is always 'false' • lib/presentation/screens/series/serie_details.dart:524:41 • unnecessary_null_comparison
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/series/series.dart:258:62 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/series/serie_details.dart:444:9 • prefer_const_constructors
+   info • Instances of 'Color' should be created using an 8-digit hexadecimal integer (such as '0xFFFFFFFF') • lib/presentation/screens/series/serie_details.dart:694:36 • use_full_hex_values_for_flutter_colors
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/series/serie_details.dart:713:30 • prefer_const_constructors
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/catch_up.dart:129:39 • use_build_context_synchronously
 warning • The value of the local variable 'isTallEnough' isn't used • lib/presentation/screens/user/device_selection.dart:36:21 • unused_local_variable
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:130:49 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:138:56 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:190:31 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:191:33 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:200:42 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/device_selection.dart:212:66 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/intro.dart:104:55 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/intro.dart:308:44 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/intro.dart:315:43 • deprecated_member_use
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/register.dart:210:26 • prefer_const_constructors
-   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/register.dart:293:26 • prefer_const_constructors
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/register_m3u.dart:121:42 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/register_m3u.dart:186:42 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/register_m3u.dart:290:43 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/search.dart:216:60 • deprecated_member_use
-   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/presentation/screens/user/settings.dart:316:23 • deprecated_member_use
-warning • The value of the local variable 'dateFormat' isn't used • lib/presentation/screens/user/settings.dart:504:11 • unused_local_variable
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/settings.dart:729:43 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/widgets/common.dart:85:32 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/favorites.dart:177:37 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/profile.dart:69:24 • prefer_const_constructors
+   info • Don't use 'BuildContext's across async gaps • lib/presentation/screens/user/search.dart:423:7 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/settings.dart:337:15 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/presentation/screens/user/settings.dart:338:23 • prefer_const_constructors
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/presentation/screens/user/settings.dart:776:23 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/splash.dart:30:49 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/screens/user/splash.dart:51:28 • deprecated_member_use
    info • 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:316:56 • deprecated_member_use
    info • 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:316:75 • deprecated_member_use
    info • 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:317:43 • deprecated_member_use
    info • 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:472:46 • deprecated_member_use
    info • 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:472:65 • deprecated_member_use
    info • 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255) • lib/presentation/widgets/live.dart:473:33 • deprecated_member_use
-   info • Use 'const' with the constructor to improve performance • lib/presentation/widgets/live.dart:476:17 • prefer_const_constructors
-   info • Use 'const' with the constructor to improve performance • lib/presentation/widgets/live.dart:476:30 • prefer_const_constructors
-   info • Statements in an if should be enclosed in a block • lib/presentation/widgets/parental_control_dialog.dart:50:7 • curly_braces_in_flow_control_structures
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/widgets/parental_control_dialog.dart:260:42 • deprecated_member_use
-   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/widgets/welcome.dart:204:34 • deprecated_member_use
-warning • Unused import: 'package:font_awesome_flutter/font_awesome_flutter.dart' • lib/presentation/widgets/widgets.dart:6:8 • unused_import
-   info • The imported package 'player_premium' isn't a dependency of the importing package • test/widget_test.dart:2:8 • depend_on_referenced_packages
-  error • Target of URI doesn't exist: 'package:player_premium/main.dart' • test/widget_test.dart:2:8 • uri_does_not_exist
-  error • The name 'MyApp' isn't a class • test/widget_test.dart:7:35 • creation_with_non_type
-  error • Undefined name 'MyApp' • test/widget_test.dart:8:24 • undefined_identifier
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/widgets/welcome.dart:93:59 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/widgets/welcome.dart:129:35 • deprecated_member_use
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' • lib/repository/api/api.dart:6:8 • unnecessary_import
+   info • The 'if' statement could be replaced by a null-aware assignment • lib/repository/locale/recents.dart:43:5 • prefer_conditional_assignment
 

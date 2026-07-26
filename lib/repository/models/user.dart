@@ -5,13 +5,14 @@ class UserModel {
   final ServerInfo? serverInfo;
   final ConnectionType connectionType;
   final String? m3uUrl;
-
+  final String? playlistName;
 
   UserModel({
     this.userInfo,
     this.serverInfo,
     this.connectionType = ConnectionType.xtream,
     this.m3uUrl,
+    this.playlistName,
   });
 
   UserModel.fromJson(Map<String, dynamic> json, String domain)
@@ -26,14 +27,32 @@ class UserModel {
           (e) => e.name == (json['connection_type'] ?? 'xtream'),
           orElse: () => ConnectionType.xtream,
         ),
-        m3uUrl = json['m3u_url'] as String?;
+        m3uUrl = json['m3u_url'] as String?,
+        playlistName = json['playlist_name'] as String?;
 
   Map<String, dynamic> toJson() => {
         'user_info': userInfo?.toJson(),
         'server_info': serverInfo?.toJson(),
         'connection_type': connectionType.name,
         'm3u_url': m3uUrl,
+        'playlist_name': playlistName,
       };
+
+  UserModel copyWith({
+    UserInfo? userInfo,
+    ServerInfo? serverInfo,
+    ConnectionType? connectionType,
+    String? m3uUrl,
+    String? playlistName,
+  }) {
+    return UserModel(
+      userInfo: userInfo ?? this.userInfo,
+      serverInfo: serverInfo ?? this.serverInfo,
+      connectionType: connectionType ?? this.connectionType,
+      m3uUrl: m3uUrl ?? this.m3uUrl,
+      playlistName: playlistName ?? this.playlistName,
+    );
+  }
 
   String get id {
     switch (connectionType) {

@@ -5,7 +5,7 @@ class AuthApi {
   ///
   /// Takes [username], [password], and the [url] of the IPTV service.
   /// Returns a [UserModel] on success, or null if authentication fails.
-  Future<UserModel?> login(String username, String password, String url) async {
+  Future<UserModel?> login(String name, String username, String password, String url) async {
     try {
       final link = "$url/player_api.php";
 
@@ -21,7 +21,7 @@ class AuthApi {
         final json = jsonDecode(response.data ?? "{}");
 
         if (json['user_info'] != null) {
-          final user = UserModel.fromJson(json, url);
+          final user = UserModel.fromJson(json, url).copyWith(playlistName: name);
           // Check if account is active or valid based on the API response
           if (user.userInfo?.auth == "0") {
             return null;
@@ -55,6 +55,7 @@ class AuthApi {
         debugPrint("  Username: ${xtreamCredentials['username']}");
 
         final user = await login(
+          name,
           xtreamCredentials['username']!,
           xtreamCredentials['password']!,
           xtreamCredentials['server']!,

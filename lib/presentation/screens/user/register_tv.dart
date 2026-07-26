@@ -188,6 +188,7 @@ class _RegisterUserTvState extends State<RegisterUserTv> {
                         _urlController.text.isNotEmpty) {
                       context.read<AuthBloc>().add(AuthLogin(
                             _usernameController.text.trim(),
+                            _usernameController.text.trim(),
                             _passwordController.text.trim(),
                             _urlController.text.trim(),
                           ));

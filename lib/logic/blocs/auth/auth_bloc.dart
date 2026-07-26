@@ -18,7 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         try {
           final user =
-              await repo.login(event.username, event.password, event.url);
+              await repo.login(event.name, event.username, event.password, event.url);
           if (user != null) {
             await LocaleApi.saveUser(user);
             emit(AuthSuccess(user));

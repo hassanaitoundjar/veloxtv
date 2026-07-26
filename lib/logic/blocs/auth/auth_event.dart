@@ -4,11 +4,12 @@ part of 'auth_bloc.dart';
 abstract class AuthEvent {}
 
 class AuthLogin extends AuthEvent {
+  final String name;
   final String username;
   final String password;
   final String url;
 
-  AuthLogin(this.username, this.password, this.url);
+  AuthLogin(this.name, this.username, this.password, this.url);
 }
 
 class AuthLoginM3u extends AuthEvent {

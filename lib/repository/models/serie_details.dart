@@ -126,6 +126,17 @@ class Episode {
         episodeNum = int.tryParse(json['episode_num']?.toString() ?? ''),
         title = json['title']?.toString(),
         containerExtension = json['container_extension']?.toString(),
-        info = json['info']?.toString(),
+        info = _parseInfoPlot(json['info']),
         duration = int.tryParse(json['duration']?.toString() ?? '');
+
+  static String? _parseInfoPlot(dynamic infoJson) {
+    if (infoJson == null) return null;
+    if (infoJson is Map) {
+      final plot = infoJson['plot']?.toString();
+      if (plot != null && plot.isNotEmpty) {
+        return plot;
+      }
+    }
+    return infoJson.toString();
+  }
 }

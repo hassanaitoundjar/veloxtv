@@ -444,6 +444,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 context.read<AuthBloc>().add(AuthLogin(
+                      _nameController.text.trim().isEmpty ? _usernameController.text.trim() : _nameController.text.trim(),
                       _usernameController.text.trim(),
                       _passwordController.text.trim(),
                       _urlController.text.trim(),

@@ -1,5 +1,12 @@
 part of '../screens.dart';
 
+class NextMediaInfo {
+  final String link;
+  final String title;
+  final Future<NextMediaInfo?> Function()? onNextEpisodeAsync;
+  NextMediaInfo({required this.link, required this.title, this.onNextEpisodeAsync});
+}
+
 class MediaKitPlayerScreen extends StatefulWidget {
   final String link;
   final String title;
@@ -10,6 +17,7 @@ class MediaKitPlayerScreen extends StatefulWidget {
   /// If provided (e.g. from Search), the player will load this channel's
   /// category in the side panel so the list is always contextually correct.
   final ChannelLive? channel;
+  final Future<NextMediaInfo?> Function()? onNextEpisodeAsync;
   const MediaKitPlayerScreen({
     super.key,
     required this.link,
@@ -18,6 +26,7 @@ class MediaKitPlayerScreen extends StatefulWidget {
     this.player,
     this.videoController,
     this.channel,
+    this.onNextEpisodeAsync,
   });
   @override
   State<MediaKitPlayerScreen> createState() => _MediaKitPlayerScreenState();
@@ -34,6 +43,8 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
   // Live Side Panel State
   bool _showChannelList = false;
   late String _currentTitle;
+  Future<NextMediaInfo?> Function()? _currentOnNextEpisodeAsync;
+  bool _isLoadingNext = false;
 
   // PiP State
   bool _isInPipMode = false;
@@ -102,6 +113,7 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _currentTitle = widget.title;
+    _currentOnNextEpisodeAsync = widget.onNextEpisodeAsync;
     MediaKit.ensureInitialized();
     WakelockPlus.enable();
     _startHideTimer();
@@ -722,6 +734,27 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
                                           onFocusChange: (_) =>
                                               _onInteraction(),
                                         ),
+                                        if (_currentOnNextEpisodeAsync != null)
+                                          _PlayerControlButton(
+                                            icon: _isLoadingNext ? Icons.hourglass_empty : Icons.skip_next,
+                                            onPressed: _isLoadingNext ? () {} : () async {
+                                              if (_currentOnNextEpisodeAsync != null && !_isLoadingNext) {
+                                                setState(() => _isLoadingNext = true);
+                                                final nextMedia = await _currentOnNextEpisodeAsync!();
+                                                if (nextMedia != null && mounted) {
+                                                  setState(() {
+                                                    _currentTitle = nextMedia.title;
+                                                    _currentOnNextEpisodeAsync = nextMedia.onNextEpisodeAsync;
+                                                    _isLoadingNext = false;
+                                                  });
+                                                  await _player.open(Media(nextMedia.link, extras: {'hwdec': 'auto'}), play: true);
+                                                } else if (mounted) {
+                                                  setState(() => _isLoadingNext = false);
+                                                }
+                                              }
+                                            },
+                                            onFocusChange: (_) => _onInteraction(),
+                                          ),
                                       ],
                                       StreamBuilder<double>(
                                         stream: _player.stream.volume,

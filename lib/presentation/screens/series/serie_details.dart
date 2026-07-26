@@ -478,6 +478,75 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
     return val.toStringAsFixed(0);
   }
 
+  Future<NextMediaInfo?> _buildNextMediaInfo(int currentSeasonIndex, int currentEpisodeIndex, UserModel userAuth) async {
+    Episode? nextEpisode;
+    int nextSeasonIndex = currentSeasonIndex;
+    int nextEpisodeIndex = currentEpisodeIndex + 1;
+    
+    final seasons = _details?.seasons;
+    if (seasons != null && seasons.isNotEmpty) {
+      final currentSeasonNum = seasons[currentSeasonIndex].seasonNumber.toString();
+      final currentSeasonEpisodes = _details!.episodes?[currentSeasonNum] ?? [];
+      
+      if (nextEpisodeIndex < currentSeasonEpisodes.length) {
+        nextEpisode = currentSeasonEpisodes[nextEpisodeIndex];
+      } else if (currentSeasonIndex + 1 < seasons.length) {
+        nextSeasonIndex = currentSeasonIndex + 1;
+        nextEpisodeIndex = 0;
+        final nextSeasonNum = seasons[nextSeasonIndex].seasonNumber.toString();
+        final nextSeasonEpisodes = _details!.episodes?[nextSeasonNum] ?? [];
+        if (nextSeasonEpisodes.isNotEmpty) {
+          nextEpisode = nextSeasonEpisodes.first;
+        }
+      }
+    }
+
+    if (nextEpisode == null) return null;
+
+    final link = '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${nextEpisode.id}.${nextEpisode.containerExtension}';
+    final title = nextEpisode.title ?? '';
+    
+    return NextMediaInfo(
+      link: link,
+      title: title,
+      onNextEpisodeAsync: () => _buildNextMediaInfo(nextSeasonIndex, nextEpisodeIndex, userAuth),
+    );
+  }
+
+  void _playEpisode(Episode episode, int seasonIndex, int episodeIndex, UserModel userAuth) {
+    final link = '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${episode.id}.${episode.containerExtension}';
+    final title = episode.title ?? '';
+
+    ExternalPlayerService.play(
+      context: context,
+      url: link,
+      title: title,
+      openBuiltIn: () {
+        Get.to(
+          () => MediaKitPlayerScreen(
+            link: link,
+            title: title,
+            onNextEpisodeAsync: () => _buildNextMediaInfo(seasonIndex, episodeIndex, userAuth),
+          ),
+          preventDuplicates: false,
+        )!.then((slider) {
+          if (slider != null && slider is List && slider.isNotEmpty) {
+            final model = WatchingModel(
+              sliderValue: slider[0],
+              durationStrm: slider[1] ?? 0.0,
+              stream: link,
+              title: title,
+              image: _details?.info?.cover ?? '',
+              streamId: episode.id.toString(),
+            );
+            if (!mounted) return;
+            context.read<WatchingCubit>().addSerie(model);
+          }
+        });
+      },
+    );
+  }
+
   Widget _buildActionButtons(bool isPhone) {
     final firstEpisode = _getFirstEpisode();
 
@@ -495,34 +564,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                 isPhone: isPhone,
                 onTap: () {
                   final userAuth = (state).user;
-                  final link =
-                      '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${firstEpisode.id}.${firstEpisode.containerExtension}';
-                  final title = firstEpisode.title ?? '';
-                  ExternalPlayerService.play(
-                    context: context,
-                    url: link,
-                    title: title,
-                    openBuiltIn: () {
-                      Get.to(() => MediaKitPlayerScreen(
-                                link: link,
-                                title: title,
-                              ))!
-                          .then((slider) {
-                        if (slider != null && slider is List && slider.isNotEmpty) {
-                          final model = WatchingModel(
-                            sliderValue: slider[0],
-                            durationStrm: slider[1] ?? 0.0,
-                            stream: link,
-                            title: title,
-                            image: _details?.info?.cover ?? '',
-                            streamId: firstEpisode.id.toString(),
-                          );
-                          if (!context.mounted) return;
-                          context.read<WatchingCubit>().addSerie(model);
-                        }
-                      });
-                    },
-                  );
+                  _playEpisode(firstEpisode, 0, 0, userAuth);
                 },
               ),
 
@@ -597,7 +639,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(isPhone ? 16 : 32, 0, isPhone ? 16 : 32, 16),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Episodes',
@@ -607,14 +650,13 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Spacer(),
-          // Season selector dropdown
-          if (seasons.length > 1)
+          if (seasons.length > 1) ...[
+            const SizedBox(height: 12),
+            // Season selector dropdown
             FocusableCard(
               scale: 1.03,
               onTap: () => _showSeasonPicker(seasons, isPhone),
               child: Container(
-                margin: EdgeInsets.only(right: isPhone ? 50 : 16),
                 padding: EdgeInsets.symmetric(
                     horizontal: isPhone ? 12 : 16, vertical: isPhone ? 6 : 8),
                 decoration: BoxDecoration(
@@ -640,6 +682,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                 ),
               ),
             ),
+          ],
         ],
       ),
     );
@@ -695,34 +738,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
           onTap: () {
             if (state is! AuthSuccess) return;
             final userAuth = state.user;
-            final link =
-                '${userAuth.serverInfo!.serverUrl}/series/${userAuth.userInfo!.username}/${userAuth.userInfo!.password}/${episode.id}.${episode.containerExtension}';
-            final title = episode.title ?? '';
-            ExternalPlayerService.play(
-              context: context,
-              url: link,
-              title: title,
-              openBuiltIn: () {
-                Get.to(() => MediaKitPlayerScreen(
-                          link: link,
-                          title: title,
-                        ))!
-                    .then((slider) {
-                  if (slider != null && slider is List && slider.isNotEmpty) {
-                    final model = WatchingModel(
-                      sliderValue: slider[0],
-                      durationStrm: slider[1] ?? 0.0,
-                      stream: link,
-                      title: title,
-                      image: _details?.info?.cover ?? '',
-                      streamId: episode.id.toString(),
-                    );
-                    if (!context.mounted) return;
-                    context.read<WatchingCubit>().addSerie(model);
-                  }
-                });
-              },
-            );
+            _playEpisode(episode, _selectedSeasonIndex, index, userAuth);
           },
           child: Padding(
             padding: EdgeInsets.symmetric(

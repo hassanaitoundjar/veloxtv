@@ -1,0 +1,56 @@
+Analyzing app-vanto-player...
+
+  error - lib/presentation/screens/home.dart:269:13 - Expected to find ']'. - expected_token
+  error - lib/presentation/screens/home.dart:270:11 - Expected to find ')'. - expected_token
+  error - lib/presentation/screens/home.dart:272:7 - Expected to find ';'. - expected_token
+  error - lib/presentation/screens/home.dart:272:8 - Expected an identifier. - missing_identifier
+  error - lib/presentation/screens/home.dart:272:8 - Expected to find ';'. - expected_token
+  error - lib/presentation/screens/home.dart:272:8 - Unexpected text ';'. Try removing the text. - unexpected_token
+  error - lib/presentation/screens/home.dart:273:5 - Expected an identifier. - missing_identifier
+  error - lib/presentation/screens/home.dart:273:5 - Unexpected text ';'. Try removing the text. - unexpected_token
+warning - lib/core/services/update_service.dart:2:8 - Unused import: 'dart:io'. Try removing the import directive. - unused_import
+warning - lib/core/services/update_service.dart:10:8 - Unused import: '../../presentation/widgets/widgets.dart'. Try removing the import directive. - unused_import
+warning - lib/logic/cubits/recent_channels/recent_channels_cubit.dart:2:8 - Unused import: 'package:flutter/cupertino.dart'. Try removing the import directive. - unused_import
+warning - lib/presentation/screens/home.dart:272:8 - Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code
+warning - lib/presentation/screens/user/device_selection.dart:36:21 - The value of the local variable 'isTallEnough' isn't used. Try removing the variable or using it. - unused_local_variable
+   info - lib/core/helpers/external_player.dart:92:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/core/helpers/external_player.dart:94:24 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/core/services/update_service.dart:77:37 - Statements in a while should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/core/services/update_service.dart:78:36 - Statements in a while should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/logic/blocs/auth/auth_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/blocs/categories/channels_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/blocs/categories/live_caty_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/blocs/categories/movie_caty_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/blocs/categories/series_caty_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/blocs/epg/epg_bloc.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/cubits/favorites/favorites_cubit.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/logic/cubits/recent_channels/recent_channels_cubit.dart:1:8 - The imported package 'bloc' isn't a dependency of the importing package. Try adding a dependency for 'bloc' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - lib/presentation/screens/home.dart:273:6 - Unnecessary empty statement. Try removing the empty statement or restructuring the code. - empty_statements
+   info - lib/presentation/screens/live/live_tv.dart:674:28 - Unnecessary instance of 'Container'. Try removing the 'Container' (but not its children) from the widget tree. - avoid_unnecessary_containers
+   info - lib/presentation/screens/live/live_tv.dart:702:41 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+   info - lib/presentation/screens/live/live_tv.dart:1225:67 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+   info - lib/presentation/screens/live/multi_view.dart:106:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/presentation/screens/live/multi_view.dart:107:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/presentation/screens/live/multi_view.dart:112:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib/presentation/screens/series/serie_details.dart:444:9 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/presentation/screens/series/serie_details.dart:694:36 - Instances of 'Color' should be created using an 8-digit hexadecimal integer (such as '0xFFFFFFFF'). - use_full_hex_values_for_flutter_colors
+   info - lib/presentation/screens/series/serie_details.dart:713:30 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/presentation/screens/user/catch_up.dart:129:39 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+   info - lib/presentation/screens/user/favorites.dart:177:37 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+   info - lib/presentation/screens/user/profile.dart:69:24 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/presentation/screens/user/search.dart:423:7 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+   info - lib/presentation/screens/user/settings.dart:337:15 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/presentation/screens/user/settings.dart:338:23 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - lib/presentation/screens/user/settings.dart:776:23 - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/screens/user/splash.dart:30:49 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/screens/user/splash.dart:51:28 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:316:56 - 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:316:75 - 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:317:43 - 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:472:46 - 'red' is deprecated and shouldn't be used. Use (*.r * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:472:65 - 'green' is deprecated and shouldn't be used. Use (*.g * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/presentation/widgets/live.dart:473:33 - 'blue' is deprecated and shouldn't be used. Use (*.b * 255.0).round().clamp(0, 255). Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/repository/api/api.dart:6:8 - The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive. - unnecessary_import
+   info - lib/repository/locale/recents.dart:43:5 - The 'if' statement could be replaced by a null-aware assignment. Try using the '??=' operator to conditionally assign a value. - prefer_conditional_assignment
+
+52 issues found.
