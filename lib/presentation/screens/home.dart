@@ -147,8 +147,8 @@ class _HomeSizes {
     // --- TV / large desktop (>= 1280) ---
     return _HomeSizes(
       cardWidth: width * 0.23,
-      cardHeightLiveTv: isTvDevice ? 460.0 : 420.0,
-      cardHeightOther: isTvDevice ? 380.0 : 360.0,
+      cardHeightLiveTv: isTvDevice ? 500.0 : 420.0,
+      cardHeightOther: isTvDevice ? 450.0 : 360.0,
       cardGap: 24.0, // Consistent with old spacing
       titleFont: 26.0,
       countFont: 14.0,
