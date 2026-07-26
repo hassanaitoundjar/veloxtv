@@ -117,6 +117,7 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
+    final sizes = _SearchSizes.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -131,34 +132,78 @@ class _SearchScreenState extends State<SearchScreen>
         decoration: kDecorBackground,
         child: Column(
           children: [
-            SizedBox(height: 12.h), // Top padding for AppBar
+            SizedBox(
+              height: 12.h + 30,
+            ),
+            // Top padding for AppBar + bottom margin
             // Search Bar Area
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              width: sizes.searchBarMaxWidth,
+              padding: EdgeInsets.symmetric(horizontal: sizes.searchPadding),
               child: FocusableCard(
                 onTap: () {},
                 scale: 1.02,
-                child: TvTextField(
-                  focusNode: _searchFocusNode,
-                  controller: _controller,
-                  autofocus: true,
-                  onChanged: _performSearch,
-                  style: Get.textTheme.titleLarge,
-                  decoration: InputDecoration(
-                    hintText: "Search Movies, Series, Channels...",
-                    prefixIcon: const Icon(Icons.search, size: 30),
-                    filled: false,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
+                showFocusBorder:
+                    false, // We'll handle borders differently or keep it clean
+                builder: (context, isFocused) => Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isFocused ? Colors.white : Colors.white24,
+                      width: isFocused ? 2 : 1,
                     ),
-                    contentPadding: const EdgeInsets.all(20),
-                    suffixIcon: _isLoading
-                        ? const Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : null,
+                    boxShadow: isFocused
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFF265eb4)
+                                  .withValues(alpha: 0.6),
+                              blurRadius: 0,
+                              spreadRadius: 0,
+                            )
+                          ]
+                        : [],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: TvTextField(
+                        focusNode: _searchFocusNode,
+                        controller: _controller,
+                        autofocus: true,
+                        onChanged: _performSearch,
+                        style: Get.textTheme.titleLarge?.copyWith(
+                            fontSize: sizes.searchFontSize,
+                            color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search Movies, Series, Channels...",
+                          hintStyle: TextStyle(
+                              color: Colors.white54,
+                              fontSize: sizes.searchFontSize),
+                          prefixIcon: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 16.0, right: 8.0),
+                            child: Icon(Icons.search,
+                                size: sizes.searchIconSize,
+                                color: Colors.white70),
+                          ),
+                          filled: false,
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: sizes.searchPadding,
+                            horizontal: sizes.searchPadding,
+                          ),
+                          suffixIcon: _isLoading
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -170,18 +215,19 @@ class _SearchScreenState extends State<SearchScreen>
               animation: _tabController,
               builder: (context, _) {
                 return SizedBox(
-                  height: 50,
+                  height: sizes.tabHeight,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 5.w),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: sizes.searchPadding),
                     children: [
-                      _buildTab(0, "All"),
+                      _buildTab(0, "All", sizes),
                       const SizedBox(width: 15),
-                      _buildTab(1, "Live TV (${_liveResults.length})"),
+                      _buildTab(1, "Live TV (${_liveResults.length})", sizes),
                       const SizedBox(width: 15),
-                      _buildTab(2, "Movies (${_movieResults.length})"),
+                      _buildTab(2, "Movies (${_movieResults.length})", sizes),
                       const SizedBox(width: 15),
-                      _buildTab(3, "Series (${_seriesResults.length})"),
+                      _buildTab(3, "Series (${_seriesResults.length})", sizes),
                     ],
                   ),
                 );
@@ -206,21 +252,51 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
-  Widget _buildTab(int index, String label) {
+  Widget _buildTab(int index, String label, _SearchSizes sizes) {
     bool isSelected = _tabController.index == index;
     return FocusableCard(
       onTap: () => _tabController.animateTo(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+      scale: 1.05,
+      showFocusBorder: false,
+      builder: (context, isFocused) => Container(
+        padding: EdgeInsets.symmetric(
+            horizontal: sizes.tabPaddingH, vertical: sizes.tabPaddingV),
         decoration: BoxDecoration(
-          color: isSelected ? kColorPrimary : Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          gradient: isSelected || isFocused
+              ? const LinearGradient(
+                  colors: [
+                    Color(0xFF265eb4),
+                    Color(0xFF1b222c),
+                  ],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                )
+              : null,
+          color: isSelected || isFocused
+              ? null
+              : Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isFocused ? Colors.white : Colors.transparent,
+            width: isFocused ? 2 : 0,
+          ),
+          boxShadow: isFocused
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF265eb4).withValues(alpha: 0.6),
+                    blurRadius: 15,
+                    spreadRadius: 1,
+                  )
+                ]
+              : [],
         ),
+        alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white,
-            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: sizes.tabFontSize,
           ),
         ),
       ),
@@ -232,22 +308,23 @@ class _SearchScreenState extends State<SearchScreen>
       return Center(
           child: Text("Type to search...", style: Get.textTheme.titleLarge));
     }
+    final sizes = _SearchSizes.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(sizes.searchPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_liveResults.isNotEmpty) ...[
-            _sectionTitle("Live TV"),
-            _horizontalList(_liveResults, (e) => _onLiveTap(e)),
+            _sectionTitle("Live TV", sizes),
+            _horizontalList(_liveResults, (e) => _onLiveTap(e), sizes),
           ],
           if (_movieResults.isNotEmpty) ...[
-            _sectionTitle("Movies"),
-            _horizontalList(_movieResults, (e) => _onMovieTap(e)),
+            _sectionTitle("Movies", sizes),
+            _horizontalList(_movieResults, (e) => _onMovieTap(e), sizes),
           ],
           if (_seriesResults.isNotEmpty) ...[
-            _sectionTitle("Series"),
-            _horizontalList(_seriesResults, (e) => _onSeriesTap(e)),
+            _sectionTitle("Series", sizes),
+            _horizontalList(_seriesResults, (e) => _onSeriesTap(e), sizes),
           ],
           if (_liveResults.isEmpty &&
               _movieResults.isEmpty &&
@@ -262,20 +339,23 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
-  Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title, _SearchSizes sizes) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Text(
         title,
-        style: Get.textTheme.titleMedium
-            ?.copyWith(color: kColorPrimary, fontWeight: FontWeight.bold),
+        style: Get.textTheme.titleMedium?.copyWith(
+            color: kColorPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: sizes.sectionTitleFont),
       ),
     );
   }
 
-  Widget _horizontalList<T>(List<T> items, Function(T) onTap) {
+  Widget _horizontalList<T>(
+      List<T> items, Function(T) onTap, _SearchSizes sizes) {
     return SizedBox(
-      height: 180,
+      height: sizes.horizontalListHeight,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
@@ -297,31 +377,54 @@ class _SearchScreenState extends State<SearchScreen>
 
           return FocusableCard(
             onTap: () => onTap(item),
-            child: SizedBox(
-              width: 120,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: CachedNetworkImageProvider(icon),
-                          fit: BoxFit.cover,
-                          onError: (_, __) {},
-                        ),
-                        color: Colors.black45,
-                      ),
-                    ),
+            scale: 1.05,
+            showFocusBorder: false,
+            builder: (context, isFocused) => Container(
+              width: sizes.horizontalCardWidth,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isFocused ? Colors.white : Colors.transparent,
+                  width: isFocused ? 2 : 0,
+                ),
+                boxShadow: isFocused
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF265eb4).withValues(alpha: 0.6),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                        )
+                      ]
+                    : [],
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(icon),
+                  fit: BoxFit.cover,
+                  onError: (_, __) {},
+                ),
+                color: Colors.black45,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: const LinearGradient(
+                    colors: [Colors.black87, Colors.transparent],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    stops: [0.0, 0.5],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
+                alignment: Alignment.bottomLeft,
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: sizes.cardTitleFont,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
+                ),
               ),
             ),
           );
@@ -336,13 +439,14 @@ class _SearchScreenState extends State<SearchScreen>
 
   Widget _gridList<T>(List<T> items, Function(T) onTap) {
     if (items.isEmpty) return const Center(child: Text("No results"));
+    final sizes = _SearchSizes.of(context);
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        childAspectRatio: 0.7,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
+      padding: EdgeInsets.all(sizes.searchPadding),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: sizes.gridCrossAxisCount,
+        childAspectRatio: sizes.gridChildAspectRatio,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -361,29 +465,54 @@ class _SearchScreenState extends State<SearchScreen>
         }
         return FocusableCard(
           onTap: () => onTap(item),
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider(icon),
-                      fit: BoxFit.cover,
-                      onError: (_, __) {},
-                    ),
-                    color: Colors.black45,
-                  ),
+          scale: 1.05,
+          showFocusBorder: false,
+          builder: (context, isFocused) => Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.transparent,
+                width: isFocused ? 2 : 0,
+              ),
+              boxShadow: isFocused
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF265eb4).withValues(alpha: 0.6),
+                        blurRadius: 15,
+                        spreadRadius: 1,
+                      )
+                    ]
+                  : [],
+              image: DecorationImage(
+                image: CachedNetworkImageProvider(icon),
+                fit: BoxFit.cover,
+                onError: (_, __) {},
+              ),
+              color: Colors.black45,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                gradient: const LinearGradient(
+                  colors: [Colors.black87, Colors.transparent],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  stops: [0.0, 0.5],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
+              alignment: Alignment.bottomLeft,
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
                 name,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
+                style: TextStyle(
+                  fontSize: sizes.cardTitleFont,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -431,6 +560,140 @@ class _SearchScreenState extends State<SearchScreen>
               channel: channel,
             ));
       },
+    );
+  }
+}
+
+/// Responsive size tokens for the Search screen across all device classes.
+class _SearchSizes {
+  final double searchIconSize;
+  final double searchFontSize;
+  final double searchPadding;
+  final double tabHeight;
+  final double tabFontSize;
+  final double tabPaddingH;
+  final double tabPaddingV;
+  final double searchBarMaxWidth;
+  final int gridCrossAxisCount;
+  final double gridChildAspectRatio;
+  final double horizontalListHeight;
+  final double horizontalCardWidth;
+  final double cardTitleFont;
+  final double sectionTitleFont;
+
+  const _SearchSizes({
+    required this.searchIconSize,
+    required this.searchFontSize,
+    required this.searchPadding,
+    required this.tabHeight,
+    required this.tabFontSize,
+    required this.tabPaddingH,
+    required this.tabPaddingV,
+    required this.searchBarMaxWidth,
+    required this.gridCrossAxisCount,
+    required this.gridChildAspectRatio,
+    required this.horizontalListHeight,
+    required this.horizontalCardWidth,
+    required this.cardTitleFont,
+    required this.sectionTitleFont,
+  });
+
+  factory _SearchSizes.of(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTvDevice = isTv(context);
+
+    // --- Small phone (< 360) ---
+    if (width < 360) {
+      return const _SearchSizes(
+        searchIconSize: 20.0,
+        searchFontSize: 14.0,
+        searchPadding: 12.0,
+        tabHeight: 40.0,
+        tabFontSize: 12.0,
+        tabPaddingH: 16.0,
+        tabPaddingV: 6.0,
+        searchBarMaxWidth: double.infinity,
+        gridCrossAxisCount: 2,
+        gridChildAspectRatio: 0.65,
+        horizontalListHeight: 140.0,
+        horizontalCardWidth: 90.0,
+        cardTitleFont: 10.0,
+        sectionTitleFont: 14.0,
+      );
+    }
+    // --- Standard phone (360 - 599) ---
+    if (width < 600) {
+      return const _SearchSizes(
+        searchIconSize: 24.0,
+        searchFontSize: 16.0,
+        searchPadding: 16.0,
+        tabHeight: 45.0,
+        tabFontSize: 14.0,
+        tabPaddingH: 24.0,
+        tabPaddingV: 8.0,
+        searchBarMaxWidth: double.infinity,
+        gridCrossAxisCount: 3,
+        gridChildAspectRatio: 0.65,
+        horizontalListHeight: 160.0,
+        horizontalCardWidth: 100.0,
+        cardTitleFont: 11.0,
+        sectionTitleFont: 16.0,
+      );
+    }
+    // --- Tablet portrait (600 - 899) ---
+    if (width < 900) {
+      return const _SearchSizes(
+        searchIconSize: 25.0,
+        searchFontSize: 16.0,
+        searchPadding: 18.0,
+        tabHeight: 50.0,
+        tabFontSize: 16.0,
+        tabPaddingH: 32.0,
+        tabPaddingV: 10.0,
+        searchBarMaxWidth: 700,
+        gridCrossAxisCount: 4,
+        gridChildAspectRatio: 0.7,
+        horizontalListHeight: 180.0,
+        horizontalCardWidth: 120.0,
+        cardTitleFont: 12.0,
+        sectionTitleFont: 18.0,
+      );
+    }
+    // --- Tablet landscape / small desktop (900 - 1279) ---
+    if (width < 1280) {
+      return const _SearchSizes(
+        searchIconSize: 32.0,
+        searchFontSize: 22.0,
+        searchPadding: 20.0,
+        tabHeight: 55.0,
+        tabFontSize: 18.0,
+        tabPaddingH: 40.0,
+        tabPaddingV: 12.0,
+        searchBarMaxWidth: 700.0,
+        gridCrossAxisCount: 5,
+        gridChildAspectRatio: 0.75,
+        horizontalListHeight: 200.0,
+        horizontalCardWidth: 140.0,
+        cardTitleFont: 14.0,
+        sectionTitleFont: 22.0,
+      );
+    }
+    // --- TV / large desktop (>= 1280) ---
+    return _SearchSizes(
+      searchIconSize: 36.0,
+      searchFontSize: 26.0,
+      searchPadding: 24.0,
+      tabHeight: 60.0,
+      tabFontSize: 20.0,
+      tabPaddingH: 50.0,
+      tabPaddingV: 14.0,
+      searchBarMaxWidth: 900.0,
+      gridCrossAxisCount: isTvDevice ? 7 : 6,
+      gridChildAspectRatio: 0.75,
+      horizontalListHeight: 240.0,
+      horizontalCardWidth: 160.0,
+      cardTitleFont: 16.0,
+      sectionTitleFont: 26.0,
     );
   }
 }
