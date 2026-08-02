@@ -4,7 +4,8 @@ class NextMediaInfo {
   final String link;
   final String title;
   final Future<NextMediaInfo?> Function()? onNextEpisodeAsync;
-  NextMediaInfo({required this.link, required this.title, this.onNextEpisodeAsync});
+  NextMediaInfo(
+      {required this.link, required this.title, this.onNextEpisodeAsync});
 }
 
 class MediaKitPlayerScreen extends StatefulWidget {
@@ -96,16 +97,102 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
   }
 
   void _changeSpeed() {
-    setState(() {
-      _playbackSpeed = _playbackSpeed == 1.0
-          ? 1.25
-          : _playbackSpeed == 1.25
-              ? 1.5
-              : _playbackSpeed == 1.5
-                  ? 2.0
-                  : 1.0;
-      _player.setRate(_playbackSpeed);
-    });
+    _startHideTimer();
+    final speeds = [0.5, 0.75, 1.0, 1.25, 1.5];
+    int currentIndex = speeds.indexOf(_playbackSpeed);
+    if (currentIndex == -1) currentIndex = 2; // Default to 1x
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2B2B2B),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.white38, width: 1),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Playback Speed",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SliderTheme(
+                    data: SliderThemeData(
+                      trackHeight: 2,
+                      activeTrackColor: Colors.white,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: Colors.white,
+                      overlayColor: Colors.white.withValues(alpha: 0.2),
+                      tickMarkShape:
+                          const RoundSliderTickMarkShape(tickMarkRadius: 4),
+                      activeTickMarkColor: Colors.white,
+                      inactiveTickMarkColor: Colors.white54,
+                    ),
+                    child: Slider(
+                      value: currentIndex.toDouble(),
+                      min: 0,
+                      max: 4,
+                      divisions: 4,
+                      onChanged: (val) {
+                        setModalState(() {
+                          currentIndex = val.toInt();
+                        });
+                        setState(() {
+                          _playbackSpeed = speeds[currentIndex];
+                        });
+                        _player.setRate(_playbackSpeed);
+                      },
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("0.5x",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text("0.75x",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text("1x (Normal)",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
+                        Text("1.25x",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text("1.5x",
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -209,153 +296,157 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
     super.dispose();
   }
 
-  // 🔤 SUBTITLE PICKER
-  void _showTracksSelection() async {
+  // 🔊🔤 AUDIO & SUBTITLES PICKER
+  void _showAudioSubtitlesSelection() async {
     _startHideTimer();
     final subtitleTracks = _player.state.tracks.subtitle;
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) {
-        return SizedBox(
-          height: 400,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    'Subtitles',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      ListTile(
-                        dense: true,
-                        leading:
-                            _player.state.track.subtitle == SubtitleTrack.no()
-                                ? const Icon(Icons.check,
-                                    color: Colors.white, size: 20)
-                                : const SizedBox(width: 20),
-                        title: const Text(
-                          'Off',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        onTap: () {
-                          _player.setSubtitleTrack(SubtitleTrack.no());
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ...subtitleTracks.map((track) {
-                        final isSelected =
-                            _player.state.track.subtitle == track;
-                        return ListTile(
-                          dense: true,
-                          leading: isSelected
-                              ? const Icon(Icons.check,
-                                  color: Colors.white, size: 20)
-                              : const SizedBox(width: 20),
-                          title: Text(
-                            track.language ?? track.title ?? 'Subtitle',
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.white70,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          onTap: () {
-                            _player.setSubtitleTrack(track);
-                            Navigator.pop(context);
-                          },
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    if (mounted) {
-      _startHideTimer();
-      _playPauseFocusNode.requestFocus();
-    }
-  }
-
-  // 🔊 AUDIO TRACK PICKER
-  void _showAudioTracksSelection() async {
-    _startHideTimer();
     final audioTracks = _player.state.tracks.audio;
     await showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: const Color(0xFF2B2B2B),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (_) {
-        return SizedBox(
-          height: 400,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            child: Column(
+        return StatefulBuilder(builder: (context, setModalState) {
+          return SizedBox(
+            height: 400,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    'Audio Tracks',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                // AUDIO COLUMN
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'Audio',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: audioTracks.map((track) {
+                            final isSelected =
+                                _player.state.track.audio == track;
+                            return ListTile(
+                              dense: true,
+                              leading: isSelected
+                                  ? const Icon(Icons.check,
+                                      color: Colors.white, size: 20)
+                                  : const SizedBox(width: 20),
+                              title: Text(
+                                track.language ?? track.title ?? 'Audio Track',
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white70,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              onTap: () {
+                                _player.setAudioTrack(track);
+                                setModalState(() {});
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                // DIVIDER
+                Container(
+                  width: 1,
+                  color: Colors.white12,
+                  margin: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                // SUBTITLES COLUMN
                 Expanded(
-                  child: ListView(
+                  child: Column(
                     children: [
-                      ...audioTracks.map((track) {
-                        final isSelected = _player.state.track.audio == track;
-                        return ListTile(
-                          dense: true,
-                          leading: isSelected
-                              ? const Icon(Icons.check,
-                                  color: Colors.white, size: 20)
-                              : const SizedBox(width: 20),
-                          title: Text(
-                            track.language ?? track.title ?? 'Audio Track',
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.white70,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'Subtitles',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onTap: () {
-                            _player.setAudioTrack(track);
-                            Navigator.pop(context);
-                          },
-                        );
-                      }),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            ListTile(
+                              dense: true,
+                              leading: _player.state.track.subtitle ==
+                                      SubtitleTrack.no()
+                                  ? const Icon(Icons.check,
+                                      color: Colors.white, size: 20)
+                                  : const SizedBox(width: 20),
+                              title: Text(
+                                'Off',
+                                style: TextStyle(
+                                  color: _player.state.track.subtitle ==
+                                          SubtitleTrack.no()
+                                      ? Colors.white
+                                      : Colors.white70,
+                                  fontWeight: _player.state.track.subtitle ==
+                                          SubtitleTrack.no()
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              onTap: () {
+                                _player.setSubtitleTrack(SubtitleTrack.no());
+                                setModalState(() {});
+                              },
+                            ),
+                            ...subtitleTracks.map((track) {
+                              final isSelected =
+                                  _player.state.track.subtitle == track;
+                              return ListTile(
+                                dense: true,
+                                leading: isSelected
+                                    ? const Icon(Icons.check,
+                                        color: Colors.white, size: 20)
+                                    : const SizedBox(width: 20),
+                                title: Text(
+                                  track.language ?? track.title ?? 'Subtitle',
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.white70,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                onTap: () {
+                                  _player.setSubtitleTrack(track);
+                                  setModalState(() {});
+                                },
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        );
+          );
+        });
       },
     );
     if (mounted) {
@@ -494,7 +585,12 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
           }
           if (key == LogicalKeyboardKey.escape ||
               key == LogicalKeyboardKey.goBack) {
-            Navigator.pop(context);
+            if (widget.isLive) {
+              // Live TV: back goes to the Live TV channels screen
+              Get.offAllNamed(screenLiveTv);
+            } else {
+              Navigator.pop(context);
+            }
             return KeyEventResult.handled;
           }
           // Reset hide timer on any key, let arrows do focus traversal
@@ -559,291 +655,333 @@ class _MediaKitPlayerScreenState extends State<MediaKitPlayerScreen>
                 ],
                 // 🎮 CONTROLS LAYER
                 if (_showControls && !_isInPipMode)
-                  SafeArea(
-                    child: Column(
-                      children: [
-                        // 🔝 TOP BAR
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              _PlayerControlButton(
-                                icon: Icons.arrow_back,
-                                onPressed: () => Navigator.pop(context),
-                                onFocusChange: (_) => _onInteraction(),
-                              ),
-                              if (widget.isLive)
+                  Positioned.fill(
+                    child: SafeArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // 🔝 TOP BAR
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                            child: Row(
+                              children: [
                                 _PlayerControlButton(
-                                  icon: _showChannelList
-                                      ? Icons.playlist_remove
-                                      : Icons.playlist_play,
+                                  icon: Icons.arrow_back,
                                   onPressed: () {
-                                    setState(() {
-                                      _showChannelList = !_showChannelList;
-                                    });
+                                    if (widget.isLive) {
+                                      Get.offAllNamed(screenLiveTv);
+                                    } else {
+                                      Navigator.pop(context);
+                                    }
                                   },
                                   onFocusChange: (_) => _onInteraction(),
                                 ),
-                            ],
-                          ),
-                        ),
-                        const Spacer(),
-                        // ▶️ CENTER PLAY BUTTON
-                        StreamBuilder<bool>(
-                          stream: _player.stream.playing,
-                          builder: (context, snapshot) {
-                            final playing = snapshot.data ?? true;
-                            if (playing) return const SizedBox();
-                            return Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black45,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                iconSize: 64,
-                                icon: const Icon(Icons.play_arrow,
-                                    color: Colors.white),
-                                onPressed: _player.play,
-                              ),
-                            );
-                          },
-                        ),
-                        const Spacer(),
-                        // 🔽 BOTTOM CONTROLS
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // ➖ SEEK BAR & REMAINING TIME
-                              if (widget.isLive)
-                                const Padding(
-                                  padding: EdgeInsets.only(bottom: 16.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.circle,
-                                          color: kColorPrimary, size: 12),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        "LIVE",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.2,
-                                        ),
-                                      ),
-                                    ],
+                                if (widget.isLive)
+                                  _PlayerControlButton(
+                                    icon: _showChannelList
+                                        ? Icons.playlist_remove
+                                        : Icons.playlist_play,
+                                    onPressed: () {
+                                      setState(() {
+                                        _showChannelList = !_showChannelList;
+                                      });
+                                    },
+                                    onFocusChange: (_) => _onInteraction(),
                                   ),
-                                )
-                              else
-                                StreamBuilder<Duration>(
-                                  stream: _player.stream.position,
-                                  builder: (context, snapshot) {
-                                    final position =
-                                        snapshot.data ?? Duration.zero;
-                                    final duration = _player.state.duration;
-                                    return Row(
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          // ▶️ CENTER PLAY BUTTON
+                          StreamBuilder<bool>(
+                            stream: _player.stream.playing,
+                            builder: (context, snapshot) {
+                              final playing = snapshot.data ?? true;
+                              if (playing) return const SizedBox();
+                              return Center(
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black45,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    iconSize: 64,
+                                    icon: const Icon(Icons.play_arrow,
+                                        color: Colors.white),
+                                    onPressed: _player.play,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const Spacer(),
+                          // 🔽 BOTTOM CONTROLS
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // ➖ SEEK BAR & REMAINING TIME
+                                if (widget.isLive)
+                                  const Padding(
+                                    padding: EdgeInsets.only(bottom: 16.0),
+                                    child: Row(
                                       children: [
-                                        Expanded(
-                                          child: SliderTheme(
-                                            data: const SliderThemeData(
-                                              thumbShape: RoundSliderThumbShape(
-                                                  enabledThumbRadius: 6),
-                                              trackHeight: 2,
-                                              overlayShape:
-                                                  RoundSliderOverlayShape(
-                                                      overlayRadius: 12),
-                                              activeTrackColor: kColorPrimary,
-                                              inactiveTrackColor:
-                                                  Colors.white24,
-                                              thumbColor: kColorPrimary,
-                                            ),
-                                            child: ExcludeFocus(
-                                              child: Slider(
-                                                value: position.inSeconds
-                                                    .toDouble()
-                                                    .clamp(
-                                                        0,
-                                                        duration.inSeconds
-                                                            .toDouble()),
-                                                min: 0,
-                                                max: duration.inSeconds
-                                                    .toDouble(),
-                                                onChanged: (val) {
-                                                  _player.seek(Duration(
-                                                      seconds: val.toInt()));
-                                                },
+                                        Icon(Icons.circle,
+                                            color: kColorPrimary, size: 12),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          "LIVE",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else
+                                  StreamBuilder<Duration>(
+                                    stream: _player.stream.position,
+                                    builder: (context, snapshot) {
+                                      final position =
+                                          snapshot.data ?? Duration.zero;
+                                      final duration = _player.state.duration;
+                                      final maxSec =
+                                          duration.inSeconds.toDouble();
+                                      return Row(
+                                        children: [
+                                          Text(
+                                            _formatDuration(position),
+                                            style: const TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 13),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: SliderTheme(
+                                              data: const SliderThemeData(
+                                                thumbShape:
+                                                    RoundSliderThumbShape(
+                                                        enabledThumbRadius: 6),
+                                                trackHeight: 3,
+                                                overlayShape:
+                                                    RoundSliderOverlayShape(
+                                                        overlayRadius: 12),
+                                                activeTrackColor: kColorPrimary,
+                                                inactiveTrackColor:
+                                                    Colors.white24,
+                                                thumbColor: kColorPrimary,
+                                              ),
+                                              child: ExcludeFocus(
+                                                child: Slider(
+                                                  value: position.inSeconds
+                                                      .toDouble()
+                                                      .clamp(
+                                                          0,
+                                                          maxSec > 0
+                                                              ? maxSec
+                                                              : 1),
+                                                  min: 0,
+                                                  max: maxSec > 0 ? maxSec : 1,
+                                                  onChanged: (val) {
+                                                    _player.seek(Duration(
+                                                        seconds: val.toInt()));
+                                                  },
+                                                ),
                                               ),
                                             ),
                                           ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            _formatDuration(duration),
+                                            style: const TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 13),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                // 🎛️ BUTTONS ROW
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // LEFT: Play, -10, +10, Volume
+                                    Row(
+                                      children: [
+                                        StreamBuilder<bool>(
+                                          stream: _player.stream.playing,
+                                          builder: (context, snapshot) {
+                                            final playing =
+                                                snapshot.data ?? true;
+                                            return _PlayerControlButton(
+                                              focusNode: _playPauseFocusNode,
+                                              icon: playing
+                                                  ? Icons.pause
+                                                  : Icons.play_arrow,
+                                              onPressed: _player.playOrPause,
+                                              autoFocus: true,
+                                              onFocusChange: (_) =>
+                                                  _onInteraction(),
+                                            );
+                                          },
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _formatDuration(duration),
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              // 🎛️ BUTTONS ROW
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // LEFT: Play, -10, +10, Volume
-                                  Row(
-                                    children: [
-                                      StreamBuilder<bool>(
-                                        stream: _player.stream.playing,
-                                        builder: (context, snapshot) {
-                                          final playing = snapshot.data ?? true;
-                                          return _PlayerControlButton(
-                                            focusNode: _playPauseFocusNode,
-                                            icon: playing
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            onPressed: _player.playOrPause,
-                                            autoFocus: true,
+                                        if (!widget.isLive) ...[
+                                          _PlayerControlButton(
+                                            icon: Icons.replay_10,
+                                            onPressed: () {
+                                              _player.seek(_player
+                                                      .state.position -
+                                                  const Duration(seconds: 10));
+                                            },
                                             onFocusChange: (_) =>
                                                 _onInteraction(),
-                                          );
-                                        },
+                                          ),
+                                          _PlayerControlButton(
+                                            icon: Icons.forward_10,
+                                            onPressed: () {
+                                              _player.seek(_player
+                                                      .state.position +
+                                                  const Duration(seconds: 10));
+                                            },
+                                            onFocusChange: (_) =>
+                                                _onInteraction(),
+                                          ),
+                                        ],
+                                        StreamBuilder<double>(
+                                          stream: _player.stream.volume,
+                                          initialData: _player.state.volume,
+                                          builder: (context, snapshot) {
+                                            final muted =
+                                                (snapshot.data ?? 0) <= 0;
+                                            return _PlayerControlButton(
+                                              icon: muted
+                                                  ? Icons.volume_off
+                                                  : Icons.volume_up,
+                                              onPressed: _toggleMute,
+                                              onFocusChange: (_) =>
+                                                  _onInteraction(),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    // CENTER: Title (always visible, smaller on phone)
+                                    Expanded(
+                                      child: Text(
+                                        _currentTitle,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: context.isPhone ? 11 : 14,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      if (!widget.isLive) ...[
-                                        _PlayerControlButton(
-                                          icon: Icons.replay_10,
-                                          onPressed: () {
-                                            _player.seek(_player
-                                                    .state.position -
-                                                const Duration(seconds: 10));
-                                          },
-                                          onFocusChange: (_) =>
-                                              _onInteraction(),
-                                        ),
-                                        _PlayerControlButton(
-                                          icon: Icons.forward_10,
-                                          onPressed: () {
-                                            _player.seek(_player
-                                                    .state.position +
-                                                const Duration(seconds: 10));
-                                          },
-                                          onFocusChange: (_) =>
-                                              _onInteraction(),
-                                        ),
+                                    ),
+                                    // RIGHT: Subs, Speed, Fit/Size
+                                    Row(
+                                      children: [
                                         if (_currentOnNextEpisodeAsync != null)
                                           _PlayerControlButton(
-                                            icon: _isLoadingNext ? Icons.hourglass_empty : Icons.skip_next,
-                                            onPressed: _isLoadingNext ? () {} : () async {
-                                              if (_currentOnNextEpisodeAsync != null && !_isLoadingNext) {
-                                                setState(() => _isLoadingNext = true);
-                                                final nextMedia = await _currentOnNextEpisodeAsync!();
-                                                if (nextMedia != null && mounted) {
-                                                  setState(() {
-                                                    _currentTitle = nextMedia.title;
-                                                    _currentOnNextEpisodeAsync = nextMedia.onNextEpisodeAsync;
-                                                    _isLoadingNext = false;
-                                                  });
-                                                  await _player.open(Media(nextMedia.link, extras: {'hwdec': 'auto'}), play: true);
-                                                } else if (mounted) {
-                                                  setState(() => _isLoadingNext = false);
-                                                }
-                                              }
-                                            },
-                                            onFocusChange: (_) => _onInteraction(),
-                                          ),
-                                      ],
-                                      StreamBuilder<double>(
-                                        stream: _player.stream.volume,
-                                        initialData: _player.state.volume,
-                                        builder: (context, snapshot) {
-                                          final muted =
-                                              (snapshot.data ?? 0) <= 0;
-                                          return _PlayerControlButton(
-                                            icon: muted
-                                                ? Icons.volume_off
-                                                : Icons.volume_up,
-                                            onPressed: _toggleMute,
+                                            icon: _isLoadingNext
+                                                ? Icons.hourglass_empty
+                                                : Icons.skip_next,
+                                            onPressed: _isLoadingNext
+                                                ? () {}
+                                                : () async {
+                                                    if (_currentOnNextEpisodeAsync !=
+                                                            null &&
+                                                        !_isLoadingNext) {
+                                                      setState(() =>
+                                                          _isLoadingNext =
+                                                              true);
+                                                      final nextMedia =
+                                                          await _currentOnNextEpisodeAsync!();
+                                                      if (nextMedia != null &&
+                                                          mounted) {
+                                                        setState(() {
+                                                          _currentTitle =
+                                                              nextMedia.title;
+                                                          _currentOnNextEpisodeAsync =
+                                                              nextMedia
+                                                                  .onNextEpisodeAsync;
+                                                          _isLoadingNext =
+                                                              false;
+                                                        });
+                                                        await _player.open(
+                                                            Media(
+                                                                nextMedia.link,
+                                                                extras: {
+                                                                  'hwdec':
+                                                                      'auto'
+                                                                }),
+                                                            play: true);
+                                                      } else if (mounted) {
+                                                        setState(() =>
+                                                            _isLoadingNext =
+                                                                false);
+                                                      }
+                                                    }
+                                                  },
                                             onFocusChange: (_) =>
                                                 _onInteraction(),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  // CENTER: Title (always visible, smaller on phone)
-                                  Expanded(
-                                    child: Text(
-                                      _currentTitle,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: context.isPhone ? 11 : 14,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                          ),
+                                        if (!widget.isLive)
+                                          _PlayerControlButton(
+                                            icon: Icons.subtitles,
+                                            onPressed:
+                                                _showAudioSubtitlesSelection,
+                                            onFocusChange: (_) =>
+                                                _onInteraction(),
+                                          ),
+                                        if (!widget.isLive)
+                                          _PlayerControlButton(
+                                            icon: null,
+                                            label: "${_playbackSpeed}x",
+                                            onPressed: _changeSpeed,
+                                            onFocusChange: (_) =>
+                                                _onInteraction(),
+                                          ),
+                                        _PlayerControlButton(
+                                          icon: _aspectRatioMode == 0
+                                              ? Icons.aspect_ratio
+                                              : Icons.fit_screen,
+                                          onPressed: _toggleAspectRatio,
+                                          onFocusChange: (_) =>
+                                              _onInteraction(),
+                                        ),
+                                        _PlayerControlButton(
+                                          icon: Icons
+                                              .picture_in_picture_alt_rounded,
+                                          onPressed: () async {
+                                            final isAvailable =
+                                                await SimplePip.isPipAvailable;
+                                            if (isAvailable) {
+                                              _simplePip.enterPipMode(
+                                                aspectRatio: (16, 9),
+                                                autoEnter: true,
+                                                seamlessResize: true,
+                                              );
+                                            }
+                                          },
+                                          onFocusChange: (_) =>
+                                              _onInteraction(),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  // RIGHT: Subs, Speed, Fit/Size
-                                  Row(
-                                    children: [
-                                      if (!widget.isLive)
-                                        _PlayerControlButton(
-                                          icon: Icons.subtitles,
-                                          onPressed: _showTracksSelection,
-                                          onFocusChange: (_) =>
-                                              _onInteraction(),
-                                        ),
-                                      if (!widget.isLive)
-                                        _PlayerControlButton(
-                                          icon: Icons.audiotrack,
-                                          onPressed: _showAudioTracksSelection,
-                                          onFocusChange: (_) =>
-                                              _onInteraction(),
-                                        ),
-                                      if (!widget.isLive)
-                                        _PlayerControlButton(
-                                          icon: null,
-                                          label: "${_playbackSpeed}x",
-                                          onPressed: _changeSpeed,
-                                          onFocusChange: (_) =>
-                                              _onInteraction(),
-                                        ),
-                                      _PlayerControlButton(
-                                        icon: _aspectRatioMode == 0
-                                            ? Icons.aspect_ratio
-                                            : Icons.fit_screen,
-                                        onPressed: _toggleAspectRatio,
-                                        onFocusChange: (_) => _onInteraction(),
-                                      ),
-                                      _PlayerControlButton(
-                                        icon: Icons
-                                            .picture_in_picture_alt_rounded,
-                                        onPressed: () async {
-                                          final isAvailable =
-                                              await SimplePip.isPipAvailable;
-                                          if (isAvailable) {
-                                            _simplePip.enterPipMode(
-                                              aspectRatio: (16, 9),
-                                              autoEnter: true,
-                                              seamlessResize: true,
-                                            );
-                                          }
-                                        },
-                                        onFocusChange: (_) => _onInteraction(),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 // 📌 CHANNEL NAME — persistent top-left badge (phone only)

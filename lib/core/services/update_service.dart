@@ -1,13 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../../presentation/widgets/widgets.dart';
 
 class UpdateService {
   // Replace with the actual URL where you will host your version.json
@@ -74,8 +71,12 @@ class UpdateService {
         latestVersion.split('.').map((e) => int.tryParse(e) ?? 0).toList();
 
     // Ensure both have at least 3 parts
-    while (currentParts.length < 3) currentParts.add(0);
-    while (latestParts.length < 3) latestParts.add(0);
+    while (currentParts.length < 3) {
+      currentParts.add(0);
+    }
+    while (latestParts.length < 3) {
+      latestParts.add(0);
+    }
 
     for (int i = 0; i < 3; i++) {
       if (latestParts[i] > currentParts[i]) return true;

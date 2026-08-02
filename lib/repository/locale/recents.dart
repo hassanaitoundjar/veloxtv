@@ -40,9 +40,7 @@ class RecentLocale {
     final key = _key(userId);
     List<dynamic>? list = recentLocale.read(key) as List<dynamic>?;
 
-    if (list == null) {
-      list = [];
-    }
+    list ??= [];
 
     return list.map((e) => ChannelLive.fromJson(e)).toList();
   }

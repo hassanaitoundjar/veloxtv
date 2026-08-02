@@ -173,6 +173,7 @@ class FavoriteScreen extends StatelessWidget {
                                       ? base
                                       : "$base.$format";
                                   final title = item.name ?? "";
+                                  if (!context.mounted) return;
                                   ExternalPlayerService.play(
                                     context: context,
                                     url: link,

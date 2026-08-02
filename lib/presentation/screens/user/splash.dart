@@ -27,7 +27,7 @@ class _ParticlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (particles.isEmpty) return;
 
-    final paint = Paint()..color = Colors.white.withOpacity(0.4);
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.4);
     final linePaint = Paint()..strokeWidth = 1.0;
 
     for (var p in particles) {
@@ -48,7 +48,7 @@ class _ParticlePainter extends CustomPainter {
 
         if (dist < connectionDistance) {
           linePaint.color =
-              Colors.white.withOpacity((1 - dist / connectionDistance) * 0.3);
+              Colors.white.withValues(alpha: (1 - dist / connectionDistance) * 0.3);
           canvas.drawLine(
             Offset(particles[i].x, particles[i].y),
             Offset(particles[j].x, particles[j].y),
@@ -157,7 +157,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (_particlesInitialized) return;
     _particlesInitialized = true;
     final rand = Random();
-    final particleCount = isTv(context) ? 60 : 30;
+    // Scale particle count with screen area — small phones get ~20, 4K TVs get ~80.
+    final double sf = (size.shortestSide / 600.0).clamp(0.5, 2.0);
+    final int particleCount = (30 * sf).round().clamp(20, 80);
     for (int i = 0; i < particleCount; i++) {
       _particles.add(_Particle(
         x: rand.nextDouble() * size.width,
@@ -178,11 +180,22 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final mq = MediaQuery.of(context);
+    final size = mq.size;
     _initParticles(size);
 
+    // Auto-adaptive scale factor — same approach as Home screen.
+    // Anchor at 600dp. Clamp between 0.5 (small phone) and 1.8 (4K TV).
+    final double sf = (size.shortestSide / 600.0).clamp(0.5, 1.8);
+
+    // Logo takes up a portion of the width — scales naturally with sf.
+    // On a small phone it fills ~70%, on a large TV it stays at ~40%.
+    final double logoWidthFraction = (0.70 / sf).clamp(0.35, 0.80);
+    final double logoWidth = (size.width * logoWidthFraction).clamp(180.0, 450.0);
+    final double loadingSize = (40.0 * sf).clamp(28.0, 72.0);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Keep dark background
+      backgroundColor: const Color(0xFF0F172A),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
@@ -224,102 +237,159 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       );
                     },
-                    child: SizedBox(
-                      width: isTv(context) ? 55.w : 80.w,
-                      child: FittedBox(
-                        fit: BoxFit.contain,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            // Left Text
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Text(
-                                "VANTO",
-                                style: GoogleFonts.rubik(
-                                  color: kAccentColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 56,
-                                  letterSpacing: 2,
-                                  height: 1.0,
-                                ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // --- Glowing V Monogram ---
+                        SizedBox(
+                          width: logoWidth,
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: SizedBox(
+                              width: 280,
+                              height: 240,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Outer glow ring
+                                  Container(
+                                    width: 220,
+                                    height: 220,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          const Color(0xFF265eb4).withValues(alpha: 0.3),
+                                          const Color(0xFF265eb4).withValues(alpha: 0.0),
+                                        ],
+                                        stops: const [0.3, 1.0],
+                                      ),
+                                    ),
+                                  ),
+                                  // Inner circle background
+                                  Container(
+                                    width: 150,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white.withValues(alpha: 0.05),
+                                      border: Border.all(
+                                        color: const Color(0xFF265eb4).withValues(alpha: 0.6),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  // Streaming scan lines — left
+                                  Positioned(
+                                    left: 0,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: List.generate(5, (i) {
+                                        final widths = [40.0, 28.0, 18.0, 28.0, 40.0];
+                                        final opacities = [0.15, 0.25, 0.40, 0.25, 0.15];
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Container(
+                                            width: widths[i],
+                                            height: 2,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(1),
+                                              color: kAccentColor.withValues(alpha: opacities[i]),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                  // Streaming scan lines — right
+                                  Positioned(
+                                    right: 0,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: List.generate(5, (i) {
+                                        final widths = [40.0, 28.0, 18.0, 28.0, 40.0];
+                                        final opacities = [0.15, 0.25, 0.40, 0.25, 0.15];
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          child: Container(
+                                            width: widths[i],
+                                            height: 2,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(1),
+                                              color: kAccentColor.withValues(alpha: opacities[i]),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                  // The bold gradient "V"
+                                  ShaderMask(
+                                    shaderCallback: (bounds) =>
+                                        const LinearGradient(
+                                      colors: [
+                                        Color(0xFF4A90E2),
+                                        Color(0xFF265eb4),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ).createShader(bounds),
+                                    child: Text(
+                                      "V",
+                                      style: GoogleFonts.rubik(
+                                        fontSize: 110,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        height: 1.0,
+                                        shadows: [
+                                          Shadow(
+                                            color: const Color(0xFF265eb4).withValues(alpha: 0.8),
+                                            blurRadius: 30,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 14),
-                            // Right side (TV shape with IPTV)
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // TV Screen
-                                Container(
-                                  padding: const EdgeInsets.only(
-                                      left: 24, right: 24, top: 12, bottom: 6),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: kAccentColor, width: 5),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        "IPTV",
-                                        style: GoogleFonts.rubik(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 52,
-                                          letterSpacing: 4,
-                                          height: 1.0,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      // 4 dots
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: List.generate(
-                                            4,
-                                            (index) => Container(
-                                                  width: 6,
-                                                  height: 6,
-                                                  margin: const EdgeInsets
-                                                      .symmetric(horizontal: 3),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: kAccentColor,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                )),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // TV Stand neck
-                                Container(
-                                  width: 50,
-                                  height: 10,
-                                  color: kAccentColor,
-                                ),
-                                // TV Stand Base plate
-                                Container(
-                                  width: 120,
-                                  height: 6,
-                                  color: kAccentColor,
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        SizedBox(height: (16.0 * sf).clamp(8.0, 28.0)),
+                        // Brand name
+                        Text(
+                          "V A N T O",
+                          style: GoogleFonts.rubik(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: (28.0 * sf).clamp(16.0, 48.0),
+                            letterSpacing: (8.0 * sf).clamp(4.0, 16.0),
+                            height: 1.0,
+                          ),
+                        ),
+                        SizedBox(height: (6.0 * sf).clamp(4.0, 12.0)),
+                        // Subtitle
+                        Text(
+                          "IPTV PLAYER",
+                          style: GoogleFonts.rubik(
+                            color: kAccentColor.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w300,
+                            fontSize: (13.0 * sf).clamp(9.0, 22.0),
+                            letterSpacing: (6.0 * sf).clamp(3.0, 12.0),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  SizedBox(height: (60.0 * sf).clamp(24.0, 100.0)),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       if (state is AuthLoading) {
                         return LoadingAnimationWidget.staggeredDotsWave(
                           color: Colors.white,
-                          size: 40,
+                          size: loadingSize,
                         );
                       }
                       return const SizedBox();

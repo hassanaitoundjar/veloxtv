@@ -334,7 +334,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 : Colors.transparent),
         borderRadius: BorderRadius.circular(14),
         border: isSelected && !isCard
-            ? Border(
+            ? const Border(
                 left: BorderSide(color: kColorPrimary, width: 3),
               )
             : (isCard
@@ -773,7 +773,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                     child: Switch(
                       value: _autoStartEnabled,
-                      activeColor: kColorPrimary,
+                      activeThumbColor: kColorPrimary,
                       onChanged: (val) {
                         if (_prefs == null) return;
                         setState(() {

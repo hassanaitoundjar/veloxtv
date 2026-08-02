@@ -125,6 +125,7 @@ class _CatchUpScreenState extends State<CatchUpScreen> {
                                     debugPrint("Catch-Up URL: $catchUpUrl");
 
                                     final title = "${decodeEpgText(epg.title)} (Catch-up)";
+                                    if (!context.mounted) return;
                                     ExternalPlayerService.play(
                                       context: context,
                                       url: catchUpUrl,

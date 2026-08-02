@@ -103,13 +103,13 @@ class _MultiViewScreenState extends State<MultiViewScreen> {
     // Navigate to LiveCategories in Picker Mode
     final result = await Get.to(() => const LiveTvScreen(isPicker: true));
 
-    print("DEBUG: MultiView result type: ${result.runtimeType}");
-    print("DEBUG: MultiView result value: $result");
+    debugPrint("DEBUG: MultiView result type: ${result.runtimeType}");
+    debugPrint("DEBUG: MultiView result value: $result");
 
     if (result != null && result is ChannelLive) {
       _playChannel(index, result);
     } else {
-      print("DEBUG: MultiView result is not ChannelLive or is null");
+      debugPrint("DEBUG: MultiView result is not ChannelLive or is null");
     }
   }
 

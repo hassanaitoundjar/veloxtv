@@ -1,6 +1,7 @@
 part of 'screens.dart';
 
-/// Responsive size tokens for HomeScreen across all device classes.
+/// Responsive size tokens for HomeScreen — fully auto-calculated from MediaQuery.
+/// No breakpoints. Every value scales smoothly from the smallest phone to a 4K TV.
 class _HomeSizes {
   final double cardWidth;
   final double cardHeightLiveTv;
@@ -45,126 +46,66 @@ class _HomeSizes {
   });
 
   factory _HomeSizes.of(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isTvDevice = isTv(context);
+    final mq = MediaQuery.of(context);
+    final size = mq.size;
+    final width = size.width;
+    final height = size.height;
+    final isPortrait = mq.orientation == Orientation.portrait;
 
-    // --- Small phone (< 360) ---
-    if (width < 360) {
-      return _HomeSizes(
-        cardWidth: width * 0.9,
-        cardHeightLiveTv: 200.0,
-        cardHeightOther: 160.0,
-        cardGap: 12.0,
-        titleFont: 18.0,
-        countFont: 12.0,
-        greetingFont: 10.0, // user tested value
-        iconBoxSize: 48.0,
-        iconSize: 24.0,
-        bottomBtnHorizontalPadding: 16.0,
-        bottomBtnVerticalPadding: 8.0,
-        bottomBtnFont: 12.0,
-        bottomBtnIconSize: 14.0,
-        bottomRowGap: 6.0,
-        portraitCardHeight: 260.0,
-        weatherIconSize: 14.0,
-        weatherTempFont: 14.0,
-        weatherTimeFont: 36.0,
-        weatherDateFont: 14.0,
-      );
-    }
-    // --- Standard phone (360 - 599) ---
-    if (width < 600) {
-      return _HomeSizes(
-        cardWidth: width * 0.9,
-        cardHeightLiveTv: 240.0,
-        cardHeightOther: 200.0,
-        cardGap: 16.0,
-        titleFont: 20.0,
-        countFont: 13.0,
-        greetingFont: 10.0, // user tested value
-        iconBoxSize: 56.0,
-        iconSize: 28.0,
-        bottomBtnHorizontalPadding: 20.0,
-        bottomBtnVerticalPadding: 10.0,
-        bottomBtnFont: 14.0,
-        bottomBtnIconSize: 16.0,
-        bottomRowGap: 8.0,
-        portraitCardHeight: 280.0,
-        weatherIconSize: 16.0,
-        weatherTempFont: 16.0,
-        weatherTimeFont: 42.0,
-        weatherDateFont: 16.0,
-      );
-    }
-    // --- Tablet portrait (600 - 899) ---
-    if (width < 900) {
-      return _HomeSizes(
-        cardWidth: width * 0.2,
-        cardHeightLiveTv: 240.0,
-        cardHeightOther: 215.0,
-        cardGap: 20.0,
-        titleFont: 15.0,
-        countFont: 10.0,
-        greetingFont: 16.0, // user tested value
-        iconBoxSize: 45.0,
-        iconSize: 20.0,
-        bottomBtnHorizontalPadding: 24.0,
-        bottomBtnVerticalPadding: 12.0,
-        bottomBtnFont: 9.0, // user tested value
-        bottomBtnIconSize: 16.0,
-        bottomRowGap: 10.0,
-        portraitCardHeight: 280.0,
-        weatherIconSize: 18.0,
-        weatherTempFont: 16.0,
-        weatherTimeFont: 36.0,
-        weatherDateFont: 16.0,
-      );
-    }
-    // --- Tablet landscape / small desktop (900 - 1279) ---
-    if (width < 1280) {
-      return _HomeSizes(
-        cardWidth: width * 0.28,
-        cardHeightLiveTv: 380.0,
-        cardHeightOther: 300.0,
-        cardGap: 24.0,
-        titleFont: 26.0,
-        countFont: 14.0,
-        greetingFont: 28.0,
-        iconBoxSize: 72.0,
-        iconSize: 36.0,
-        bottomBtnHorizontalPadding: 24.0,
-        bottomBtnVerticalPadding: 12.0,
-        bottomBtnFont: 18.0,
-        bottomBtnIconSize: 18.0,
-        bottomRowGap: 16.0,
-        portraitCardHeight: 280.0,
-        weatherIconSize: 20.0,
-        weatherTempFont: 20.0,
-        weatherTimeFont: 54.0,
-        weatherDateFont: 20.0,
-      );
-    }
-    // --- TV / large desktop (>= 1280) ---
+    // Anchor: 600 = reference "standard" screen width.
+    // shortestSide gives a stable reference regardless of orientation.
+    final shortestSide = size.shortestSide;
+    final longestSide = size.longestSide;
+
+    // Main scale factor — normalized to a 600dp reference.
+    // Clamped so it never gets too small (phone) or too large (4K).
+    final double sf = (shortestSide / 600.0).clamp(0.45, 1.8);
+
+    // Card width: a percentage of available screen width, tuned by orientation.
+    // Portrait: cards are wider (takes more of the narrow screen).
+    // Landscape: cards are narrower (3 sit side by side).
+    final double cardWidthRatio = isPortrait
+        ? (shortestSide < 400 ? 0.88 : 0.50)
+        : (longestSide > 1200 ? 0.22 : 0.28);
+    final double cw = width * cardWidthRatio;
+
+    // Card heights scale with the longest side so they use available vertical space.
+    final double cardHScale = (longestSide / 900.0).clamp(0.5, 1.8);
+
     return _HomeSizes(
-      cardWidth: width * 0.23,
-      cardHeightLiveTv: isTvDevice ? 500.0 : 420.0,
-      cardHeightOther: isTvDevice ? 450.0 : 360.0,
-      cardGap: 24.0, // Consistent with old spacing
-      titleFont: 26.0,
-      countFont: 14.0,
-      greetingFont: 28.0,
-      iconBoxSize: 80.0,
-      iconSize: 40.0,
-      bottomBtnHorizontalPadding: 24.0,
-      bottomBtnVerticalPadding: 12.0,
-      bottomBtnFont: 18.0,
-      bottomBtnIconSize: 18.0,
-      bottomRowGap: 24.0,
-      portraitCardHeight: 300.0,
-      weatherIconSize: 22.0,
-      weatherTempFont: 22.0,
-      weatherTimeFont: 60.0,
-      weatherDateFont: 24.0,
+      cardWidth: cw,
+
+      // Live TV card is taller (prominent hero card)
+      cardHeightLiveTv: (300.0 * cardHScale).clamp(160.0, 560.0),
+      cardHeightOther: (230.0 * cardHScale).clamp(130.0, 480.0),
+
+      // Gap between cards
+      cardGap: (18.0 * sf).clamp(8.0, 32.0),
+
+      // Typography — scaled from base reference sizes
+      titleFont: (22.0 * sf).clamp(12.0, 32.0),
+      countFont: (13.0 * sf).clamp(9.0, 18.0),
+      greetingFont: (22.0 * sf).clamp(10.0, 36.0),
+
+      // Category icon circle
+      iconBoxSize: (64.0 * sf).clamp(36.0, 96.0),
+      iconSize: (32.0 * sf).clamp(18.0, 48.0),
+
+      // Bottom action buttons
+      bottomBtnHorizontalPadding: (22.0 * sf).clamp(10.0, 40.0),
+      bottomBtnVerticalPadding: (10.0 * sf).clamp(6.0, 20.0),
+      bottomBtnFont: (16.0 * sf).clamp(8.0, 22.0),
+      bottomBtnIconSize: (16.0 * sf).clamp(10.0, 24.0),
+      bottomRowGap: (14.0 * sf).clamp(6.0, 28.0),
+
+      // Portrait layout card height (used in vertical scroll layout)
+      portraitCardHeight: (height * 0.30).clamp(160.0, 380.0),
+
+      // Weather widget
+      weatherIconSize: (20.0 * sf).clamp(12.0, 48.0),
+      weatherTempFont: (20.0 * sf).clamp(12.0, 44.0),
+      weatherTimeFont: (54.0 * sf).clamp(28.0, 120.0),
+      weatherDateFont: (18.0 * sf).clamp(11.0, 40.0),
     );
   }
 }
@@ -415,10 +356,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ), // Closes Center
         ), // Closes Padding
-        Positioned(
+        const Positioned(
           bottom: 0,
           right: 16,
-          child: const TimeWeatherWidget(),
+          child: TimeWeatherWidget(),
         ),
         Positioned(
           bottom: 0,

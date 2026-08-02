@@ -548,6 +548,7 @@ class _SearchScreenState extends State<SearchScreen>
         "${user.serverInfo!.serverUrl}/${user.userInfo!.username}/${user.userInfo!.password}/$streamId";
     final url = format == 'default' ? base : "$base.$format";
 
+    if (!mounted) return;
     ExternalPlayerService.play(
       context: context,
       url: url,

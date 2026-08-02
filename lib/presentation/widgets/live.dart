@@ -4,6 +4,7 @@ class AppBarLive extends StatefulWidget {
   final Function(String)? onSearch;
   final VoidCallback? onToggleView;
   final VoidCallback? onTimeline;
+  final VoidCallback? onBack;
   final bool isGridView;
   final FocusNode? focusNode;
 
@@ -12,6 +13,7 @@ class AppBarLive extends StatefulWidget {
     this.onSearch,
     this.onToggleView,
     this.onTimeline,
+    this.onBack,
     this.isGridView = true,
     this.focusNode,
   });
@@ -95,7 +97,7 @@ class _AppBarLiveState extends State<AppBarLive> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Get.back(),
+                  onPressed: widget.onBack ?? () => Get.back(),
                 ),
                 const SizedBox(width: 16),
                 Image.asset(kIconSplash, width: 40, height: 40),
@@ -313,8 +315,7 @@ class _SideCategoryMenuState extends State<SideCategoryMenu> {
                         vertical: isPhone ? 8 : 16,
                         horizontal: isPhone ? 10 : 20),
                     color: isSelected
-                        ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green,
-                            kColorPrimary.blue, 0.2)
+                        ? kColorPrimary.withValues(alpha: 0.2)
                         : null,
                     child: Row(
                       children: [
@@ -469,8 +470,7 @@ class ListChannelItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         decoration: kDecorCard.copyWith(
           color: isFocus
-              ? Color.fromRGBO(kColorPrimary.red, kColorPrimary.green,
-                  kColorPrimary.blue, 0.2)
+              ? kColorPrimary.withValues(alpha: 0.2)
               : kColorCardLight,
           border: isFocus
               ? const Border(left: BorderSide(color: kColorPrimary, width: 4))

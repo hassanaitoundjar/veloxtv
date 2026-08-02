@@ -441,7 +441,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   color: Colors.white70, fontSize: isPhone ? 12 : 14)),
 
         // HD badge
-        _Badge(
+        const _Badge(
           label: 'HD',
           color: Colors.transparent,
           textColor: Colors.white70,
@@ -691,7 +691,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
   void _showSeasonPicker(List<Season> seasons, bool isPhone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0x0f172a),
+      backgroundColor: const Color(0xFF0F172A),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => ListView.builder(
@@ -710,7 +710,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
               ),
             ),
             trailing:
-                isSelected ? Icon(Icons.check, color: kColorPrimary) : null,
+                isSelected ? const Icon(Icons.check, color: kColorPrimary) : null,
             onTap: () {
               setState(() => _selectedSeasonIndex = i);
               Navigator.pop(context);

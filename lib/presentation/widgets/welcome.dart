@@ -119,7 +119,7 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
                             vertical: isMobile ? 6 : 8),
                         decoration: BoxDecoration(
                           color: isFocused
-                              ? Colors.white.withOpacity(0.15)
+                              ? Colors.white.withValues(alpha: 0.15)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(24),
                           border: isFocused
@@ -181,7 +181,7 @@ class _AppBarWelcomeState extends State<AppBarWelcome> {
               padding: EdgeInsets.symmetric(
                   horizontal: paddingH, vertical: paddingV),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(

@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 
 import '../../../repository/api/api.dart';
 import '../../../repository/models/channel_live.dart';

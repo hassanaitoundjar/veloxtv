@@ -66,8 +66,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 alignment: Alignment.center,
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(Icons.add, color: Colors.white, size: 20),
                     SizedBox(width: 8),
                     Text("ADD USER", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

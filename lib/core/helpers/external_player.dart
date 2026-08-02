@@ -89,7 +89,7 @@ class ExternalPlayerService {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 'How do you want to play this?',
                 style: TextStyle(color: kColorTextSecondary, fontSize: 14),
               ),

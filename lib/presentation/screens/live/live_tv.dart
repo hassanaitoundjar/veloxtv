@@ -263,20 +263,34 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
     );
   }
 
+  void _handleBack() {
+    if (widget.isPicker) {
+      Get.back();
+    } else {
+      Get.offAllNamed(screenHome);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     // Use the shorter dimension so a phone in landscape is still treated as a phone
     final isPhone = screenSize.shortestSide < 600;
-    return Scaffold(
-      body: Container(
-        width: 100.w,
-        height: 100.h,
-        decoration: kDecorBackground, // Global background decoration
-        child: Column(
-          children: [
-            // Top Navigation & Search Bar
-            AppBarLive(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handleBack();
+      },
+      child: Scaffold(
+        body: Container(
+          width: 100.w,
+          height: 100.h,
+          decoration: kDecorBackground, // Global background decoration
+          child: Column(
+            children: [
+              // Top Navigation & Search Bar
+              AppBarLive(
+                onBack: _handleBack,
               // Update category filter when searching via the AppBar
               onSearch: (val) => setState(() => _searchQuery = val),
 
@@ -671,9 +685,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                   // PANE 3: PREVIEW & EPG (flex 3 on phone, 5 on large screen)
                   Expanded(
                     flex: isPhone ? 3 : 5,
-                    child: Container(
-                      // color: Colors.black,
-                      child: Column(
+                    child: Column(
                         children: [
                           // MINI PLAYER AREA (Top section of the third pane)
                           Padding(
@@ -698,6 +710,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                           : "$base.$format";
 
                                       final title = _selectedChannel!.name ?? "Live TV";
+                                      if (!context.mounted) return;
                                       ExternalPlayerService.play(
                                         context: context,
                                         url: link,
@@ -1221,6 +1234,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                                                                 );
 
                                                                 final fullTitle = "$title (Catch-up)";
+                                                                if (!context.mounted) return;
                                                                 ExternalPlayerService.play(
                                                                   context: context,
                                                                   url: catchUpUrl,
@@ -1253,13 +1267,14 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                         ],
                       ),
                     ),
-                  ),
+
                 ],
               ),
             ),
           ],
         ),
       ),
+    ),
     );
   }
 }

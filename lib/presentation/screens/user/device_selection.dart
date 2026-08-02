@@ -33,7 +33,6 @@ class _DeviceSelectionScreenState extends State<DeviceSelectionScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth >= 650;
-              final isTallEnough = constraints.maxHeight >= 600;
 
               return Center(
                 child: SingleChildScrollView(
