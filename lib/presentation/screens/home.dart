@@ -77,7 +77,7 @@ class _HomeSizes {
 
       // Live TV card is taller (prominent hero card)
       cardHeightLiveTv: (300.0 * cardHScale).clamp(160.0, 560.0),
-      cardHeightOther: (230.0 * cardHScale).clamp(130.0, 480.0),
+      cardHeightOther: (270.0 * cardHScale).clamp(130.0, 480.0),
 
       // Gap between cards
       cardGap: (18.0 * sf).clamp(8.0, 32.0),
@@ -314,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: sizes.cardWidth,
                   child: _buildGridItem(
                     title: "Live TV's",
-                    icon: FontAwesomeIcons.tv,
+                    icon: Icons.tv,
                     isIconData: true,
                     height: sizes.cardHeightLiveTv,
                     onTap: () => Get.toNamed(screenLiveTv),
@@ -329,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: sizes.cardWidth,
                   child: _buildGridItem(
                     title: "Movies",
-                    icon: FontAwesomeIcons.film,
+                    icon: Icons.movie,
                     isIconData: true,
                     height: sizes.cardHeightOther,
                     onTap: () => Get.toNamed(screenMovies),
@@ -343,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: sizes.cardWidth,
                   child: _buildGridItem(
                     title: "Series",
-                    icon: FontAwesomeIcons.layerGroup,
+                    icon: Icons.layers,
                     isIconData: true,
                     height: sizes.cardHeightOther,
                     onTap: () => Get.toNamed(screenSeries),
@@ -368,13 +368,13 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildBottomButton("Favorites", FontAwesomeIcons.heart,
+              _buildBottomButton("Favorites", Icons.favorite,
                   () => Get.toNamed(screenFavorites)),
               SizedBox(width: sizes.bottomRowGap),
-              _buildBottomButton("Catch Up", FontAwesomeIcons.clockRotateLeft,
+              _buildBottomButton("Catch Up", Icons.history,
                   () => Get.to(() => const CatchUpChannelsScreen())),
               SizedBox(width: sizes.bottomRowGap),
-              _buildBottomButton("Multi-View", FontAwesomeIcons.tableCellsLarge,
+              _buildBottomButton("Multi-View", Icons.grid_view,
                   () => Get.to(() => const MultiViewScreen())),
             ],
           ),
@@ -457,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Live TV
             _buildPortraitGridItem(
               title: "Live TV's",
-              icon: FontAwesomeIcons.tv,
+              icon: Icons.tv,
               isIconData: true,
               onTap: () => Get.toNamed(screenLiveTv),
               height: sizes.portraitCardHeight,
@@ -469,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Movies
             _buildPortraitGridItem(
               title: "Movies",
-              icon: FontAwesomeIcons.film,
+              icon: Icons.movie,
               isIconData: true,
               onTap: () => Get.toNamed(screenMovies),
               height: sizes.portraitCardHeight,
@@ -481,7 +481,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Series
             _buildPortraitGridItem(
               title: "Series",
-              icon: FontAwesomeIcons.layerGroup,
+              icon: Icons.layers,
               isIconData: true,
               onTap: () => Get.toNamed(screenSeries),
               height: sizes.portraitCardHeight,
@@ -561,23 +561,8 @@ class _HomeScreenState extends State<HomeScreen> {
               : EdgeInsets.zero,
           height: height ?? 200,
           decoration: BoxDecoration(
-            gradient: isFocused
-                ? const LinearGradient(
-                    colors: [
-                      Color(0xFF265eb4),
-                      Color(0xFF1b222c),
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  )
-                : const LinearGradient(
-                    colors: [
-                      Color(0xFF202631),
-                      Color(0xFF101318),
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
+            color:
+                isFocused ? const Color(0xFF2A2F3A) : const Color(0xFF1C1E24),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isFocused ? Colors.white : Colors.transparent,
