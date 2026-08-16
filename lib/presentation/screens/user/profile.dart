@@ -59,18 +59,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: FocusableCard(
               focusNode: _addFocus,
               onTap: () => Get.toNamed(screenIntro),
-              child: Container(
+              scale: 1.05,
+              showFocusBorder: false,
+              builder: (context, isFocused) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: kColorPrimary,
-                  borderRadius: BorderRadius.circular(8),
+                  color: isFocused ? Colors.white : Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: isFocused ? Colors.white : Colors.white24,
+                    width: 1.5,
+                  ),
                 ),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.add, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text("ADD USER", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Icon(Icons.add, color: isFocused ? Colors.black : Colors.white, size: 20),
+                    const SizedBox(width: 8),
+                    Text("ADD USER", style: TextStyle(color: isFocused ? Colors.black : Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                   ],
                 ),
               ),
